@@ -51,38 +51,59 @@ const stepVariants: Variants = {
 
 const stepTransition: Transition = { type: "spring", stiffness: 380, damping: 36, mass: 0.8 };
 
+// Height-free: opacity + y only (no layout property animation)
 const bannerVariants: Variants = {
-  hidden: { opacity: 0, y: -8, scale: 0.98 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 340, damping: 28 } },
-  exit: { opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.15 } },
+  hidden: { opacity: 0, y: -6 },
+  visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } },
+  exit: { opacity: 0, y: -4, transition: { duration: 0.15 } },
 };
 
+// Height-free: opacity + x only (no height animation = no layout thrash)
 const listItemVariants: Variants = {
-  hidden: { opacity: 0, x: -12, height: 0 },
-  visible: { opacity: 1, x: 0, height: "auto", transition: { type: "spring", stiffness: 360, damping: 32 } },
-  exit: { opacity: 0, x: 12, height: 0, transition: { duration: 0.18 } },
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 360, damping: 32 } },
+  exit: { opacity: 0, x: 12, transition: { duration: 0.15 } },
 };
 
 // ── Sub-components ───────────────────────────────────────────────
 
-function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function Label({
+  children,
+  required,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+  htmlFor?: string;
+}) {
   return (
-    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+    <label htmlFor={htmlFor} className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
       {children}
-      {required && <span className="text-blue-400 ml-0.5">*</span>}
+      {required && <span aria-hidden="true" className="text-blue-400 ml-0.5">*</span>}
+      {required && <span className="sr-only"> (required)</span>}
     </label>
   );
 }
 
+// SVG chevron for select
+const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`;
+
 function Input({
   className,
   error,
+  id,
+  required,
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
+  const inputId = id ?? props.name;
   return (
     <div>
       <input
         {...props}
+        id={inputId}
+        aria-required={required || undefined}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         className={cn(
           "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm placeholder-slate-600",
           "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
@@ -91,7 +112,11 @@ function Input({
           className
         )}
       />
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -99,12 +124,19 @@ function Input({
 function Textarea({
   className,
   error,
+  id,
+  required,
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { error?: string }) {
+  const inputId = id ?? props.name;
   return (
     <div>
       <textarea
         {...props}
+        id={inputId}
+        aria-required={required || undefined}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         className={cn(
           "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm placeholder-slate-600",
           "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
@@ -113,7 +145,11 @@ function Textarea({
           className
         )}
       />
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -121,15 +157,23 @@ function Textarea({
 function Select({
   className,
   error,
+  id,
+  required,
   children,
   ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement> & { error?: string }) {
+  const inputId = id ?? props.name;
   return (
     <div>
       <select
         {...props}
+        id={inputId}
+        aria-required={required || undefined}
+        aria-invalid={error ? "true" : undefined}
+        aria-describedby={error ? `${inputId}-error` : undefined}
+        style={{ backgroundImage: CHEVRON_SVG, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
         className={cn(
-          "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm",
+          "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm appearance-none pr-8",
           "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
           "transition-colors",
           error ? "border-red-500/70" : "border-slate-700",
@@ -138,7 +182,11 @@ function Select({
       >
         {children}
       </select>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && (
+        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -181,9 +229,10 @@ function SectionCard({
 interface RAMSFormProps {
   selectedTrades?: string[];
   industryType?: string;
+  onBack?: () => void;
 }
 
-export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormProps) {
+export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAMSFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -261,6 +310,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
   };
 
   const handleBack = () => {
+    if (step === 1 && onBack) {
+      onBack();
+      return;
+    }
     setDirection(-1);
     setStep((s) => Math.max(s - 1, 1));
   };
@@ -284,8 +337,21 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
         throw new Error(body.error || "Generation failed");
       }
       const rams = await res.json();
-      localStorage.setItem("rams_document", JSON.stringify(rams));
-      localStorage.setItem("rams_input", JSON.stringify(data));
+      try {
+        localStorage.setItem("rams_document", JSON.stringify(rams));
+        localStorage.setItem("rams_input", JSON.stringify(data));
+      } catch {
+        // localStorage unavailable (private browsing / quota exceeded) — continue to preview via state
+        console.warn("localStorage unavailable, passing via sessionStorage");
+        try {
+          sessionStorage.setItem("rams_document", JSON.stringify(rams));
+          sessionStorage.setItem("rams_input", JSON.stringify(data));
+        } catch {
+          setError("Could not save document locally. Please use the download buttons on the next page.");
+          setIsGenerating(false);
+          return;
+        }
+      }
       router.push("/preview");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred. Please try again.");
@@ -300,16 +366,16 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
     <div className="min-h-screen bg-[#0a1628] flex flex-col">
       {/* ── Hero Header ── */}
       <motion.header
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: -16 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="border-b border-[#1e3a6e] bg-[#0a1628]"
       >
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="flex items-start gap-5">
             <motion.div
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={shouldReduceMotion ? false : { scale: 0.6, opacity: 0 }}
+              animate={shouldReduceMotion ? undefined : { scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.05 }}
               className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/40"
             >
@@ -327,8 +393,8 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                 {["CDM 2015", "COSHH 2002", "RIDDOR 2013", "PUWER 1998"].map((badge, i) => (
                   <motion.span
                     key={badge}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
                     className="text-[10px] font-bold px-2.5 py-1 bg-blue-600/10 text-blue-400 border border-blue-600/20 rounded uppercase tracking-widest"
                   >
@@ -354,10 +420,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
         <AnimatePresence>
           {prefilled && (
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ type: "spring", stiffness: 340, damping: 28 }}
+              variants={shouldReduceMotion ? undefined : bannerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               className="mb-4 flex items-center gap-2.5 px-4 py-2.5 bg-blue-600/10 border border-blue-600/30 rounded-lg"
             >
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
@@ -369,8 +435,8 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
         </AnimatePresence>
         {selectedTrades.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 340, damping: 28 }}
             className="mb-4 p-4 bg-[#0f2040] border border-[#1e3a6e] rounded-xl"
           >
@@ -395,11 +461,11 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
       <div className="border-b border-[#1e3a6e] bg-[#0f2040]">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="relative flex items-start justify-between">
-            {/* Track line */}
+            {/* Track line — use scaleX transform instead of animating width */}
             <div className="absolute top-4 left-4 right-4 h-px bg-[#1e3a6e]">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-blue-600"
-                animate={{ width: `${progressPct}%` }}
+                className="absolute inset-y-0 left-0 w-full bg-blue-600 origin-left"
+                animate={{ scaleX: progressPct / 100 }}
                 transition={{ type: "spring", stiffness: 200, damping: 30 }}
               />
             </div>
@@ -419,6 +485,8 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                     animate={active ? { scale: 1.15 } : { scale: 1 }}
                     whileTap={done ? { scale: 0.92 } : undefined}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                    aria-current={active ? "step" : undefined}
+                    aria-label={`Step ${s.id}: ${s.label}${done ? " (completed)" : active ? " (current)" : ""}`}
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-colors duration-200",
                       active && "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/40 ring-4 ring-blue-600/20",
@@ -452,8 +520,8 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
       </div>
 
       {/* ── Form ── */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 overflow-hidden">
-        <form onSubmit={handleSubmit(onSubmit)}>
+      <main id="main-content" className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 overflow-hidden">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.div
               key={step}
@@ -467,7 +535,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
               {/* Step 1: Company & Project */}
               {step === 1 && (
                 <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Company &amp; Project Details</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Your company information and the project you&apos;re working on.</p>
                   </motion.div>
@@ -475,21 +543,21 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                   <SectionCard title="Subcontractor Company" index={1}>
                     <FieldGroup>
                       <div>
-                        <Label required>Company Name</Label>
-                        <Input {...register("company_name", { required: "Company name is required" })} placeholder="e.g. Apex Groundworks Ltd" error={errors.company_name?.message} />
+                        <Label required htmlFor="company_name">Company Name</Label>
+                        <Input {...register("company_name", { required: "Company name is required" })} id="company_name" required aria-required="true" placeholder="e.g. Apex Groundworks Ltd" error={errors.company_name?.message} />
                       </div>
                       <div>
-                        <Label required>Company Address</Label>
-                        <Textarea {...register("company_address", { required: "Company address is required" })} rows={2} placeholder="e.g. Unit 4, Industrial Estate, Birmingham, B1 1AA" error={errors.company_address?.message} />
+                        <Label required htmlFor="company_address">Company Address</Label>
+                        <Textarea {...register("company_address", { required: "Company address is required" })} id="company_address" required aria-required="true" rows={2} placeholder="e.g. Unit 4, Industrial Estate, Birmingham, B1 1AA" error={errors.company_address?.message} />
                       </div>
                       <Grid2>
                         <div>
-                          <Label>Company Registration No.</Label>
-                          <Input {...register("company_reg")} placeholder="e.g. 12345678" />
+                          <Label htmlFor="company_reg">Company Registration No.</Label>
+                          <Input {...register("company_reg")} id="company_reg" placeholder="e.g. 12345678" />
                         </div>
                         <div>
-                          <Label>Document Revision</Label>
-                          <Select {...register("revision")}>
+                          <Label htmlFor="revision">Document Revision</Label>
+                          <Select {...register("revision")} id="revision">
                             {["Rev 0", "Rev 1", "Rev 2", "Rev 3", "Rev 4", "Rev 5"].map((r) => (
                               <option key={r} value={r}>{r}</option>
                             ))}
@@ -498,12 +566,12 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                       </Grid2>
                       <Grid2>
                         <div>
-                          <Label>Company Phone</Label>
-                          <Input {...register("company_phone")} type="tel" placeholder="e.g. 0121 000 0000" />
+                          <Label htmlFor="company_phone">Company Phone</Label>
+                          <Input {...register("company_phone")} id="company_phone" type="tel" placeholder="e.g. 0121 000 0000" />
                         </div>
                         <div>
-                          <Label>Company Email</Label>
-                          <Input {...register("company_email")} type="email" placeholder="e.g. safety@apexgroundworks.co.uk" />
+                          <Label htmlFor="company_email">Company Email</Label>
+                          <Input {...register("company_email")} id="company_email" type="email" placeholder="e.g. safety@apexgroundworks.co.uk" />
                         </div>
                       </Grid2>
                     </FieldGroup>
@@ -513,17 +581,17 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                     <FieldGroup>
                       <Grid2>
                         <div>
-                          <Label required>Project Name</Label>
-                          <Input {...register("project_name", { required: "Project name is required" })} placeholder="e.g. Elm Road Housing Development" error={errors.project_name?.message} />
+                          <Label required htmlFor="project_name">Project Name</Label>
+                          <Input {...register("project_name", { required: "Project name is required" })} id="project_name" required aria-required="true" placeholder="e.g. Elm Road Housing Development" error={errors.project_name?.message} />
                         </div>
                         <div>
-                          <Label required>Principal Contractor</Label>
-                          <Input {...register("principal_contractor", { required: "Principal contractor is required" })} placeholder="e.g. Balfour Beatty Plc" error={errors.principal_contractor?.message} />
+                          <Label required htmlFor="principal_contractor">Principal Contractor</Label>
+                          <Input {...register("principal_contractor", { required: "Principal contractor is required" })} id="principal_contractor" required aria-required="true" placeholder="e.g. Balfour Beatty Plc" error={errors.principal_contractor?.message} />
                         </div>
                       </Grid2>
                       <div>
-                        <Label required>Site Address</Label>
-                        <Textarea {...register("site_address", { required: "Site address is required" })} rows={2} placeholder="e.g. Elm Road, Solihull, West Midlands, B92 7HJ" error={errors.site_address?.message} />
+                        <Label required htmlFor="site_address">Site Address</Label>
+                        <Textarea {...register("site_address", { required: "Site address is required" })} id="site_address" required aria-required="true" rows={2} placeholder="e.g. Elm Road, Solihull, West Midlands, B92 7HJ" error={errors.site_address?.message} />
                       </div>
                     </FieldGroup>
                   </SectionCard>
@@ -533,7 +601,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
               {/* Step 2: Works Description */}
               {step === 2 && (
                 <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Works Description</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Describe the works in detail — the more specific, the better your RAMS document will be.</p>
                   </motion.div>
@@ -541,13 +609,16 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                   <SectionCard title="Activity Details" index={1}>
                     <FieldGroup>
                       <div>
-                        <Label required>Activity Description</Label>
+                        <Label required htmlFor="activity">Activity Description</Label>
                         <p className="text-xs text-slate-500 mb-2">Describe exactly what work is being done, including depth, ground conditions, proximity to roads, and any special circumstances.</p>
                         <Textarea
                           {...register("activity", {
                             required: "Activity description is required",
                             minLength: { value: 30, message: "Please describe the works in more detail (minimum 30 characters)" },
                           })}
+                          id="activity"
+                          required
+                          aria-required="true"
                           rows={5}
                           placeholder="e.g. Excavation for foul drainage installation, 2.5m deep in soft ground (clay). Works adjacent to live carriageway. Installation of 225mm diameter PVC-U pipes with precast concrete manholes at 30m intervals. Backfilling with selected granular fill, compaction, and temporary tarmac reinstatement."
                           error={errors.activity?.message}
@@ -555,17 +626,17 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                       </div>
                       <Grid2>
                         <div>
-                          <Label required>Site Supervisor</Label>
-                          <Input {...register("supervisor", { required: "Supervisor name is required" })} placeholder="e.g. John Smith" error={errors.supervisor?.message} />
+                          <Label required htmlFor="supervisor">Site Supervisor</Label>
+                          <Input {...register("supervisor", { required: "Supervisor name is required" })} id="supervisor" required aria-required="true" placeholder="e.g. John Smith" error={errors.supervisor?.message} />
                         </div>
                         <div>
-                          <Label required>Planned Start Date</Label>
-                          <Input type="date" {...register("start_date", { required: "Start date is required" })} error={errors.start_date?.message} />
+                          <Label required htmlFor="start_date">Planned Start Date</Label>
+                          <Input type="date" {...register("start_date", { required: "Start date is required" })} id="start_date" required aria-required="true" error={errors.start_date?.message} />
                         </div>
                       </Grid2>
                       <div>
-                        <Label required>Planned Duration</Label>
-                        <Input {...register("duration", { required: "Duration is required" })} placeholder="e.g. 5 working days" error={errors.duration?.message} />
+                        <Label required htmlFor="duration">Planned Duration</Label>
+                        <Input {...register("duration", { required: "Duration is required" })} id="duration" required aria-required="true" placeholder="e.g. 5 working days" error={errors.duration?.message} />
                       </div>
                     </FieldGroup>
                   </SectionCard>
@@ -575,7 +646,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
               {/* Step 3: Plant & Equipment */}
               {step === 3 && (
                 <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Plant &amp; Equipment</h2>
                     <p className="text-sm text-slate-500 mt-1.5">List all plant and equipment to be used on site.</p>
                   </motion.div>
@@ -584,10 +655,11 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                     <div className="space-y-3">
                       <AnimatePresence initial={false}>
                         {fields.map((field, index) => (
-                          <motion.div key={field.id} variants={listItemVariants} initial="hidden" animate="visible" exit="exit" layout className="flex gap-2">
+                          <motion.div key={field.id} variants={listItemVariants} initial="hidden" animate="visible" exit="exit" className="flex gap-2">
                             <div className="flex-1">
                               <Input
                                 {...register(`plant_and_equipment.${index}.item`, { required: "Item name is required" })}
+                                id={`plant_and_equipment_${index}_item`}
                                 placeholder={index === 0 ? "e.g. 360° excavator (5t), Doosan DX57W" : index === 1 ? "e.g. Forward tip dumper (6t)" : "e.g. Vibratory plate compactor"}
                                 error={errors.plant_and_equipment?.[index]?.item?.message}
                               />
@@ -598,6 +670,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                                 onClick={() => remove(index)}
                                 whileHover={{ scale: 1.08 }}
                                 whileTap={{ scale: 0.92 }}
+                                aria-label={`Remove item ${index + 1}`}
                                 className="flex-shrink-0 w-10 h-10 rounded-lg border border-slate-700 flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-500/50 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -613,7 +686,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                     </motion.button>
                   </SectionCard>
 
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, type: "spring", stiffness: 320, damping: 30 }} className="px-4 py-3 bg-[#0f2040] border border-[#1e3a6e] rounded-xl">
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ delay: 0.12, type: "spring", stiffness: 320, damping: 30 }} className="px-4 py-3 bg-[#0f2040] border border-[#1e3a6e] rounded-xl">
                     <p className="text-xs text-slate-500">
                       <span className="text-slate-400 font-semibold">Tip:</span> Include make, model and capacity where known. Common examples: 360° excavator, forward tip dumper, vibratory plate compactor, hydraulic breaker, dewatering pump, generator.
                     </p>
@@ -624,17 +697,20 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
               {/* Step 4: Operatives */}
               {step === 4 && (
                 <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Operatives</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Describe the number and roles of operatives working on this activity.</p>
                   </motion.div>
 
                   <SectionCard title="Workforce Details" index={1}>
                     <div>
-                      <Label required>Number and Roles</Label>
+                      <Label required htmlFor="operatives">Number and Roles</Label>
                       <p className="text-xs text-slate-500 mb-2">List the number of operatives and their roles/competencies.</p>
                       <Textarea
                         {...register("operatives", { required: "Operatives information is required" })}
+                        id="operatives"
+                        required
+                        aria-required="true"
                         rows={4}
                         placeholder="e.g. 1 × CPCS A59 plant operator (360° excavator), 2 × groundworkers (CSCS blue card), 1 × site supervisor (SSSTS)"
                         error={errors.operatives?.message}
@@ -647,7 +723,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
               {/* Step 5: Sign-Off & Additional Hazards */}
               {step === 5 && (
                 <div className="space-y-6">
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
+                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Sign-Off &amp; Site Hazards</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Emergency contacts, document sign-off details, and any additional site-specific hazards.</p>
                   </motion.div>
@@ -655,34 +731,46 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                   <SectionCard title="Emergency &amp; Sign-Off Details" index={1}>
                     <FieldGroup>
                       <div>
-                        <Label required>Nearest Hospital (Name &amp; Address)</Label>
+                        <Label required htmlFor="nearest_hospital">Nearest Hospital (Name &amp; Address)</Label>
                         <Input
                           {...register("nearest_hospital", { required: "Nearest hospital is required" })}
+                          id="nearest_hospital"
+                          required
+                          aria-required="true"
                           placeholder="e.g. Queen Elizabeth Hospital, Mindelsohn Way, Birmingham B15 2TH"
                           error={errors.nearest_hospital?.message}
                         />
                       </div>
                       <div>
-                        <Label required>Emergency Contact on Site</Label>
+                        <Label required htmlFor="emergency_contact">Emergency Contact on Site</Label>
                         <Input
                           {...register("emergency_contact", { required: "Emergency contact is required" })}
+                          id="emergency_contact"
+                          required
+                          aria-required="true"
                           placeholder="e.g. John Smith — 07700 900123"
                           error={errors.emergency_contact?.message}
                         />
                       </div>
                       <Grid2>
                         <div>
-                          <Label required>Prepared By (Name)</Label>
+                          <Label required htmlFor="prepared_by">Prepared By (Name)</Label>
                           <Input
                             {...register("prepared_by", { required: "Prepared by name is required" })}
+                            id="prepared_by"
+                            required
+                            aria-required="true"
                             placeholder="e.g. John Smith"
                             error={errors.prepared_by?.message}
                           />
                         </div>
                         <div>
-                          <Label required>Position / Role</Label>
+                          <Label required htmlFor="prepared_by_position">Position / Role</Label>
                           <Input
                             {...register("prepared_by_position", { required: "Position is required" })}
+                            id="prepared_by_position"
+                            required
+                            aria-required="true"
                             placeholder="e.g. Site Supervisor / H&S Coordinator"
                             error={errors.prepared_by_position?.message}
                           />
@@ -694,6 +782,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                   <SectionCard title="Additional Hazards / Notes" index={2}>
                     <Textarea
                       {...register("additional_hazards")}
+                      id="additional_hazards"
                       rows={5}
                       placeholder="e.g. Ground contamination suspected from former petrol station. Known asbestos in ground — CLASP programme survey required. Works adjacent to live gas main (500mm medium pressure). Overhead power lines at 4m clearance..."
                     />
@@ -701,15 +790,22 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
 
                   <AnimatePresence>
                     {error && (
-                      <motion.div variants={bannerVariants} initial="hidden" animate="visible" exit="exit" className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                      <motion.div
+                        variants={shouldReduceMotion ? undefined : bannerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        role="alert"
+                        className="bg-red-500/10 border border-red-500/30 rounded-xl p-4"
+                      >
                         <p className="text-sm text-red-400">{error}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
                   <motion.div
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                    animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
                     transition={{ delay: 0.12, type: "spring", stiffness: 320, damping: 30 }}
                     className="bg-blue-600/10 border border-blue-600/30 rounded-xl p-4"
                   >
@@ -753,16 +849,15 @@ export function RAMSForm({ selectedTrades = [], industryType = "" }: RAMSFormPro
                     <motion.button
                       type="button"
                       onClick={handleBack}
-                      disabled={step === 1}
-                      whileHover={step !== 1 ? { x: -2 } : undefined}
-                      whileTap={step !== 1 ? { scale: 0.97 } : undefined}
+                      whileHover={{ x: -2 }}
+                      whileTap={{ scale: 0.97 }}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                        step === 1 ? "text-slate-700 cursor-not-allowed" : "text-slate-400 hover:text-white hover:bg-[#0f2040] border border-[#1e3a6e]"
+                        "text-slate-400 hover:text-white hover:bg-[#0f2040] border border-[#1e3a6e]"
                       )}
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      Back
+                      {step === 1 && onBack ? "Back to Trades" : "Back"}
                     </motion.button>
                     <motion.button
                       type="button"

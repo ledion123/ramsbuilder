@@ -271,6 +271,7 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
 
             {/* Risk Assessment */}
             <SectionTitle>3. Risk Assessment — 5×5 Matrix</SectionTitle>
+            <p className="text-xs text-slate-400 sm:hidden mb-2 italic">← Scroll right to see full risk assessment →</p>
 
             <div className="flex gap-4 mb-3">
               {[{ label: "Low", range: "1–6", color: "bg-green-600" }, { label: "Medium", range: "7–14", color: "bg-amber-500" }, { label: "High", range: "15–25", color: "bg-red-600" }].map((r) => (

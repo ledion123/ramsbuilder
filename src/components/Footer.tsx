@@ -20,7 +20,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-xs text-slate-500 leading-relaxed max-w-xs">
-              AI-powered RAMS document generation for UK groundworks and civil engineering contractors.
+              AI-powered RAMS document generation for UK construction subcontractors across all trade disciplines.
             </p>
             <div className="mt-4 flex flex-wrap gap-1.5">
               {complianceBadges.map((badge) => (
@@ -57,14 +57,14 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3 — Legal / About */}
+          {/* Col 3 — Compliance */}
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Compliance</p>
             <ul className="space-y-2">
-              <li className="text-xs text-slate-500">Built for UK groundworks contractors</li>
+              <li className="text-xs text-slate-500">Built for UK construction subcontractors</li>
+              <li className="text-xs text-slate-500">9 industries — groundworks, electrical, scaffolding &amp; more</li>
               <li className="text-xs text-slate-500">CDM 2015 compliant output</li>
-              <li className="text-xs text-slate-500">Covers COSHH, PUWER, LOLER, RIDDOR</li>
-              <li className="text-xs text-slate-500">Work at Height Regulations 2005</li>
+              <li className="text-xs text-slate-500">Covers COSHH, PUWER, LOLER, RIDDOR, WAH 2005</li>
             </ul>
           </div>
         </div>

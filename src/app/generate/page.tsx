@@ -68,6 +68,10 @@ export default function GeneratePage() {
     setStep("filling");
   };
 
+  const handleBackToTrades = () => {
+    setStep("selecting");
+  };
+
   return (
     <div className="min-h-screen bg-[#0a1628]">
       <Navbar variant="app" />
@@ -92,6 +96,7 @@ export default function GeneratePage() {
           <RAMSForm
             selectedTrades={selectedTrades}
             industryType={industryType}
+            onBack={handleBackToTrades}
           />
         )}
       </motion.div>
