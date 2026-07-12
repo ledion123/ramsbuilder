@@ -25,7 +25,19 @@ import {
   ShieldCheck,
   Upload,
   X,
+  Check,
 } from "lucide-react";
+
+const PLANT_GROUPS = [
+  { label: "Excavators", items: ["Mini excavator (1.5t)", "Mini excavator (3t)", "180° excavator (5–13t)", "360° excavator (13–20t)", "Long-reach excavator"] },
+  { label: "Earthmoving", items: ["Tracked dumper (1t)", "Tracked dumper (3t)", "Wheeled dumper (6t)", "Dozer", "Grader", "Skid steer loader"] },
+  { label: "Lifting", items: ["Telehandler", "Rough terrain forklift", "Tower crane", "Mobile crane", "MEWP — boom lift (IPAF 3b)", "MEWP — scissor lift (IPAF 3a)"] },
+  { label: "Compaction", items: ["Vibrating roller", "Plate compactor (wacker plate)", "Trench rammer"] },
+  { label: "Concrete & Groundwork", items: ["Concrete pump", "Ready-mix truck", "Poker vibrator", "Piling rig"] },
+  { label: "Road & Paving", items: ["Tarmac paver", "Road roller", "Road planer / milling machine", "Temporary traffic lights"] },
+  { label: "Power & Air", items: ["Generator", "Compressor (air)", "Pressure washer", "Welder (MIG/MMA)"] },
+  { label: "Hand Tools & Survey", items: ["Breaker / SDS hammer", "Angle grinder", "Disc cutter (Stihl saw)", "Core drill", "Floor saw", "CAT scanner", "4-gas monitor"] },
+];
 
 const STEPS = [
   { id: 1, label: "Company & Project", icon: Building2 },
@@ -240,6 +252,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
   const [prefilled, setPrefilled] = useState(false);
   const [logoDataUrl, setLogoDataUrl] = useState<string | undefined>(undefined);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const [customItem, setCustomItem] = useState("");
   const shouldReduceMotion = useReducedMotion();
 
   const todayStr = new Date().toISOString().split("T")[0];
@@ -260,7 +273,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     start_date: "",
     duration: "",
     revision: "Rev 0",
-    plant_and_equipment: [{ item: "" }],
+    plant_and_equipment: [],
     operatives: "",
     first_aider_name: "",
     welfare_arrangements: "",
@@ -319,15 +332,28 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     name: "plant_and_equipment",
   });
 
+  const selectedItems = new Set(fields.map((f) => f.item));
+
+  function togglePreset(name: string) {
+    const idx = fields.findIndex((f) => f.item === name);
+    if (idx !== -1) remove(idx);
+    else append({ item: name });
+  }
+
+  function addCustomItem() {
+    const v = customItem.trim();
+    if (v && !selectedItems.has(v)) append({ item: v });
+    setCustomItem("");
+  }
+
   const handleNext = async () => {
     const fieldsToValidate = STEP_FIELDS[step];
     if (fieldsToValidate.length > 0) {
       const valid = await trigger(fieldsToValidate);
       if (!valid) return;
     }
-    if (step === 3) {
-      const valid = await trigger("plant_and_equipment");
-      if (!valid) return;
+    if (step === 3 && fields.length === 0) {
+      return;
     }
     setDirection(1);
     setStep((s) => Math.min(s + 1, STEPS.length));
@@ -755,49 +781,92 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Plant &amp; Equipment</h2>
-                    <p className="text-sm text-slate-500 mt-1.5">List all plant and equipment to be used on site.</p>
+                    <p className="text-sm text-slate-500 mt-1.5">Select all plant and equipment to be used on site. Add anything not listed below.</p>
                   </motion.div>
 
-                  <SectionCard title="Equipment List" index={1}>
-                    <div className="space-y-3">
-                      <AnimatePresence initial={false}>
-                        {fields.map((field, index) => (
-                          <motion.div key={field.id} variants={listItemVariants} initial="hidden" animate="visible" exit="exit" className="flex gap-2">
-                            <div className="flex-1">
-                              <Input
-                                {...register(`plant_and_equipment.${index}.item`, { required: "Item name is required" })}
-                                id={`plant_and_equipment_${index}_item`}
-                                placeholder={index === 0 ? "e.g. 360° excavator (5t), Doosan DX57W" : index === 1 ? "e.g. Forward tip dumper (6t)" : "e.g. Vibratory plate compactor"}
-                                error={errors.plant_and_equipment?.[index]?.item?.message}
-                              />
-                            </div>
-                            {fields.length > 1 && (
-                              <motion.button
-                                type="button"
-                                onClick={() => remove(index)}
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.92 }}
-                                aria-label={`Remove item ${index + 1}`}
-                                className="flex-shrink-0 w-10 h-10 rounded-lg border border-slate-700 flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-500/50 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </motion.button>
-                            )}
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
+                  <SectionCard title="Equipment Picker" index={1}>
+                    <div className="space-y-5">
+                      {PLANT_GROUPS.map((group) => (
+                        <div key={group.label}>
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">{group.label}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {group.items.map((item) => {
+                              const on = selectedItems.has(item);
+                              return (
+                                <button
+                                  key={item}
+                                  type="button"
+                                  onClick={() => togglePreset(item)}
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                                    on
+                                      ? "bg-blue-600 border-blue-500 text-white"
+                                      : "bg-slate-800/60 border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"
+                                  }`}
+                                >
+                                  {on && <Check className="w-3 h-3" />}
+                                  {item}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <motion.button type="button" onClick={() => append({ item: "" })} whileHover={{ x: 3 }} whileTap={{ scale: 0.97 }} className="mt-4 flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors">
-                      <Plus className="w-4 h-4" />
-                      Add another item
-                    </motion.button>
-                  </SectionCard>
 
-                  <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ delay: 0.12, type: "spring", stiffness: 320, damping: 30 }} className="px-4 py-3 bg-[#0f2040] border border-[#1e3a6e] rounded-xl">
-                    <p className="text-xs text-slate-500">
-                      <span className="text-slate-400 font-semibold">Tip:</span> Include make, model and capacity where known. Common examples: 360° excavator, forward tip dumper, vibratory plate compactor, hydraulic breaker, dewatering pump, generator.
-                    </p>
-                  </motion.div>
+                    {/* Custom item input */}
+                    <div className="flex gap-2 mt-6 pt-5 border-t border-slate-800">
+                      <div className="flex-1">
+                        <Input
+                          value={customItem}
+                          onChange={(e) => setCustomItem(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomItem(); } }}
+                          placeholder="Add unlisted item — e.g. Vacuum excavator, Stone slinger, Pump"
+                        />
+                      </div>
+                      <motion.button
+                        type="button"
+                        onClick={addCustomItem}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add
+                      </motion.button>
+                    </div>
+
+                    {/* Selected summary */}
+                    {fields.length > 0 ? (
+                      <div className="mt-4 pt-4 border-t border-slate-800">
+                        <p className="text-xs text-slate-500 mb-2">{fields.length} item{fields.length !== 1 ? "s" : ""} selected</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <AnimatePresence initial={false}>
+                            {fields.map((f, i) => (
+                              <motion.span
+                                key={f.id}
+                                variants={listItemVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 bg-slate-800 border border-slate-700 rounded-full text-xs text-slate-300"
+                              >
+                                {f.item}
+                                <button
+                                  type="button"
+                                  onClick={() => remove(i)}
+                                  aria-label={`Remove ${f.item}`}
+                                  className="ml-0.5 text-slate-500 hover:text-red-400 transition-colors"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </motion.span>
+                            ))}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-xs text-amber-400">Select at least one item to continue.</p>
+                    )}
+                  </SectionCard>
                 </div>
               )}
 
