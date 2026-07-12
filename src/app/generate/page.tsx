@@ -55,11 +55,11 @@ function StepBreadcrumb({ current }: { current: Step }) {
 
 export default function GeneratePage() {
   const [step, setStep] = useState<Step>("industry");
-  const [industryType, setIndustryType] = useState<string>("");
+  const [industryTypes, setIndustryTypes] = useState<string[]>([]);
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
 
-  const handleIndustrySelected = (industry: string) => {
-    setIndustryType(industry);
+  const handleIndustrySelected = (industries: string[]) => {
+    setIndustryTypes(industries);
     setStep("selecting");
   };
 
@@ -88,14 +88,14 @@ export default function GeneratePage() {
         )}
         {step === "selecting" && (
           <TradeSelector
-            industryFilter={industryType}
+            industryFilter={industryTypes}
             onTradesSelected={handleTradesSelected}
           />
         )}
         {step === "filling" && (
           <RAMSForm
             selectedTrades={selectedTrades}
-            industryType={industryType}
+            industryType={industryTypes.join(", ")}
             onBack={handleBackToTrades}
           />
         )}

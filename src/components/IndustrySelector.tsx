@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Shovel,
@@ -11,7 +12,9 @@ import {
   Settings,
   Home,
   PaintBucket,
+  ArrowRight,
 } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface Industry {
   id: string;
@@ -88,11 +91,21 @@ const INDUSTRIES: Industry[] = [
 ];
 
 interface IndustrySelectorProps {
-  onIndustrySelected: (industryType: string) => void;
+  onIndustrySelected: (industryTypes: string[]) => void;
 }
 
 export function IndustrySelector({ onIndustrySelected }: IndustrySelectorProps) {
   const shouldReduceMotion = useReducedMotion();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const toggle = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
@@ -107,41 +120,94 @@ export function IndustrySelector({ onIndustrySelected }: IndustrySelectorProps) 
           What type of work does your company do?
         </h1>
         <p className="text-slate-500 text-sm max-w-lg mx-auto">
-          Select your trade discipline — we&apos;ll show the relevant activities and generate a RAMS specific to your industry.
+          Select one or more trade disciplines — you can combine industries (e.g. groundworks + roofing).
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {INDUSTRIES.map(({ id, label, description, icon: Icon, regBadge }, i) => (
-          <motion.button
-            key={id}
-            type="button"
-            onClick={() => onIndustrySelected(id)}
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 320, damping: 32, delay: shouldReduceMotion ? 0 : i * 0.04 }}
-            whileHover={shouldReduceMotion ? undefined : { y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            className="group text-left p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-500 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-stretch gap-0 shadow-sm"
-          >
-            {/* Left accent bar */}
-            <div className="w-[3px] rounded-full bg-slate-200 group-hover:bg-blue-600 transition-colors flex-shrink-0 mr-4 self-stretch" />
+        {INDUSTRIES.map(({ id, label, description, icon: Icon, regBadge }, i) => {
+          const checked = selected.has(id);
+          return (
+            <motion.button
+              key={id}
+              type="button"
+              onClick={() => toggle(id)}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 32, delay: shouldReduceMotion ? 0 : i * 0.04 }}
+              whileHover={shouldReduceMotion ? undefined : { y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className={cn(
+                "group text-left p-4 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-stretch gap-0 shadow-sm border",
+                checked
+                  ? "bg-blue-50 border-blue-500 shadow-md"
+                  : "bg-white border-slate-200 hover:border-blue-400 hover:shadow-md"
+              )}
+            >
+              {/* Left accent bar */}
+              <div className={cn(
+                "w-[3px] rounded-full transition-colors flex-shrink-0 mr-4 self-stretch",
+                checked ? "bg-blue-600" : "bg-slate-200 group-hover:bg-blue-400"
+              )} />
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-6 h-6 rounded bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center transition-colors flex-shrink-0">
-                  <Icon className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-colors" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className={cn(
+                    "w-6 h-6 rounded flex items-center justify-center transition-colors flex-shrink-0",
+                    checked ? "bg-blue-100" : "bg-slate-100 group-hover:bg-blue-50"
+                  )}>
+                    <Icon className={cn(
+                      "w-3.5 h-3.5 transition-colors",
+                      checked ? "text-blue-600" : "text-slate-500 group-hover:text-blue-600"
+                    )} />
+                  </div>
+                  <p className="text-sm font-bold text-slate-900 leading-snug">{label}</p>
+                  {checked && (
+                    <span className="ml-auto flex-shrink-0 w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="none">
+                        <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm font-bold text-slate-900 leading-snug">{label}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">{description}</p>
+                <span className={cn(
+                  "inline-block mt-2.5 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider border",
+                  checked
+                    ? "bg-blue-100 text-blue-700 border-blue-300"
+                    : "bg-blue-50 text-blue-700 border-blue-200"
+                )}>
+                  {regBadge}
+                </span>
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed">{description}</p>
-              <span className="inline-block mt-2.5 text-[10px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded uppercase tracking-wider">
-                {regBadge}
-              </span>
-            </div>
-          </motion.button>
-        ))}
+            </motion.button>
+          );
+        })}
       </div>
+
+      {/* Continue button */}
+      {selected.size > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-8 flex flex-col items-center gap-3"
+        >
+          <p className="text-xs text-slate-500">
+            {selected.size} industr{selected.size === 1 ? "y" : "ies"} selected:{" "}
+            <span className="font-semibold text-slate-700">
+              {Array.from(selected).map((id) => INDUSTRIES.find((i) => i.id === id)?.label).join(", ")}
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={() => onIndustrySelected(Array.from(selected))}
+            className="flex items-center gap-2 px-8 py-3 bg-[#1a2e4a] hover:bg-[#243d5f] text-white font-bold rounded-xl transition-colors shadow-sm"
+          >
+            Continue to Trade Selection
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 }

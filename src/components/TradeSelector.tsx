@@ -469,7 +469,7 @@ function truncate(str: string, n: number) {
 
 interface TradeSelectorProps {
   onTradesSelected: (trades: string[]) => void;
-  industryFilter?: string;
+  industryFilter?: string[];
 }
 
 export default function TradeSelector({ onTradesSelected, industryFilter }: TradeSelectorProps) {
@@ -486,8 +486,8 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
   // ── Derived state ──
 
   const industryCategories = useMemo(() => {
-    if (!industryFilter) return CATEGORIES;
-    return CATEGORIES.filter((c) => c.industryGroup === industryFilter);
+    if (!industryFilter || industryFilter.length === 0) return CATEGORIES;
+    return CATEGORIES.filter((c) => industryFilter.includes(c.industryGroup));
   }, [industryFilter]);
 
   const filteredCategories = useMemo(() => {
