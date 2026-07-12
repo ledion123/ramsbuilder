@@ -9,7 +9,6 @@ import {
   Cpu,
   Download,
   UploadCloud,
-  BookOpen,
   CheckCircle2,
   HardHat,
   Layers,
@@ -362,8 +361,7 @@ export default function LandingPage() {
               {[
                 { icon: FileText, title: "Professional PDF", body: "Cover page, risk matrix, revision history, sign-off block — print-ready." },
                 { icon: UploadCloud, title: "Scope upload", body: "Upload PDF/DOCX tender spec and we auto-fill project details." },
-                { icon: BookOpen, title: "Regulation checker", body: "Cross-references legislation.gov.uk to flag amendments." },
-                { icon: AlertTriangle, title: "Trade-detected hazards", body: "AI auto-detects trades from your description and adds relevant hazards." },
+{ icon: AlertTriangle, title: "Trade-detected hazards", body: "AI auto-detects trades from your description and adds relevant hazards." },
               ].map(({ icon: Icon, title, body }, i) => (
                 <motion.div key={title} {...view(0.1 + i * 0.06)}
                   className="flex items-start gap-4 p-5 bg-white border border-slate-200 rounded-xl hover:shadow-sm transition-all shadow-sm">
@@ -393,11 +391,6 @@ export default function LandingPage() {
               <p className="text-sm text-slate-400 leading-relaxed mb-6">
                 Every document references the specific regulations that apply to your scope — not a blanket list of every H&S law ever published.
               </p>
-              <Link href="/regulations"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors">
-                Check regulation currency
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
             </motion.div>
 
             <motion.div {...view(0.1)} className="flex flex-wrap gap-2">

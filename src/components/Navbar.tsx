@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { HardHat, Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { HardHat, Menu, X, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface NavbarProps {
   variant?: "marketing" | "app";
@@ -13,19 +14,16 @@ interface NavbarProps {
 const marketingLinks = [
   { label: "Features", href: "/#features" },
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "Regulations", href: "/regulations" },
 ];
 
 const appLinks = [
   { label: "Generate RAMS", href: "/generate" },
-  { label: "Regulations", href: "/regulations" },
   { label: "Home", href: "/" },
 ];
 
 function pageLabel(pathname: string) {
   if (pathname === "/generate") return "Generate RAMS";
   if (pathname === "/preview") return "Preview Document";
-  if (pathname === "/regulations") return "Regulations";
   return "App";
 }
 
@@ -73,16 +71,9 @@ export function Navbar({ variant = "marketing" }: NavbarProps) {
           )}
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {variant === "marketing" && (
               <>
-                <Link
-                  href="/regulations"
-                  className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Check regs
-                </Link>
                 <Link
                   href="/generate"
                   className="hidden md:flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold rounded-lg transition-colors shadow-sm"
@@ -101,6 +92,8 @@ export function Navbar({ variant = "marketing" }: NavbarProps) {
                 New RAMS
               </Link>
             )}
+
+            <ThemeToggle />
 
             {/* Mobile hamburger */}
             <button

@@ -41,7 +41,6 @@ export function Footer() {
             <ul className="space-y-2">
               {[
                 { label: "Generate RAMS", href: "/generate" },
-                { label: "Regulations Checker", href: "/regulations" },
                 { label: "How It Works", href: "/#how-it-works" },
                 { label: "Features", href: "/#features" },
               ].map((link) => (

@@ -22,7 +22,6 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  ShieldCheck,
   Upload,
   X,
   Check,
@@ -481,13 +480,6 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                     {badge}
                   </motion.span>
                 ))}
-                <Link
-                  href="/regulations"
-                  className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 hover:text-slate-700 transition-colors ml-1 uppercase tracking-widest"
-                >
-                  <ShieldCheck className="w-3 h-3" />
-                  Check regulations
-                </Link>
               </div>
             </div>
           </div>

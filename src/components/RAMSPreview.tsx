@@ -11,7 +11,6 @@ import {
   Building2,
   Cpu,
   AlertTriangle,
-  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -188,13 +187,6 @@ export function RAMSPreview({ data }: { data: RAMSDocument }) {
             {exportError && (
               <span className="text-xs text-red-600 mr-2">{exportError}</span>
             )}
-            <Link
-              href="/regulations"
-              className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors px-2 py-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Check regs
-            </Link>
             <ExportButton onClick={handleDocx} loading={docxLoading} icon={FileText} variant="secondary">
               Export Word
             </ExportButton>
