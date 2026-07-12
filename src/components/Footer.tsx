@@ -55,6 +55,22 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3 mt-6">Legal</p>
+            <ul className="space-y-2">
+              {[
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {/* Col 3 — Compliance */}

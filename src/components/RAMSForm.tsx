@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useState, useRef } from "react";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion, type Transition, type Variants } from "framer-motion";
 import { cn } from "@/lib/cn";
@@ -23,6 +23,8 @@ import {
   CheckCircle2,
   ArrowRight,
   ShieldCheck,
+  Upload,
+  X,
 } from "lucide-react";
 
 const STEPS = [
@@ -51,14 +53,12 @@ const stepVariants: Variants = {
 
 const stepTransition: Transition = { type: "spring", stiffness: 380, damping: 36, mass: 0.8 };
 
-// Height-free: opacity + y only (no layout property animation)
 const bannerVariants: Variants = {
   hidden: { opacity: 0, y: -6 },
   visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 340, damping: 28 } },
   exit: { opacity: 0, y: -4, transition: { duration: 0.15 } },
 };
 
-// Height-free: opacity + x only (no height animation = no layout thrash)
 const listItemVariants: Variants = {
   hidden: { opacity: 0, x: -12 },
   visible: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 360, damping: 32 } },
@@ -85,7 +85,6 @@ function Label({
   );
 }
 
-// SVG chevron for select
 const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`;
 
 function Input({
@@ -239,7 +238,11 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [prefilled, setPrefilled] = useState(false);
+  const [logoDataUrl, setLogoDataUrl] = useState<string | undefined>(undefined);
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const shouldReduceMotion = useReducedMotion();
+
+  const todayStr = new Date().toISOString().split("T")[0];
 
   const defaultValues: RAMSInput = {
     company_name: "",
@@ -250,17 +253,25 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     project_name: "",
     site_address: "",
     principal_contractor: "",
+    po_reference: "",
     activity: "",
+    working_hours: "",
     supervisor: "",
     start_date: "",
     duration: "",
     revision: "Rev 0",
     plant_and_equipment: [{ item: "" }],
     operatives: "",
+    first_aider_name: "",
+    welfare_arrangements: "",
     nearest_hospital: "",
     emergency_contact: "",
     prepared_by: "",
     prepared_by_position: "",
+    approved_by: "",
+    approved_by_position: "",
+    el_insurance: "",
+    revision_description: "",
     additional_hazards: "",
   };
 
@@ -270,11 +281,16 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     trigger,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<RAMSInput>({
     defaultValues,
     mode: "onTouched",
   });
+
+  const revisionValue = useWatch({ control, name: "revision" });
+  const activityValue = watch("activity", "");
+  const activityLength = activityValue?.length ?? 0;
 
   const handleScopeExtracted = (partial: Partial<RAMSInput>) => {
     reset({
@@ -288,6 +304,14 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     setPrefilled(true);
     setStep(1);
     setDirection(1);
+  };
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setLogoDataUrl(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const { fields, append, remove } = useFieldArray({
@@ -324,6 +348,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     try {
       const payload: RAMSInput = {
         ...data,
+        company_logo: logoDataUrl,
         selected_trades: selectedTrades.length > 0 ? selectedTrades : undefined,
         industry_type: industryType || undefined,
       };
@@ -341,7 +366,6 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
         localStorage.setItem("rams_document", JSON.stringify(rams));
         localStorage.setItem("rams_input", JSON.stringify(data));
       } catch {
-        // localStorage unavailable (private browsing / quota exceeded) — continue to preview via state
         console.warn("localStorage unavailable, passing via sessionStorage");
         try {
           sessionStorage.setItem("rams_document", JSON.stringify(rams));
@@ -461,7 +485,6 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
       <div className="border-b border-[#1e3a6e] bg-[#0f2040]">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="relative flex items-start justify-between">
-            {/* Track line — use scaleX transform instead of animating width */}
             <div className="absolute top-4 left-4 right-4 h-px bg-[#1e3a6e]">
               <motion.div
                 className="absolute inset-y-0 left-0 w-full bg-blue-600 origin-left"
@@ -542,6 +565,45 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
 
                   <SectionCard title="Subcontractor Company" index={1}>
                     <FieldGroup>
+                      {/* Logo upload */}
+                      <div>
+                        <Label htmlFor="company_logo_input">Company Logo (optional)</Label>
+                        <div className="flex items-center gap-3">
+                          {logoDataUrl ? (
+                            <div className="relative w-20 h-12 border border-slate-700 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={logoDataUrl} alt="Company logo" className="max-w-full max-h-full object-contain" />
+                              <button
+                                type="button"
+                                onClick={() => { setLogoDataUrl(undefined); if (logoInputRef.current) logoInputRef.current.value = ""; }}
+                                className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center"
+                                aria-label="Remove logo"
+                              >
+                                <X className="w-2.5 h-2.5 text-white" />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => logoInputRef.current?.click()}
+                              className="flex items-center gap-2 px-3 py-2 text-xs text-slate-400 border border-slate-700 border-dashed rounded-lg hover:border-blue-600/50 hover:text-blue-400 transition-colors"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              Upload logo
+                            </button>
+                          )}
+                          <p className="text-xs text-slate-600">PNG, JPG — appears in document header</p>
+                        </div>
+                        <input
+                          ref={logoInputRef}
+                          id="company_logo_input"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleLogoChange}
+                        />
+                      </div>
+
                       <div>
                         <Label required htmlFor="company_name">Company Name</Label>
                         <Input {...register("company_name", { required: "Company name is required" })} id="company_name" required aria-required="true" placeholder="e.g. Apex Groundworks Ltd" error={errors.company_name?.message} />
@@ -553,7 +615,17 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       <Grid2>
                         <div>
                           <Label htmlFor="company_reg">Company Registration No.</Label>
-                          <Input {...register("company_reg")} id="company_reg" placeholder="e.g. 12345678" />
+                          <Input
+                            {...register("company_reg", {
+                              pattern: {
+                                value: /^[A-Z0-9]{2}\d{6}$/i,
+                                message: "Must be a valid Companies House number (e.g. 12345678 or AB123456)",
+                              },
+                            })}
+                            id="company_reg"
+                            placeholder="e.g. 12345678"
+                            error={errors.company_reg?.message}
+                          />
                         </div>
                         <div>
                           <Label htmlFor="revision">Document Revision</Label>
@@ -574,6 +646,19 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                           <Input {...register("company_email")} id="company_email" type="email" placeholder="e.g. safety@apexgroundworks.co.uk" />
                         </div>
                       </Grid2>
+
+                      {/* Insurance — collapsed by default */}
+                      <details className="group">
+                        <summary className="text-xs font-semibold text-slate-500 cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-1.5">
+                          <ChevronRight className="w-3 h-3 group-open:rotate-90 transition-transform" />
+                          Insurance &amp; Compliance (optional)
+                        </summary>
+                        <div className="mt-3">
+                          <Label htmlFor="el_insurance">Employers&apos; Liability Insurance Ref</Label>
+                          <Input {...register("el_insurance")} id="el_insurance" placeholder="e.g. Insurer name, policy no., limit of indemnity" />
+                          <p className="text-xs text-slate-600 mt-1">PCs may require this on the RAMS cover sheet.</p>
+                        </div>
+                      </details>
                     </FieldGroup>
                   </SectionCard>
 
@@ -592,6 +677,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       <div>
                         <Label required htmlFor="site_address">Site Address</Label>
                         <Textarea {...register("site_address", { required: "Site address is required" })} id="site_address" required aria-required="true" rows={2} placeholder="e.g. Elm Road, Solihull, West Midlands, B92 7HJ" error={errors.site_address?.message} />
+                      </div>
+                      <div>
+                        <Label htmlFor="po_reference">PO / Contract Reference</Label>
+                        <Input {...register("po_reference")} id="po_reference" placeholder="e.g. PO-2024-00123" />
                       </div>
                     </FieldGroup>
                   </SectionCard>
@@ -615,6 +704,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                           {...register("activity", {
                             required: "Activity description is required",
                             minLength: { value: 30, message: "Please describe the works in more detail (minimum 30 characters)" },
+                            maxLength: { value: 3000, message: "Activity description too long (max 3000 characters)" },
                           })}
                           id="activity"
                           required
@@ -623,6 +713,9 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                           placeholder="e.g. Excavation for foul drainage installation, 2.5m deep in soft ground (clay). Works adjacent to live carriageway. Installation of 225mm diameter PVC-U pipes with precast concrete manholes at 30m intervals. Backfilling with selected granular fill, compaction, and temporary tarmac reinstatement."
                           error={errors.activity?.message}
                         />
+                        <p className={cn("text-[10px] mt-1 text-right", activityLength > 2800 ? "text-amber-400" : "text-slate-600")}>
+                          {activityLength} / 3000
+                        </p>
                       </div>
                       <Grid2>
                         <div>
@@ -631,13 +724,27 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                         </div>
                         <div>
                           <Label required htmlFor="start_date">Planned Start Date</Label>
-                          <Input type="date" {...register("start_date", { required: "Start date is required" })} id="start_date" required aria-required="true" error={errors.start_date?.message} />
+                          <Input
+                            type="date"
+                            {...register("start_date", { required: "Start date is required" })}
+                            id="start_date"
+                            required
+                            aria-required="true"
+                            min={todayStr}
+                            error={errors.start_date?.message}
+                          />
                         </div>
                       </Grid2>
-                      <div>
-                        <Label required htmlFor="duration">Planned Duration</Label>
-                        <Input {...register("duration", { required: "Duration is required" })} id="duration" required aria-required="true" placeholder="e.g. 5 working days" error={errors.duration?.message} />
-                      </div>
+                      <Grid2>
+                        <div>
+                          <Label required htmlFor="duration">Planned Duration</Label>
+                          <Input {...register("duration", { required: "Duration is required" })} id="duration" required aria-required="true" placeholder="e.g. 5 working days" error={errors.duration?.message} />
+                        </div>
+                        <div>
+                          <Label htmlFor="working_hours">Working Hours</Label>
+                          <Input {...register("working_hours")} id="working_hours" placeholder="e.g. 07:30–17:30 Mon–Fri, no weekend working" />
+                        </div>
+                      </Grid2>
                     </FieldGroup>
                   </SectionCard>
                 </div>
@@ -699,21 +806,39 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
                     <h2 className="text-2xl font-black text-white">Operatives</h2>
-                    <p className="text-sm text-slate-500 mt-1.5">Describe the number and roles of operatives working on this activity.</p>
+                    <p className="text-sm text-slate-500 mt-1.5">Describe the number and roles of operatives and confirm welfare arrangements.</p>
                   </motion.div>
 
                   <SectionCard title="Workforce Details" index={1}>
+                    <FieldGroup>
+                      <div>
+                        <Label required htmlFor="operatives">Number and Roles</Label>
+                        <p className="text-xs text-slate-500 mb-2">List the number of operatives and their roles/competencies.</p>
+                        <Textarea
+                          {...register("operatives", { required: "Operatives information is required" })}
+                          id="operatives"
+                          required
+                          aria-required="true"
+                          rows={4}
+                          placeholder="e.g. 1 × CPCS A59 plant operator (360° excavator), 2 × groundworkers (CSCS blue card), 1 × site supervisor (SSSTS)"
+                          error={errors.operatives?.message}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="first_aider_name">First Aider on Site (name &amp; qualification)</Label>
+                        <Input {...register("first_aider_name")} id="first_aider_name" placeholder="e.g. John Smith — First Aid at Work (3-year cert, expires 2027)" />
+                      </div>
+                    </FieldGroup>
+                  </SectionCard>
+
+                  <SectionCard title="Welfare Arrangements (CDM 2015 Schedule 2)" index={2}>
                     <div>
-                      <Label required htmlFor="operatives">Number and Roles</Label>
-                      <p className="text-xs text-slate-500 mb-2">List the number of operatives and their roles/competencies.</p>
+                      <p className="text-xs text-slate-500 mb-2">Describe where welfare facilities are located on site. CDM 2015 Schedule 2 requires these to be documented.</p>
                       <Textarea
-                        {...register("operatives", { required: "Operatives information is required" })}
-                        id="operatives"
-                        required
-                        aria-required="true"
+                        {...register("welfare_arrangements")}
+                        id="welfare_arrangements"
                         rows={4}
-                        placeholder="e.g. 1 × CPCS A59 plant operator (360° excavator), 2 × groundworkers (CSCS blue card), 1 × site supervisor (SSSTS)"
-                        error={errors.operatives?.message}
+                        placeholder="Toilet facilities: [location/type]. Washing facilities: [location]. Drinking water: [location]. Rest area: [location]. Drying room: [location]."
                       />
                     </div>
                   </SectionCard>
@@ -776,6 +901,26 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                           />
                         </div>
                       </Grid2>
+                      <Grid2>
+                        <div>
+                          <Label htmlFor="approved_by">Approved / Checked By</Label>
+                          <Input {...register("approved_by")} id="approved_by" placeholder="e.g. Jane Smith (Director)" />
+                        </div>
+                        <div>
+                          <Label htmlFor="approved_by_position">Position</Label>
+                          <Input {...register("approved_by_position")} id="approved_by_position" placeholder="e.g. Managing Director" />
+                        </div>
+                      </Grid2>
+                      {revisionValue && revisionValue !== "Rev 0" && (
+                        <div>
+                          <Label htmlFor="revision_description">Reason for Revision</Label>
+                          <Input
+                            {...register("revision_description")}
+                            id="revision_description"
+                            placeholder="e.g. Updated to reflect change in excavation depth"
+                          />
+                        </div>
+                      )}
                     </FieldGroup>
                   </SectionCard>
 

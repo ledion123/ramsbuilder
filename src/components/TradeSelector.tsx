@@ -32,12 +32,15 @@ const CATEGORIES: Category[] = [
       "Deep Excavation (>1.2m — confined space rules apply)",
       "Trench Excavation for Services",
       "Bulk Earthworks & Cut to Fill",
+      "Muck Away & Off-Site Waste Disposal",
       "Topsoil Strip & Reinstatement",
       "Contaminated Land Excavation",
       "Rock Breaking & Hydraulic Hammer",
       "Excavation Adjacent to Existing Structures",
       "Excavation Near Live Services",
       "Excavation Adjacent to Live Highway",
+      "Trial Holes & Cable Avoidance Works",
+      "Hand Digging Around Buried Services",
     ],
   },
   {
@@ -58,6 +61,9 @@ const CATEGORIES: Category[] = [
       "Drainage Inspection & CCTV Survey",
       "Drainage Pressure Testing",
       "Confined Space Entry — Manholes & Chambers",
+      "Breaking into Existing Manholes",
+      "Connecting to Live Sewers",
+      "Rainwater Gully Installation (110mm+)",
     ],
   },
   {
@@ -76,6 +82,8 @@ const CATEGORIES: Category[] = [
       "Dropped Kerb Installation",
       "Traffic Management — Chapter 8",
       "Temporary Road Closure Works",
+      "Bell Mouth & Road Junction Construction",
+      "Breaking Ground for Road Crossings",
     ],
   },
   {
@@ -140,6 +148,11 @@ const CATEGORIES: Category[] = [
       "Road Planer Operations",
       "Concrete Pump Operations",
       "Low Loader Transport & Delivery",
+      "Banksman / Slinger & Signaller",
+      "Wacker Plate / Vibrating Compactor Operations",
+      "Compressor & Pneumatic Tool Operations",
+      "Ride-On Roller Operations",
+      "Abrasive Wheels & Cutting Disc Operations",
     ],
   },
   {
@@ -169,6 +182,8 @@ const CATEGORIES: Category[] = [
       "Environmental Spill Response",
       "Dust & Noise Management Plan",
       "Ecological Protection Measures",
+      "UXO (Unexploded Ordnance) Risk Assessment",
+      "Protection of Watercourses & OAW Works",
     ],
   },
   {
@@ -184,6 +199,79 @@ const CATEGORIES: Category[] = [
       "Underground Service Protection",
       "Site Drainage & Mud Management",
       "Scaffold Erection (subcontracted)",
+      "Working Around Occupied / Live Premises",
+    ],
+  },
+
+  // ── Beam & Block / Suspended Floors ─────────────────────────────
+  {
+    id: 19,
+    name: "Beam & Block / Suspended Floors",
+    industryGroup: "groundworks",
+    trades: [
+      "Beam & Block Floor Installation",
+      "Jetfloor Insulated Ground Floor System",
+      "Precast Concrete Suspended Floor",
+      "Void Former & In-Situ Ground Bearing Slab",
+      "Floor Insulation Installation",
+      "DPM (Damp Proof Membrane) Installation",
+      "Screed Over Beam & Block",
+    ],
+  },
+
+  // ── Adoptable Works & S278 ───────────────────────────────────────
+  {
+    id: 20,
+    name: "Adoptable Works & S278",
+    industryGroup: "groundworks",
+    trades: [
+      "S38 Adoptable Road Construction",
+      "S278 Off-Site Highway Works",
+      "Adoptable Stormwater Drainage (Under Road)",
+      "Adoptable Foulwater Drainage (Under Road)",
+      "Adoptable Footpath & Verge Construction",
+      "Street Light Ducting — Adoptable",
+      "Adoptable Parking & Turning Areas",
+      "Road Closure for Drainage / Service Connections",
+      "Offsite Footpath Construction",
+    ],
+  },
+
+  // ── Private External Works ───────────────────────────────────────
+  {
+    id: 21,
+    name: "Private External Works",
+    industryGroup: "groundworks",
+    trades: [
+      "Block Paved Driveways & Parking Areas",
+      "Tarmac / Macadam Driveways",
+      "Paving Slab Installation (Patios & Paths)",
+      "Private Rear Footpaths & Patios",
+      "Resin Bound Surfacing",
+      "Shingle Margins & Gravel Areas",
+      "Temporary Tarmac (Drive to Adoptable Road)",
+      "Private Street Lighting & Ducting",
+      "Sales Parking Area Works",
+      "Dropped Kerb & Drive Crossover",
+    ],
+  },
+
+  // ── Landscaping & Soft Works ─────────────────────────────────────
+  {
+    id: 22,
+    name: "Landscaping & Soft Works",
+    industryGroup: "groundworks",
+    trades: [
+      "Topsoil Spreading & Final Grading",
+      "Seeding & Turfing",
+      "Tree, Shrub & Hedge Planting",
+      "LEAP / LAP Play Area Installation",
+      "Boundary Screen & Retaining Wall Construction",
+      "Pedestrian Walkway Construction",
+      "Free-Issue Topsoil Management & Stockpiling",
+      "Imported Topsoil Supply & Spread",
+      "Japanese Knotweed / Invasive Species Treatment",
+      "Ecological Habitat Protection Works",
     ],
   },
 
@@ -203,6 +291,9 @@ const CATEGORIES: Category[] = [
       "Emergency Lighting Installation (BS 5266)",
       "Data, Comms & Structured Cabling",
       "Street Lighting & External Electrical Works",
+      "Solar PV System Installation",
+      "Isolation & Permit to Work (LOTO — EaWR 1989)",
+      "Electrical Work in Confined Spaces",
     ],
   },
 
@@ -222,6 +313,8 @@ const CATEGORIES: Category[] = [
       "Pressurised Systems & Pipework",
       "Sanitary Ware & WC Installation",
       "Pump & Water Treatment Systems",
+      "Unvented Hot Water Systems (G3 — Approved Doc G)",
+      "WRAS-Compliant Water Fittings Installation",
     ],
   },
 
@@ -259,6 +352,8 @@ const CATEGORIES: Category[] = [
       "Structural Openings & Lintels",
       "Party Wall Works",
       "Tying-In New to Existing Structure",
+      "DPC (Damp Proof Course) Installation",
+      "Passive Fire Protection & Compartmentation (Part B)",
       "Groundworks Package (Subcontracted)",
     ],
   },
@@ -317,6 +412,9 @@ const CATEGORIES: Category[] = [
       "Rainscreen Cladding Systems",
       "Leadwork & Flashings",
       "Roof Drainage & Guttering",
+      "Safety Netting & Edge Protection (BS EN 1263)",
+      "Roof Anchor & Fall Arrest System Installation (BS EN 795)",
+      "Roof Light & Skylight Installation (Part B / Part N)",
     ],
   },
 
@@ -336,6 +434,8 @@ const CATEGORIES: Category[] = [
       "Joinery & Second Fix Carpentry",
       "Decoration & Specialist Finishes",
       "Mezzanine Floor Installation",
+      "Fire Door Installation & Certification (BS EN 16034)",
+      "Acoustic Partitioning (Building Regs Part E)",
     ],
   },
 ];
@@ -376,6 +476,11 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [openCategories, setOpenCategories] = useState<Set<number>>(new Set([11, 12, 13, 14, 15, 16, 17, 18, 1]));
   const [search, setSearch] = useState("");
+  const [scopeText, setScopeText] = useState("");
+  const [scopeOpen, setScopeOpen] = useState(true);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [suggestError, setSuggestError] = useState<string | null>(null);
+  const [suggestCount, setSuggestCount] = useState<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   // ── Derived state ──
@@ -427,6 +532,9 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
   const gasTrades = ["Gas Installation — Domestic (ACS)", "Gas Installation — Commercial & Industrial"];
   const showGasBanner = gasTrades.some((t) => selected.has(t));
 
+  const showUXOBanner = selected.has("UXO (Unexploded Ordnance) Risk Assessment");
+  const showOHLBanner = selected.has("Overhead Line Protection (goal posts)");
+
   // When search is active, auto-expand matching categories
   const isOpen = (catId: number): boolean => {
     if (search.trim()) return filteredCategories.some((c) => c.id === catId);
@@ -474,6 +582,33 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
     setSelected((prev) => new Set([...prev, CONFINED_SPACE_SUGGESTION]));
   };
 
+  const handleSuggest = async () => {
+    if (!scopeText.trim()) return;
+    setIsSuggesting(true);
+    setSuggestError(null);
+    setSuggestCount(null);
+    try {
+      const allTrades = industryCategories.flatMap((c) => c.trades);
+      const res = await fetch("/api/suggest-trades", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scope: scopeText, availableTrades: allTrades }),
+      });
+      const data = await res.json() as { trades?: string[]; error?: string };
+      if (data.error === "no_api_key") {
+        setSuggestError("AI suggestions require an API key — select trades manually below.");
+      } else if (data.trades && data.trades.length > 0) {
+        selectAll(data.trades);
+        setSuggestCount(data.trades.length);
+      } else {
+        setSuggestError("No matching trades found — try adding more detail to your description.");
+      }
+    } catch {
+      setSuggestError("Could not reach the suggestion service. Select trades manually below.");
+    }
+    setIsSuggesting(false);
+  };
+
   const removeSelected = (trade: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -516,6 +651,91 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
 
       {/* ── Body ── */}
       <main className="max-w-4xl mx-auto px-6 py-6 space-y-4">
+
+        {/* ── Scope quick-start ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.04, type: "spring", stiffness: 320, damping: 30 }}
+          className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden"
+        >
+          <button
+            type="button"
+            onClick={() => setScopeOpen((v) => !v)}
+            className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-800/30 transition-colors group"
+          >
+            <span className="text-blue-400 text-base">✦</span>
+            <span className="flex-1 text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+              Quick-start — describe your scope of works
+            </span>
+            <span className="text-xs text-slate-500">AI auto-selects trades</span>
+            <motion.div
+              animate={{ rotate: scopeOpen ? 180 : 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 24 }}
+            >
+              <ChevronDown className="w-4 h-4 text-slate-500" />
+            </motion.div>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {scopeOpen && (
+              <motion.div
+                key="scope-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30, opacity: { duration: 0.15 } }}
+                style={{ overflow: "hidden" }}
+              >
+                <div className="border-t border-slate-800 px-5 py-4 space-y-3">
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Paste your scope of works, tender description, or job brief. AI will pre-tick the
+                    relevant trade activities — you can adjust them below.
+                  </p>
+                  <textarea
+                    value={scopeText}
+                    onChange={(e) => { setScopeText(e.target.value); setSuggestError(null); setSuggestCount(null); }}
+                    placeholder="e.g. We will be carrying out excavation for adoptable foul and storm drainage, laying 450mm pipes, connecting to an existing manhole, constructing new manholes, then sub-base and tarmac surfacing for the adoptable road…"
+                    rows={4}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-slate-100 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50 transition-colors resize-none"
+                  />
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleSuggest}
+                      disabled={isSuggesting || !scopeText.trim()}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors"
+                    >
+                      {isSuggesting ? (
+                        <>
+                          <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                          </svg>
+                          Analysing…
+                        </>
+                      ) : (
+                        <>Suggest trades <ArrowRight className="w-3.5 h-3.5" /></>
+                      )}
+                    </button>
+                    {suggestCount !== null && !suggestError && (
+                      <motion.span
+                        initial={{ opacity: 0, x: -6 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="text-xs text-green-400 font-medium"
+                      >
+                        {suggestCount} trade{suggestCount !== 1 ? "s" : ""} pre-selected ✓
+                      </motion.span>
+                    )}
+                  </div>
+                  {suggestError && (
+                    <p className="text-xs text-amber-400 leading-snug">{suggestError}</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* ── Search ── */}
         <motion.div
@@ -684,6 +904,48 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                 carried out by{" "}
                 <span className="font-semibold">Gas Safe registered operatives only</span> under the{" "}
                 <span className="font-semibold">Gas Safety (Installation and Use) Regulations 1998</span>.
+              </p>
+            </motion.div>
+          )}
+
+          {showUXOBanner && (
+            <motion.div
+              key="uxo-banner"
+              variants={shouldReduceMotion ? {} : bannerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="flex items-start gap-3 px-4 py-3.5 bg-red-500/10 border border-red-500/30 rounded-xl"
+            >
+              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-300 leading-snug">
+                <span className="font-semibold">UXO risk selected</span> — a suitably qualified specialist
+                must carry out a geophysical survey before any excavation commences. The hazard must be
+                identified in the{" "}
+                <span className="font-semibold">Pre-Construction Information (CDM 2015, Reg 4)</span>. Survey
+                methodology should follow{" "}
+                <span className="font-semibold">BS EN 16991:2018</span>.
+              </p>
+            </motion.div>
+          )}
+
+          {showOHLBanner && (
+            <motion.div
+              key="ohl-banner"
+              variants={shouldReduceMotion ? {} : bannerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="flex items-start gap-3 px-4 py-3.5 bg-red-500/10 border border-red-500/30 rounded-xl"
+            >
+              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-300 leading-snug">
+                <span className="font-semibold">Overhead powerlines selected</span> — contact with overhead
+                lines is the most common cause of electrical fatality on construction sites. Verify safe
+                working distances with the DNO before mobilising.{" "}
+                <span className="font-semibold">Electricity at Work Regulations 1989</span> and{" "}
+                <span className="font-semibold">HSE GS6</span> apply. Exclusion zones and goal-post
+                protection must be agreed with the land owner and network operator.
               </p>
             </motion.div>
           )}

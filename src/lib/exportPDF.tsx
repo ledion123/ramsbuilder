@@ -674,6 +674,9 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
             ...(data.method_statement.emergency_procedures.gas_escape
               ? [{ label: "Gas Escape Procedure", value: data.method_statement.emergency_procedures.gas_escape }]
               : []),
+            ...(data.method_statement.emergency_procedures.ohl_contact
+              ? [{ label: "Overhead Powerline Contact", value: data.method_statement.emergency_procedures.ohl_contact }]
+              : []),
           ].map((item) => (
             <View key={item.label} style={{ marginBottom: 7 }}>
               <Text style={s.fieldLabel}>{item.label.toUpperCase()}</Text>

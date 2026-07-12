@@ -123,7 +123,7 @@ async function triggerDownload(url: string, data: RAMSDocument, filename: string
   URL.revokeObjectURL(href);
 }
 
-export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string } }) {
+export function RAMSPreview({ data }: { data: RAMSDocument }) {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [docxLoading, setDocxLoading] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
@@ -153,6 +153,7 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
   };
 
   const isAI = data._source === "ai";
+  const ep = data.method_statement.emergency_procedures;
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
@@ -208,13 +209,28 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
       <main className="flex-1 py-8 px-4">
         <div className="print-area max-w-5xl mx-auto bg-white rounded-xl shadow-2xl shadow-black/50 overflow-hidden">
           {/* Cover header */}
-          <div className="bg-slate-800 px-8 py-7 flex items-start justify-between">
-            <div>
-              <p className="text-orange-400 text-[10px] font-black uppercase tracking-[0.18em] mb-2">Subcontractor</p>
-              <h1 className="text-3xl font-black text-white leading-tight">{data.company.name}</h1>
-              <p className="text-slate-400 text-xs mt-2">{data.company.address}</p>
+          <div className="bg-slate-800 px-8 py-7 flex items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              {data.company.logo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={data.company.logo} alt={`${data.company.name} logo`} className="h-12 w-auto object-contain flex-shrink-0" />
+              )}
+              <div>
+                <p className="text-orange-400 text-[10px] font-black uppercase tracking-[0.18em] mb-2">Subcontractor</p>
+                <h1 className="text-3xl font-black text-white leading-tight">{data.company.name}</h1>
+                <p className="text-slate-400 text-xs mt-1">{data.company.address}</p>
+                {(data.company.reg || data.company.phone || data.company.email) && (
+                  <p className="text-slate-500 text-xs mt-1">
+                    {[
+                      data.company.reg && `Reg. ${data.company.reg}`,
+                      data.company.phone && `Tel: ${data.company.phone}`,
+                      data.company.email,
+                    ].filter(Boolean).join("  ·  ")}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="text-right flex-shrink-0 ml-8">
+            <div className="text-right flex-shrink-0 ml-4">
               <p className="text-orange-400 font-mono text-sm font-bold">{data.document_ref}</p>
               <p className="text-slate-400 text-xs mt-1">{data.revision}</p>
               <p className="text-slate-400 text-xs">{data.date}</p>
@@ -229,13 +245,43 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
 
           <div className="px-8 py-6">
             {/* Project details */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200 mb-6">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200 mb-4">
               <InfoRow label="Project Name" value={data.project.name} />
               <InfoRow label="Principal Contractor" value={data.project.principal_contractor} />
               <InfoRow label="Site Address" value={data.project.site_address} />
               <InfoRow label="Site Supervisor" value={data.project.supervisor} />
               <InfoRow label="Start Date" value={data.project.start_date} />
               <InfoRow label="Duration" value={data.project.duration} />
+              {data.project.working_hours && (
+                <InfoRow label="Working Hours" value={data.project.working_hours} />
+              )}
+              {data.project.po_reference && (
+                <InfoRow label="PO / Contract Ref" value={data.project.po_reference} />
+              )}
+            </div>
+
+            {/* Revision history */}
+            <div className="mb-6 overflow-x-auto">
+              <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden text-xs">
+                <thead>
+                  <tr className="bg-slate-200">
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 uppercase tracking-wide w-16">Rev</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 uppercase tracking-wide w-24">Date</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 uppercase tracking-wide">Description</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 uppercase tracking-wide w-36">Prepared By</th>
+                    <th className="px-3 py-1.5 font-semibold text-slate-600 uppercase tracking-wide w-36">Approved By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white">
+                    <td className="px-3 py-1.5 text-slate-700 font-semibold">{data.revision}</td>
+                    <td className="px-3 py-1.5 text-slate-600">{data.sign_off.date_prepared}</td>
+                    <td className="px-3 py-1.5 text-slate-600">{data.revision_description ?? "Initial issue"}</td>
+                    <td className="px-3 py-1.5 text-slate-600">{data.sign_off.prepared_by}</td>
+                    <td className="px-3 py-1.5 text-slate-600">{data.sign_off.approved_by ?? "—"}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             {/* Scope */}
@@ -329,19 +375,14 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
             <SectionTitle>6. Emergency Procedures</SectionTitle>
             <div className="grid grid-cols-1 gap-3">
               {[
-                { label: "First Aid", value: data.method_statement.emergency_procedures.first_aid },
-                { label: "Emergency Contacts", value: data.method_statement.emergency_procedures.emergency_contacts },
-                { label: "Nearest Hospital", value: data.method_statement.emergency_procedures.nearest_hospital },
-                { label: "Evacuation", value: data.method_statement.emergency_procedures.evacuation },
-                ...(data.method_statement.emergency_procedures.excavation_collapse
-                  ? [{ label: "Excavation Collapse", value: data.method_statement.emergency_procedures.excavation_collapse }]
-                  : []),
-                ...(data.method_statement.emergency_procedures.confined_space_rescue
-                  ? [{ label: "Confined Space Rescue", value: data.method_statement.emergency_procedures.confined_space_rescue }]
-                  : []),
-                ...(data.method_statement.emergency_procedures.gas_escape
-                  ? [{ label: "Gas Escape Procedure", value: data.method_statement.emergency_procedures.gas_escape }]
-                  : []),
+                { label: "First Aid", value: ep.first_aid },
+                { label: "Emergency Contacts", value: ep.emergency_contacts },
+                { label: "Nearest Hospital", value: ep.nearest_hospital },
+                { label: "Evacuation", value: ep.evacuation },
+                ...(ep.excavation_collapse ? [{ label: "Excavation Collapse", value: ep.excavation_collapse }] : []),
+                ...(ep.confined_space_rescue ? [{ label: "Confined Space Rescue", value: ep.confined_space_rescue }] : []),
+                ...(ep.gas_escape ? [{ label: "Gas Escape Procedure", value: ep.gas_escape }] : []),
+                ...(ep.ohl_contact ? [{ label: "Overhead Powerline Contact", value: ep.ohl_contact }] : []),
               ].map((item) => (
                 <div key={item.label} className="bg-slate-50 border border-slate-200 rounded p-3">
                   <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{item.label}</p>
@@ -444,26 +485,30 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
               </>
             )}
 
-            {/* Noise */}
-            <SectionTitle>11. Noise Assessment</SectionTitle>
-            <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-slate-700 text-white">
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/3">Noise Source</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/5">Approx. Level dB(A)</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Control Measures</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.noise_assessment.sources.map((n, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                    <td className="px-3 py-2 text-xs font-semibold text-slate-700 border-b border-slate-100 align-top">{n.source}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.approximate_db}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.control}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* Noise — only render when applicable */}
+            {data.noise_assessment.applicable && (
+              <>
+                <SectionTitle>11. Noise Assessment</SectionTitle>
+                <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-slate-700 text-white">
+                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/3">Noise Source</th>
+                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/5">Approx. Level dB(A)</th>
+                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Control Measures</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.noise_assessment.sources.map((n, i) => (
+                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                        <td className="px-3 py-2 text-xs font-semibold text-slate-700 border-b border-slate-100 align-top">{n.source}</td>
+                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.approximate_db}</td>
+                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.control}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
 
             {/* Environmental */}
             <SectionTitle>12. Environmental Controls</SectionTitle>
@@ -476,14 +521,30 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
               ))}
             </ul>
 
+            {/* Welfare Arrangements */}
+            {data.method_statement.welfare_arrangements && (
+              <>
+                <SectionTitle>13. Welfare Arrangements (CDM 2015 Schedule 2)</SectionTitle>
+                <p className="text-sm text-slate-700 leading-relaxed">{data.method_statement.welfare_arrangements}</p>
+              </>
+            )}
+
             {/* Sign-off */}
-            <SectionTitle>13. Document Sign-Off</SectionTitle>
+            <SectionTitle>14. Document Sign-Off</SectionTitle>
             <div className="grid grid-cols-2 gap-4">
               <div className="border border-slate-200 rounded-lg p-4">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Prepared by (Subcontractor)</p>
                 <InfoRow label="Name" value={data.sign_off.prepared_by} />
                 <InfoRow label="Position" value={data.sign_off.position} />
                 <InfoRow label="Date" value={data.sign_off.date_prepared} />
+                {data.sign_off.approved_by && (
+                  <>
+                    <InfoRow label="Approved By" value={data.sign_off.approved_by} />
+                    {data.sign_off.approved_by_position && (
+                      <InfoRow label="Approver Role" value={data.sign_off.approved_by_position} />
+                    )}
+                  </>
+                )}
                 <div className="mt-4 border-t border-slate-300 pt-3">
                   <p className="text-xs text-slate-400">Signature: ___________________________</p>
                 </div>
@@ -505,6 +566,36 @@ export function RAMSPreview({ data }: { data: RAMSDocument & { _source?: string 
                 <AlertTriangle className="w-3 h-3" />
                 <span>This document must be submitted to and approved by {data.project.principal_contractor} before works commence on site.</span>
               </div>
+            </div>
+
+            {/* ── Operative Sign-Off Table (CDM 2015 legal requirement) ── */}
+            <SectionTitle>15. Operative Sign-Off Register (CDM 2015)</SectionTitle>
+            <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+              All operatives must sign below to confirm they have read, understood, and will comply with this RAMS before commencing work (CDM 2015, Regulation 15). This register must be retained on site and available for inspection.
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border border-slate-300 text-xs">
+                <thead>
+                  <tr className="bg-slate-700 text-white">
+                    <th className="px-2 py-2 font-semibold uppercase tracking-wide w-10 text-center">No.</th>
+                    <th className="px-2 py-2 font-semibold uppercase tracking-wide">Name (Print)</th>
+                    <th className="px-2 py-2 font-semibold uppercase tracking-wide">Signature</th>
+                    <th className="px-2 py-2 font-semibold uppercase tracking-wide w-24">Date</th>
+                    <th className="px-2 py-2 font-semibold uppercase tracking-wide w-36">CSCS / Competency Card No.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                      <td className="px-2 py-3 text-center text-slate-500 border border-slate-200">{i + 1}</td>
+                      <td className="px-2 py-3 border border-slate-200"> </td>
+                      <td className="px-2 py-3 border border-slate-200"> </td>
+                      <td className="px-2 py-3 border border-slate-200"> </td>
+                      <td className="px-2 py-3 border border-slate-200"> </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

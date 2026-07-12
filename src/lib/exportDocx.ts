@@ -326,6 +326,9 @@ export async function generateDocx(data: RAMSDocument): Promise<Buffer> {
           ...(data.method_statement.emergency_procedures.gas_escape
             ? labelValue("Gas Escape Procedure", data.method_statement.emergency_procedures.gas_escape)
             : []),
+          ...(data.method_statement.emergency_procedures.ohl_contact
+            ? labelValue("Overhead Powerline Contact Procedure", data.method_statement.emergency_procedures.ohl_contact)
+            : []),
 
           h2("Environmental Controls"),
           ...data.method_statement.environmental_controls.map((ec) => bullet(ec)),

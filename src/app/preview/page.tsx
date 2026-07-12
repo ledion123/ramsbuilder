@@ -8,14 +8,14 @@ import { Navbar } from "@/components/Navbar";
 import { HardHat, Loader2 } from "lucide-react";
 
 export default function PreviewPage() {
-  const [data, setData] = useState<(RAMSDocument & { _source?: string }) | null>(null);
+  const [data, setData] = useState<RAMSDocument | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("rams_document");
-      if (stored) {
-        setData(JSON.parse(stored));
+      const raw = localStorage.getItem("rams_document") ?? sessionStorage.getItem("rams_document");
+      if (raw) {
+        setData(JSON.parse(raw));
       }
     } catch {
       // ignore parse errors

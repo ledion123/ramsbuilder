@@ -34,15 +34,30 @@ function detect(activity: string, ...terms: string[]): boolean {
 }
 
 export function generateFromTemplate(input: RAMSInput): RAMSDocument {
+  const industry = (input.industry_type ?? "").toLowerCase();
+  const trades = (input.selected_trades ?? []).join(" ").toLowerCase();
   const act = input.activity;
   const depth = extractDepth(act);
-  const isExcavation = detect(act, "excav", "trench", "dig", "drain", "sewer", "duct", "cable", "pipe", "culvert");
+
+  // Detect from activity text + selected trades + industry
+  const inAll = `${act} ${trades} ${industry}`;
+  const isExcavation = detect(inAll, "excav", "trench", "dig", "drain", "sewer", "duct", "cable", "pipe", "culvert");
   const isConfinedSpace = isExcavation && depth >= 1.2;
-  const isNearCarriageway = detect(act, "carriageway", "road", "highway", "live traffic", "traffic management", "footway");
-  const hasConcrete = detect(act, "concret", "cement", "grout", "shutter", "pour", "foundation", "blinding");
-  const hasBreaking = detect(act, "break", "jackhammer", "pneumatic", "hoe ram", "demolit");
-  const hasCompaction = detect(act, "compact", "wacker", "plate", "vibrat", "roller");
+  const isNearCarriageway = detect(inAll, "carriageway", "road", "highway", "live traffic", "traffic management", "footway");
+  const hasConcrete = detect(inAll, "concret", "cement", "grout", "shutter", "pour", "foundation", "blinding");
+  const hasBreaking = detect(inAll, "break", "jackhammer", "pneumatic", "hoe ram", "demolit");
+  const hasCompaction = detect(inAll, "compact", "wacker", "plate", "vibrat", "roller");
   const hasPlant = input.plant_and_equipment.length > 0;
+
+  // Industry-type flags
+  const isElectrical  = industry === "electrical"  || detect(inAll, "electrical", "electric", "wiring", "cable install", "loto", "isolat");
+  const isScaffolding = industry === "scaffolding" || detect(inAll, "scaffold", "tube and fitting", "system scaffold");
+  const isRoofing     = industry === "roofing"     || detect(inAll, "roof", "flat roof", "pitched roof", "felt", "slate", "tile");
+  const isPlumbing    = industry === "plumbing"    || detect(inAll, "plumb", "heating", "gas install", "boiler", "pipework", "unvented");
+  const isDemolition  = industry === "demolition"  || detect(inAll, "demolit", "strip out", "soft strip", "asbestos");
+  const isBuilding    = industry === "building"    || detect(inAll, "brickwork", "block", "masonry", "structural", "beam");
+  const isME          = industry === "me"          || detect(inAll, "mechanical", "hvac", "ventilation", "air conditioning", "f-gas", "refrigerant");
+  const isFitout      = industry === "fitout"      || detect(inAll, "fit out", "fit-out", "partition", "suspended ceiling", "fire door", "acoustic");
 
   const docRef = `RAMS-${slugify(input.project_name)}-001`;
   const dateStr = today();
@@ -62,6 +77,36 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
 
   if (isExcavation) {
     legislation.push({ regulation: "Electricity at Work Regulations 1989", relevance: "Risk of striking underground electrical services during excavation works." });
+  }
+  if (isElectrical) {
+    legislation.push({ regulation: "Electricity at Work Regulations 1989", relevance: "All electrical work must be carried out by competent, qualified electricians. Systems must be made dead before work commences unless live working is unavoidable and controlled." });
+    legislation.push({ regulation: "BS 7671:2018+A2:2022 (IET Wiring Regulations 18th Edition)", relevance: "All fixed electrical installations must be designed, installed, and tested in accordance with the current edition of the Wiring Regulations." });
+  }
+  if (isScaffolding) {
+    legislation.push({ regulation: "Work at Height Regulations 2005", relevance: "Scaffold must be erected, altered, and dismantled by competent persons (CISRS card). All work at height must be properly planned and supervised." });
+    legislation.push({ regulation: "NASC TG20:21 Technical Guidance", relevance: "Tube and fitting scaffold design and erection must comply with NASC TG20 or a bespoke design by a Temporary Works Engineer." });
+  }
+  if (isRoofing) {
+    legislation.push({ regulation: "Work at Height Regulations 2005", relevance: "All roofing works require suitable edge protection (barriers or safety netting). Fragile surfaces must be identified and boards/crawling boards provided." });
+    legislation.push({ regulation: "ACR[M]001:2019 — Test for Fragility of Roofing Assemblies", relevance: "Any fragile roof surface (profiled metal, fibre cement, glass, rooflights) must be treated as fragile; crawl boards and collective fall protection required." });
+  }
+  if (isPlumbing) {
+    legislation.push({ regulation: "Gas Safety (Installation &amp; Use) Regulations 1998 (GSIUR)", relevance: "All gas works must be carried out by Gas Safe registered engineers. Pipework must be tested and purged in accordance with IGE/UP/1." });
+    legislation.push({ regulation: "Water Supply (Water Fittings) Regulations 1999", relevance: "All plumbing installations must comply with Water Regulations and use WRAS-approved materials where applicable." });
+  }
+  if (isDemolition) {
+    legislation.push({ regulation: "Control of Asbestos Regulations 2012 (CAR 2012)", relevance: "A Type 3 asbestos refurbishment/demolition survey must be obtained before any demolition or strip-out works commence. All ACMs to be removed by licensed contractor before demolition." });
+  }
+  if (isBuilding || hasConcrete || hasBreaking) {
+    legislation.push({ regulation: "Control of Substances Hazardous to Health Regulations 2002 (COSHH)", relevance: "Silica dust generated by cutting and breaking activities. Wet cutting methods and RPE (FFP3) mandatory. WEL: 0.1 mg/m³ (8-hr TWA)." });
+  }
+  if (isME) {
+    legislation.push({ regulation: "F-Gas Regulations (SI 2022/1013)", relevance: "Work on refrigeration and air conditioning systems containing F-Gas refrigerants must be carried out by F-Gas certified engineers. Leakage checks required." });
+    legislation.push({ regulation: "Pressure Systems Safety Regulations 2000 (PSSR)", relevance: "Pressurised systems must be operated within safe operating limits; Written Scheme of Examination required for statutory systems." });
+  }
+  if (isFitout) {
+    legislation.push({ regulation: "Building Regulations 2010 — Part B (Fire Safety)", relevance: "Fire-stopping and compartmentation must be reinstated following any penetrations through fire-rated elements. Fire door installation to BS EN 16034 and BS 8214." });
+    legislation.push({ regulation: "Regulatory Reform (Fire Safety) Order 2005", relevance: "Fire escape routes must be maintained throughout the fit-out works. All operatives to be briefed on fire escape routes before works commence." });
   }
   if (hasConcrete || hasBreaking) {
     legislation.push({ regulation: "COSHH 2002", relevance: "Cement and concrete works generate respirable crystalline silica dust and present risk of cement dermatitis. Diesel exhaust fumes from plant are also controlled substances." });
@@ -458,19 +503,40 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     });
   }
 
+  // ─── INDUSTRY METHOD STEPS ───────────────────────────────────────────────────
+  if (isElectrical && !isExcavation) {
+    addStep("Isolation and LOTO (Lock-Out Tag-Out)", `Before commencing any electrical work, ${input.supervisor} to confirm all circuits to be worked on are isolated at the distribution board and tested dead using an approved voltage indicator. Isolation to be locked off with a personal padlock; a 'Do Not Energise' label to be affixed. EICR record of isolation to be made before work commences. No live working without a specific Permit to Work signed by ${input.supervisor}.`);
+    addStep("Cable installation and containment", "Install cable containment (trunking, conduit, cable tray) in accordance with the project drawings and BS 7671. Cables to be run, terminated, and labelled in accordance with the circuit schedule. Minimum bending radii to be maintained. All trunking joints and entries to be made off to manufacturer's instructions. Support fixings at correct centres per containment type.");
+    addStep("Test, inspect and certify", "On completion of installation, carry out full inspection and testing in accordance with BS 7671 Part 6: continuity, insulation resistance, polarity, earth fault loop impedance, RCD operation, and prospective fault current. All test results to be recorded on an Electrical Installation Certificate (EIC) or Minor Works Certificate (MWC) as appropriate. Do not energise the installation without sign-off from a qualified test engineer.");
+  }
+  if (isScaffolding && !isExcavation) {
+    addStep("Scaffold design check and pre-erection planning", `${input.supervisor} to review the project specification and confirm whether a standard scaffold compliant with NASC TG20:21 is applicable, or whether a bespoke design by a Temporary Works Engineer is required. Obtain all necessary permissions and establish unloading and erection zones. Brief all scaffold erectors on the design intent and site-specific constraints before erection commences.`);
+    addStep("Scaffold erection", "Erect scaffold in accordance with the approved design/TG20 standard. All erectors to hold current CISRS card at appropriate level. Ground conditions to be assessed before base plates are positioned; sole boards to be used where ground is soft. All lifts to be fully boarded, braced, and tied before proceeding to next lift. Erect edge protection (double guardrail + toeboard) at every working platform.");
+    addStep("Scaffold handover inspection", "On completion, carry out formal handover inspection using a scaffold inspection tag/form. Complete TG20/bespoke design compliance checklist. Hand over the scaffold to the Principal Contractor/client with a completed SG4:22 handover record. Scaffold inspection to be repeated after any alteration or adverse weather event (≥50 mph wind) and results recorded.");
+  }
+  if (isRoofing && !isExcavation) {
+    addStep("Pre-work survey and edge protection installation", `${input.supervisor} to carry out a pre-work survey to identify fragile surfaces, rooflights, and roof drainage. Confirm the fragility classification of the roof surface (ACR[M]001). Install collective edge protection (barriers, safety nets — BS EN 1263-1, or FASET-inspected nets) before any operatives access the roof. All edge protection to be inspected and recorded on a scaffold tag before use.`);
+    addStep("Safe access and roofing works", "Access the roof using the agreed access route (scaffold staircase, fixed ladder with hoops). Lay crawl boards over any fragile surfaces before operatives walk on them. Roofing works to proceed in accordance with the project specification. No operative to stand directly on fragile roof elements. Check weather forecast; cease works if wind speed exceeds 25 mph or surface is wet/icy.");
+    addStep("Material handling and waste management", "Use mechanical lifting aids (scaffold hoists, crane) for materials above 25 kg where practicable. Do not overload roof or scaffold with materials — distribute loads across structural members. All waste, off-cuts, and old roofing materials to be removed promptly. Bagged and contained waste to be lowered using a rubbish chute or controlled lowering — no throwing debris from roof.");
+  }
+
   // ─── SCOPE ───────────────────────────────────────────────────────────────────
-  const scopeOfWorks = `${input.company_name} will carry out the following works at ${input.project_name} (${input.site_address}) as a subcontractor to the Principal Contractor, ${input.principal_contractor}. Works comprise: ${input.activity}. Works will be undertaken by ${input.operatives} under the direct supervision of ${input.supervisor}. Plant and equipment to be deployed: ${plantList.join(", ")}. Planned commencement date: ${input.start_date}. Estimated duration: ${input.duration}. All works will be executed in strict accordance with this Risk Assessment and Method Statement, the Principal Contractor's Construction Phase Plan, and the requirements of CDM Regulations 2015. This RAMS document must be submitted to and approved by the Principal Contractor before any works commence on site.`;
+  const industryLabel = input.industry_type ? ` (${input.industry_type})` : "";
+  const scopeOfWorks = `${input.company_name} will carry out the following ${industryLabel} works at ${input.project_name} (${input.site_address}) as a subcontractor to the Principal Contractor, ${input.principal_contractor}. Works comprise: ${input.activity}. Works will be undertaken by ${input.operatives} under the direct supervision of ${input.supervisor}. Plant and equipment to be deployed: ${plantList.join(", ")}. Planned commencement date: ${input.start_date}. Estimated duration: ${input.duration}. All works will be executed in strict accordance with this Risk Assessment and Method Statement, the Principal Contractor's Construction Phase Plan, and the requirements of CDM Regulations 2015. This RAMS document must be submitted to and approved by the Principal Contractor before any works commence on site.`;
 
   return {
     document_ref: docRef,
     revision: input.revision || "Rev 0",
+    revision_description: input.revision_description || "Initial issue",
     date: dateStr,
+    _source: "template" as const,
     company: {
       name: input.company_name,
       address: input.company_address,
       reg: input.company_reg,
       phone: input.company_phone,
       email: input.company_email,
+      logo: input.company_logo,
     },
     project: {
       name: input.project_name,
@@ -479,6 +545,8 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       supervisor: input.supervisor,
       start_date: input.start_date,
       duration: input.duration,
+      po_reference: input.po_reference,
+      working_hours: input.working_hours,
     },
     scope_of_works: scopeOfWorks,
     legislation,
@@ -487,12 +555,12 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       sequence_of_works: steps,
       plant_and_equipment: plantAndEquipment,
       ppe_requirements: ppe,
-      supervision: `All works to be directly supervised by ${input.supervisor} (Site Supervisor) who must hold a valid SSSTS or SMSTS certificate and have demonstrable experience in groundworks and civil engineering. CSCS cards to be carried by all operatives. Plant operators to hold current CPCS/NPORS tickets appropriate to the machine operated. A copy of this RAMS, all plant pre-start inspection records, excavation register, CAT sweep records, and Permit to Dig documentation to be maintained on site and available for inspection at all times.`,
+      supervision: `All works to be directly supervised by ${input.supervisor} (Site Supervisor) who must hold a valid SSSTS or SMSTS certificate and have demonstrable experience in the relevant trade. CSCS cards to be carried by all operatives. Plant operators to hold current CPCS/NPORS tickets appropriate to the machine operated. A copy of this RAMS, all plant pre-start inspection records, and relevant permits/registers to be maintained on site and available for inspection at all times.`,
       emergency_procedures: {
-        first_aid: `Trained First Aider to be on site at all times during works (First Aid certificate current within 3 years). First aid kit to be accessible in site welfare. Location of first aid box to be communicated to all operatives during pre-start briefing. RIDDOR reportable injuries to be reported to the HSE within the required timescales and notified to ${input.principal_contractor} immediately.`,
-        emergency_contacts: input.emergency_contact
-          ? `999 (Police/Fire/Ambulance). Site Supervisor: ${input.supervisor}. On-site emergency contact: ${input.emergency_contact}. PC Emergency Contact: To be confirmed by ${input.principal_contractor} before works commence.`
-          : `999 (Police/Fire/Ambulance). Site Supervisor: ${input.supervisor}. PC Emergency Contact: To be confirmed by ${input.principal_contractor} before works commence.`,
+        first_aid: input.first_aider_name
+          ? `First Aider on site: ${input.first_aider_name} — First Aid at Work certificate to be held on site. First aid kit location: to be confirmed on induction. RIDDOR reportable injuries to be reported to the HSE within required timescales and notified to ${input.principal_contractor} immediately.`
+          : `Trained First Aider to be on site at all times during works (First Aid certificate current within 3 years). First aid kit to be accessible in site welfare. Location of first aid box to be communicated to all operatives during pre-start briefing. RIDDOR reportable injuries to be reported to the HSE within required timescales and notified to ${input.principal_contractor} immediately.`,
+        emergency_contacts: `999 (Police/Fire/Ambulance). Site Supervisor: ${input.supervisor}. On-site emergency contact: ${input.emergency_contact}. PC Emergency Contact: To be confirmed by ${input.principal_contractor} before works commence.`,
         nearest_hospital: input.nearest_hospital || "To be confirmed by site supervisor before works commence — display on site noticeboard.",
         evacuation: `Follow ${input.principal_contractor}'s site emergency evacuation plan as communicated during site induction. Muster point to be confirmed at pre-start briefing. Operatives to be accounted for by ${input.supervisor} following any evacuation.`,
         ...(isExcavation && {
@@ -501,25 +569,25 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
         ...(isConfinedSpace && {
           confined_space_rescue: `Non-entry rescue policy: retrieval of an incapacitated operative must be attempted using the tripod, harness, and lifeline BEFORE any attempt at entry rescue. If rescue cannot be accomplished without entry: call 999 immediately and await specialist confined space rescue team. Standby person MUST NOT enter the excavation without BA equipment and a second standby outside. Confined space rescue procedure to be briefed to all persons before works commence.`,
         }),
-        gas_escape: undefined,
+        gas_escape: isPlumbing ? "If a gas escape is suspected: immediately evacuate the area. Do not operate electrical switches or create any ignition source. Call 999 and the National Gas Emergency Service (0800 111 999). Do not re-enter the building until declared safe by the gas emergency responder. Only Gas Safe registered engineers to investigate and make safe." : undefined,
       },
       environmental_controls: [
-        "Excavated arisings to be segregated on site (topsoil / subsoil / contaminated material); classified and disposed of with valid Waste Transfer Notes to a licensed facility.",
-        "Fuel, oil, and cement to be stored in a bunded area; refuelling bowser with drip tray to be used; spill kit (minimum 25L absorbent) on site at all times.",
-        "Concrete washout water to be retained in a designated wash-out area — no discharge to ground or drainage systems.",
-        "Dust suppression (water bowser or spray) to be applied during dry/windy conditions to minimise dust migration to neighbouring properties.",
+        "All waste materials to be segregated on site and disposed of with valid Waste Transfer Notes to a licensed facility.",
+        "Fuel, oil, and any chemicals to be stored in a bunded area; refuelling bowser with drip tray to be used; spill kit (minimum 25L absorbent) on site at all times.",
+        "Dust suppression measures to be applied during dry/windy conditions to minimise dust migration to neighbouring properties.",
         "Noise-generating operations to be restricted to the agreed working hours specified in the planning consent / Environmental Management Plan.",
         "Site compound and working areas to be cleaned up at end of each shift; no litter or waste to be left on site.",
-        "Any unexpected contaminated material encountered during excavation to be reported to the PC and specialist consultant immediately; works to halt pending investigation.",
+        "Any unexpected contaminated material encountered during works to be reported to the PC and specialist consultant immediately; works to halt pending investigation.",
       ],
       coshh_substances: coshh,
+      welfare_arrangements: input.welfare_arrangements || `Welfare facilities to be provided in accordance with CDM 2015 Schedule 2. Provision to include: toilet facilities (flushing WC or chemical toilet), washing facilities with hot and cold running water and soap, drinking water, rest area, and facilities for warming food. Location of all welfare facilities to be communicated during site induction. Welfare provision to be agreed with the Principal Contractor, ${input.principal_contractor}, before works commence.`,
     },
     havs_assessment: {
       applicable: hasCompaction || hasBreaking,
       tools: havsTools,
     },
     noise_assessment: {
-      applicable: true,
+      applicable: hasCompaction || hasBreaking || hasPlant,
       sources: noiseSources,
     },
     sign_off: {
@@ -527,6 +595,8 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       position: input.prepared_by_position || "Site Supervisor / Health & Safety Coordinator",
       date_prepared: dateStr,
       review_date: `12 months from ${dateStr} or immediately following any incident, accident, or significant change in the scope of works`,
+      approved_by: input.approved_by,
+      approved_by_position: input.approved_by_position,
     },
   };
 }
