@@ -19,7 +19,7 @@ const STEPS = [
 function StepBreadcrumb({ current }: { current: Step }) {
   const currentIdx = STEPS.findIndex((s) => s.key === current);
   return (
-    <div className="border-b border-[#1e3a6e] bg-[#0f2040]/50">
+    <div className="border-b border-slate-200 bg-white">
       <div className="max-w-5xl mx-auto px-6 py-3 flex items-center gap-0">
         {STEPS.map((step, i) => {
           const done = i < currentIdx;
@@ -28,22 +28,22 @@ function StepBreadcrumb({ current }: { current: Step }) {
             <div key={step.key} className="flex items-center">
               <div className={cn(
                 "flex items-center gap-2 text-xs font-semibold transition-colors",
-                active ? "text-white" : done ? "text-blue-400" : "text-slate-600"
+                active ? "text-slate-900" : done ? "text-blue-600" : "text-slate-400"
               )}>
                 <span className={cn(
                   "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black border transition-colors",
                   active
-                    ? "bg-blue-600 border-blue-600 text-white"
+                    ? "bg-[#1a2e4a] border-[#1a2e4a] text-white"
                     : done
-                    ? "bg-blue-600/20 border-blue-600/40 text-blue-400"
-                    : "bg-transparent border-slate-700 text-slate-600"
+                    ? "bg-blue-600 border-blue-600 text-white"
+                    : "bg-slate-100 border-slate-300 text-slate-400"
                 )}>
                   {done ? "✓" : i + 1}
                 </span>
                 {step.label}
               </div>
               {i < STEPS.length - 1 && (
-                <span className="mx-3 text-slate-700 text-xs">›</span>
+                <span className="mx-3 text-slate-300 text-xs">›</span>
               )}
             </div>
           );
@@ -73,7 +73,7 @@ export default function GeneratePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a1628]">
+    <div className="min-h-screen bg-slate-50">
       <Navbar variant="app" />
       <StepBreadcrumb current={step} />
 

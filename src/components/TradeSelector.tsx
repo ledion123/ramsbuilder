@@ -620,28 +620,28 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
   const selectedArray = Array.from(selected);
 
   return (
-    <div className="min-h-screen bg-[#0a1628] pb-40">
+    <div className="min-h-screen bg-slate-50 pb-40">
       {/* ── Header ── */}
       <motion.header
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="border-b border-[#1e3a6e] bg-[#0a1628]"
+        className="border-b border-slate-200 bg-white"
       >
         <div className="max-w-4xl mx-auto px-6 py-8 flex items-start gap-5">
           <motion.div
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.05 }}
-            className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/40"
+            className="w-14 h-14 rounded-2xl bg-[#1a2e4a] flex items-center justify-center flex-shrink-0 shadow-sm"
           >
             <HardHat className="w-8 h-8 text-white" />
           </motion.div>
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tight leading-none">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
               Select Your Trade Activities
             </h1>
-            <p className="text-slate-400 text-sm mt-2 max-w-lg">
+            <p className="text-slate-500 text-sm mt-2 max-w-lg">
               Choose every trade and activity your team will perform. Your RAMS document will be
               tailored specifically to the activities you select.
             </p>
@@ -657,15 +657,15 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.04, type: "spring", stiffness: 320, damping: 30 }}
-          className="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden"
+          className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm"
         >
           <button
             type="button"
             onClick={() => setScopeOpen((v) => !v)}
-            className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-800/30 transition-colors group"
+            className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-50 transition-colors group"
           >
-            <span className="text-blue-400 text-base">✦</span>
-            <span className="flex-1 text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+            <span className="text-blue-600 text-base">✦</span>
+            <span className="flex-1 text-sm font-bold text-slate-800 group-hover:text-slate-900 transition-colors">
               Quick-start — describe your scope of works
             </span>
             <span className="text-xs text-slate-500">AI auto-selects trades</span>
@@ -687,7 +687,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                 transition={{ type: "spring", stiffness: 300, damping: 30, opacity: { duration: 0.15 } }}
                 style={{ overflow: "hidden" }}
               >
-                <div className="border-t border-slate-800 px-5 py-4 space-y-3">
+                <div className="border-t border-slate-200 px-5 py-4 space-y-3">
                   <p className="text-xs text-slate-500 leading-relaxed">
                     Paste your scope of works, tender description, or job brief. AI will pre-tick the
                     relevant trade activities — you can adjust them below.
@@ -697,7 +697,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                     onChange={(e) => { setScopeText(e.target.value); setSuggestError(null); setSuggestCount(null); }}
                     placeholder="e.g. We will be carrying out excavation for adoptable foul and storm drainage, laying 450mm pipes, connecting to an existing manhole, constructing new manholes, then sub-base and tarmac surfacing for the adoptable road…"
                     rows={4}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-slate-100 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50 transition-colors resize-none"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-500 transition-colors resize-none"
                   />
                   <div className="flex items-center gap-3">
                     <button
@@ -744,13 +744,13 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
           transition={{ delay: 0.06, type: "spring", stiffness: 320, damping: 30 }}
           className="relative"
         >
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search trades (e.g. drainage, excavation, piling…)"
-            className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-10 py-3 text-slate-100 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50 transition-colors"
+            className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-10 py-3 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-500 transition-colors shadow-sm"
           />
           <AnimatePresence>
             {search && (
@@ -777,10 +777,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-amber-50 border border-amber-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 leading-snug">
                 <span className="font-semibold">Confined space activities selected</span> — your RAMS will
                 include confined space entry procedures, atmospheric testing requirements, and rescue plans
                 as required by the{" "}
@@ -796,17 +796,17 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-center gap-3 px-4 py-3.5 bg-blue-600/10 border border-blue-600/30 rounded-xl"
+              className="flex items-center gap-3 px-4 py-3.5 bg-blue-50 border border-blue-200 rounded-xl"
             >
-              <Info className="w-4 h-4 text-blue-400 flex-shrink-0 shrink-0" />
-              <p className="text-sm text-blue-300 flex-1 leading-snug">
+              <Info className="w-4 h-4 text-blue-600 flex-shrink-0 shrink-0" />
+              <p className="text-sm text-blue-800 flex-1 leading-snug">
                 Deep excavation selected — also consider{" "}
                 <span className="font-semibold">&quot;Confined Space Entry — Manholes &amp; Chambers&quot;</span>
               </p>
               <button
                 type="button"
                 onClick={addSuggestion}
-                className="flex-shrink-0 text-xs font-semibold text-blue-400 hover:text-white border border-blue-600/40 hover:border-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-colors"
+                className="flex-shrink-0 text-xs font-semibold text-blue-600 hover:text-white border border-blue-300 hover:border-blue-600 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-colors"
               >
                 Add trade →
               </button>
@@ -820,10 +820,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-blue-600/10 border border-blue-600/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-blue-50 border border-blue-200 rounded-xl"
             >
-              <Info className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-300 leading-snug">
+              <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-800 leading-snug">
                 <span className="font-semibold">Piling activities selected</span> — ensure piling
                 contractor holds current{" "}
                 <span className="font-semibold">CPCS A36 cards</span> and relevant insurance.
@@ -838,10 +838,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-amber-50 border border-amber-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 leading-snug">
                 <span className="font-semibold">Electrical work selected</span> — all operatives must hold
                 current NVQ/C&amp;G qualifications. All work must be tested and certified to{" "}
                 <span className="font-semibold">BS 7671:2018 (18th Edition)</span> under{" "}
@@ -857,10 +857,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-blue-600/10 border border-blue-600/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-blue-50 border border-blue-200 rounded-xl"
             >
-              <Info className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-blue-300 leading-snug">
+              <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-blue-800 leading-snug">
                 <span className="font-semibold">Scaffolding work selected</span> — scaffold design must be
                 approved by a competent person per{" "}
                 <span className="font-semibold">NASC TG20:21 / BS 5975</span>. Tag boards required at
@@ -877,10 +877,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-red-500/10 border border-red-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-red-50 border border-red-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-800 leading-snug">
                 <span className="font-semibold">Asbestos works selected</span> — an{" "}
                 <span className="font-semibold">asbestos survey (CAR 2012, Reg 5)</span> must be completed
                 before any demolition or strip-out commences. Licensed work requires a{" "}
@@ -896,10 +896,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-amber-50 border border-amber-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-800 leading-snug">
                 <span className="font-semibold">Gas installation selected</span> — all gas work must be
                 carried out by{" "}
                 <span className="font-semibold">Gas Safe registered operatives only</span> under the{" "}
@@ -915,10 +915,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-red-500/10 border border-red-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-red-50 border border-red-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-800 leading-snug">
                 <span className="font-semibold">UXO risk selected</span> — a suitably qualified specialist
                 must carry out a geophysical survey before any excavation commences. The hazard must be
                 identified in the{" "}
@@ -936,10 +936,10 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex items-start gap-3 px-4 py-3.5 bg-red-500/10 border border-red-500/30 rounded-xl"
+              className="flex items-start gap-3 px-4 py-3.5 bg-red-50 border border-red-200 rounded-xl"
             >
-              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300 leading-snug">
+              <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-800 leading-snug">
                 <span className="font-semibold">Overhead powerlines selected</span> — contact with overhead
                 lines is the most common cause of electrical fatality on construction sites. Verify safe
                 working distances with the DNO before mobilising.{" "}
@@ -962,7 +962,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
               exit="exit"
               className="text-center py-10 text-slate-500 text-sm"
             >
-              No trades match &quot;<span className="text-slate-300">{search}</span>&quot;
+              No trades match &quot;<span className="text-slate-700">{search}</span>&quot;
             </motion.div>
           )}
         </AnimatePresence>
@@ -981,26 +981,26 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: catIdx * 0.04, type: "spring", stiffness: 320, damping: 30 }}
-                className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
+                className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm"
               >
                 {/* Category header */}
                 <button
                   type="button"
                   onClick={() => toggleCategory(cat.id)}
-                  className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-800/30 transition-colors group"
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-slate-50 transition-colors group"
                 >
                   <div className="w-px h-4 bg-blue-600 flex-shrink-0" />
-                  <span className="flex-1 text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+                  <span className="flex-1 text-sm font-bold text-slate-800 group-hover:text-slate-900 transition-colors">
                     {cat.name}
                   </span>
-                  <span className="text-xs text-slate-500 flex-shrink-0">
+                  <span className="text-xs text-slate-400 flex-shrink-0">
                     {cat.trades.length} trade{cat.trades.length !== 1 ? "s" : ""}
                   </span>
                   {selCount > 0 && (
                     <motion.span
                       initial={{ scale: 0.7, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="flex-shrink-0 text-[11px] font-bold px-2 py-0.5 bg-blue-600/20 text-blue-400 border border-blue-600/30 rounded-full"
+                      className="flex-shrink-0 text-[11px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full"
                     >
                       {selCount} selected
                     </motion.span>
@@ -1025,7 +1025,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                       transition={{ type: "spring", stiffness: 300, damping: 30, opacity: { duration: 0.15 } }}
                       style={{ overflow: "hidden" }}
                     >
-                      <div className="border-t border-slate-800 px-5 py-3">
+                      <div className="border-t border-slate-200 px-5 py-3">
                         {/* Select All / Deselect All */}
                         <div className="flex justify-end mb-3">
                           <button
@@ -1033,7 +1033,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                             onClick={() =>
                               allVisibleSelected ? deselectAll(visible) : selectAll(visible)
                             }
-                            className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-[11px] font-semibold text-blue-600 hover:text-blue-500 transition-colors"
                           >
                             {allVisibleSelected ? "Deselect All" : "Select All"}
                           </button>
@@ -1049,8 +1049,8 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                                 className={cn(
                                   "flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors select-none",
                                   checked
-                                    ? "bg-blue-600/10 hover:bg-blue-600/15"
-                                    : "hover:bg-slate-800/60"
+                                    ? "bg-blue-50 hover:bg-blue-100/70"
+                                    : "hover:bg-slate-50"
                                 )}
                               >
                                 {/* Custom checkbox */}
@@ -1059,7 +1059,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                                     "w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors",
                                     checked
                                       ? "bg-blue-600 border-blue-600"
-                                      : "bg-slate-950 border-slate-600"
+                                      : "bg-white border-slate-300"
                                   )}
                                 >
                                   {checked && (
@@ -1090,7 +1090,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                                 <span
                                   className={cn(
                                     "text-sm transition-colors leading-snug",
-                                    checked ? "text-blue-300 font-medium" : "text-slate-300"
+                                    checked ? "text-blue-700 font-medium" : "text-slate-700"
                                   )}
                                 >
                                   {trade}
@@ -1118,12 +1118,12 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
             animate={shouldReduceMotion ? { opacity: 1 } : { y: 0, opacity: 1 }}
             exit={shouldReduceMotion ? { opacity: 0 } : { y: 80, opacity: 0 }}
             transition={{ type: "spring", stiffness: 340, damping: 30 }}
-            className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#1e3a6e] bg-[#0a1628]/95 backdrop-blur-sm"
+            className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur-sm shadow-[0_-4px_16px_rgba(0,0,0,0.06)]"
           >
             <div className="max-w-4xl mx-auto px-6 py-4 space-y-3">
               {/* Pills row */}
               <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-0.5">
-                <span className="flex-shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <span className="flex-shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
                   {selectedArray.length} trade{selectedArray.length !== 1 ? "s" : ""}:
                 </span>
                 <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap sm:flex-nowrap">
@@ -1136,7 +1136,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="flex-shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-300 bg-blue-600/15 border border-blue-600/25 rounded-full px-3 py-1"
+                        className="flex-shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-3 py-1"
                       >
                         <span className="max-w-[140px] truncate" title={trade}>
                           {truncate(trade, 28)}
@@ -1145,7 +1145,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                           type="button"
                           onClick={() => removeSelected(trade)}
                           aria-label={`Remove ${trade}`}
-                          className="text-blue-400 hover:text-white transition-colors flex-shrink-0"
+                          className="text-blue-500 hover:text-blue-700 transition-colors flex-shrink-0"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1160,7 +1160,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                 <button
                   type="button"
                   onClick={() => setSelected(new Set())}
-                  className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                  className="text-xs text-slate-500 hover:text-slate-700 transition-colors"
                 >
                   Clear all
                 </button>
@@ -1169,7 +1169,7 @@ export default function TradeSelector({ onTradesSelected, industryFilter }: Trad
                   onClick={() => onTradesSelected(selectedArray)}
                   whileHover={!shouldReduceMotion ? { scale: 1.01 } : undefined}
                   whileTap={!shouldReduceMotion ? { scale: 0.98 } : undefined}
-                  className="flex items-center gap-2.5 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-lg shadow-blue-900/30"
+                  className="flex items-center gap-2.5 px-6 py-2.5 bg-[#1a2e4a] hover:bg-[#243d5f] text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
                 >
                   Continue to RAMS Generator
                   <ArrowRight className="w-4 h-4" />

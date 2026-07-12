@@ -19,14 +19,14 @@ import {
 function StatusBadge({ status }: { status: RegStatus["status"] | "idle" | "loading" }) {
   if (status === "idle" || status === "loading") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-500 border border-slate-700">
+      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-400 border border-slate-200">
         —
       </span>
     );
   }
   if (status === "current") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-600/15 text-green-400 border border-green-600/30 font-semibold">
+      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 font-semibold">
         <CheckCircle2 className="w-3 h-3" />
         Current
       </span>
@@ -34,14 +34,14 @@ function StatusBadge({ status }: { status: RegStatus["status"] | "idle" | "loadi
   }
   if (status === "review") {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-semibold">
+      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-semibold">
         <AlertTriangle className="w-3 h-3" />
         Review needed
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-500/15 text-red-400 border border-red-500/30 font-semibold">
+    <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-semibold">
       <XCircle className="w-3 h-3" />
       Error
     </span>
@@ -81,29 +81,29 @@ export default function RegulationsPage() {
   const currentCount = results?.filter((r) => r.status === "current").length ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#0a1628] flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar variant="app" />
       {/* Hero Header */}
-      <header className="border-b border-slate-800 bg-[#0a1628]">
+      <header className="border-b border-slate-200 bg-white">
         <div className="max-w-5xl mx-auto px-6 py-8">
           <div className="flex items-start gap-5">
-            <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/40">
+            <div className="w-14 h-14 rounded-2xl bg-[#1a2e4a] flex items-center justify-center flex-shrink-0 shadow-sm">
               <HardHat className="w-8 h-8 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black text-white tracking-tight leading-none">
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
                   Regulation Currency Checker
                 </h1>
               </div>
-              <p className="text-slate-400 text-sm mt-2 max-w-xl">
+              <p className="text-slate-500 text-sm mt-2 max-w-xl">
                 Checks each UK regulation cited by this app against{" "}
-                <span className="text-slate-300">legislation.gov.uk</span> to detect amendments
+                <span className="text-slate-700 font-medium">legislation.gov.uk</span> to detect amendments
                 since we last verified. Click through to review any flagged items.
               </p>
               <Link
                 href="/generate"
-                className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-300 text-xs mt-4 transition-colors"
+                className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-700 text-xs mt-4 transition-colors"
               >
                 <ArrowLeft className="w-3 h-3" />
                 Back to RAMS Generator
@@ -120,25 +120,25 @@ export default function RegulationsPage() {
             {results && (
               <div className="flex items-center gap-3 text-sm">
                 {currentCount > 0 && (
-                  <span className="flex items-center gap-1.5 text-green-400">
+                  <span className="flex items-center gap-1.5 text-green-600">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     {currentCount} current
                   </span>
                 )}
                 {reviewCount > 0 && (
-                  <span className="flex items-center gap-1.5 text-amber-400">
+                  <span className="flex items-center gap-1.5 text-amber-600">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     {reviewCount} need review
                   </span>
                 )}
                 {errorCount > 0 && (
-                  <span className="flex items-center gap-1.5 text-red-400">
+                  <span className="flex items-center gap-1.5 text-red-600">
                     <XCircle className="w-3.5 h-3.5" />
                     {errorCount} errors
                   </span>
                 )}
                 {checkedAt && (
-                  <span className="text-slate-600 text-xs">· checked at {checkedAt}</span>
+                  <span className="text-slate-400 text-xs">· checked at {checkedAt}</span>
                 )}
               </div>
             )}
@@ -146,7 +146,7 @@ export default function RegulationsPage() {
           <button
             onClick={runCheck}
             disabled={loading}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-lg text-sm font-bold transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1a2e4a] hover:bg-[#243d5f] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-lg text-sm font-bold transition-colors"
           >
             <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
             {loading ? "Checking…" : results ? "Re-check" : "Check Now"}
@@ -154,52 +154,52 @@ export default function RegulationsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-            <p className="text-sm text-red-400">Check failed: {error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p className="text-sm text-red-700">Check failed: {error}</p>
           </div>
         )}
 
         {/* Info callout */}
         {reviewCount > 0 && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
-            <p className="text-sm text-amber-300">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <p className="text-sm text-amber-800">
               <span className="font-semibold">Review needed:</span>{" "}
               legislation.gov.uk has updated {reviewCount === 1 ? "this regulation" : `${reviewCount} regulations`} since
               the app was last verified. Click the GOV.UK link for each flagged row to check if the
               change is substantive. If wording or duties have changed, update{" "}
-              <code className="text-amber-200 bg-amber-900/30 px-1 rounded">src/lib/generateFromTemplate.ts</code>{" "}
-              and set <code className="text-amber-200 bg-amber-900/30 px-1 rounded">lastVerified</code> in{" "}
-              <code className="text-amber-200 bg-amber-900/30 px-1 rounded">src/lib/regulations.ts</code> to today.
+              <code className="text-amber-700 bg-amber-100 px-1 rounded">src/lib/generateFromTemplate.ts</code>{" "}
+              and set <code className="text-amber-700 bg-amber-100 px-1 rounded">lastVerified</code> in{" "}
+              <code className="text-amber-700 bg-amber-100 px-1 rounded">src/lib/regulations.ts</code> to today.
             </p>
           </div>
         )}
 
         {/* Table */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-          <div className="bg-slate-800/40 px-6 py-3 flex items-center gap-3 border-b border-slate-800">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-slate-50 px-6 py-3 flex items-center gap-3 border-b border-slate-200">
             <div className="w-px h-4 bg-blue-600 flex-shrink-0" />
-            <h3 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.15em]">
+            <h3 className="text-[11px] font-black text-slate-600 uppercase tracking-[0.15em]">
               Tracked Regulations ({REGULATIONS_COUNT})
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-800">
-                  <th className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest">Regulation</th>
-                  <th className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest w-28">Short code</th>
-                  <th className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest w-32">Last verified</th>
-                  <th className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest w-36">GOV.UK updated</th>
-                  <th className="px-5 py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest w-36">Status</th>
+                <tr className="border-b border-slate-200">
+                  <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Regulation</th>
+                  <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest w-28">Short code</th>
+                  <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest w-32">Last verified</th>
+                  <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest w-36">GOV.UK updated</th>
+                  <th className="px-5 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest w-36">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {(results ?? PLACEHOLDER_ROWS).map((row) => (
                   <tr
                     key={row.id}
                     className={cn(
                       "group transition-colors",
-                      row.status === "review" && "bg-amber-500/5"
+                      row.status === "review" && "bg-amber-50/60"
                     )}
                   >
                     <td className="px-5 py-3.5">
@@ -207,27 +207,27 @@ export default function RegulationsPage() {
                         href={row.govukUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-start gap-2 text-sm text-slate-200 hover:text-blue-400 transition-colors group/link"
+                        className="flex items-start gap-2 text-sm text-slate-700 hover:text-blue-600 transition-colors group/link"
                       >
                         <span className="leading-snug">{row.name}</span>
-                        <ExternalLink className="w-3 h-3 flex-shrink-0 mt-0.5 opacity-0 group-hover/link:opacity-100 transition-opacity text-blue-400" />
+                        <ExternalLink className="w-3 h-3 flex-shrink-0 mt-0.5 opacity-0 group-hover/link:opacity-100 transition-opacity text-blue-500" />
                       </a>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs font-mono text-slate-400">{row.shortCode}</span>
+                      <span className="text-xs font-mono text-slate-500">{row.shortCode}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs text-slate-400">{formatDate(row.lastVerified)}</span>
+                      <span className="text-xs text-slate-500">{formatDate(row.lastVerified)}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={cn(
                         "text-xs",
                         row.govukModified && row.govukModified > row.lastVerified
-                          ? "text-amber-400 font-semibold"
-                          : "text-slate-400"
+                          ? "text-amber-600 font-semibold"
+                          : "text-slate-500"
                       )}>
                         {row.govukModified ? formatDate(row.govukModified) : (
-                          <span className="text-slate-600">{loading ? "…" : "—"}</span>
+                          <span className="text-slate-300">{loading ? "…" : "—"}</span>
                         )}
                       </span>
                     </td>
@@ -242,10 +242,10 @@ export default function RegulationsPage() {
         </div>
 
         {/* Referenced British Standards */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-          <div className="bg-slate-800/40 px-6 py-3 flex items-center gap-3 border-b border-slate-800">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="bg-slate-50 px-6 py-3 flex items-center gap-3 border-b border-slate-200">
             <div className="w-px h-4 bg-blue-600 flex-shrink-0" />
-            <h3 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.15em]">
+            <h3 className="text-[11px] font-black text-slate-600 uppercase tracking-[0.15em]">
               Referenced British Standards
             </h3>
           </div>
@@ -262,13 +262,13 @@ export default function RegulationsPage() {
                 { code: "BS 5839-1:2017", name: "Fire Detection and Alarm Systems for Buildings", scope: "Fire alarm installation" },
                 { code: "BS 5266-1:2016", name: "Code of Practice for Emergency Lighting", scope: "Emergency lighting installation" },
               ].map(({ code, name, scope }) => (
-                <div key={code} className="flex items-start gap-3 p-3 rounded-lg bg-slate-800/30 border border-slate-800">
-                  <span className="text-[10px] font-black text-blue-400 bg-blue-600/10 border border-blue-600/20 px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0 mt-0.5">
+                <div key={code} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] font-black text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded uppercase tracking-wider flex-shrink-0 mt-0.5">
                     {code}
                   </span>
                   <div>
-                    <p className="text-xs font-semibold text-slate-300">{name}</p>
-                    <p className="text-xs text-slate-600 mt-0.5">{scope}</p>
+                    <p className="text-xs font-semibold text-slate-800">{name}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{scope}</p>
                   </div>
                 </div>
               ))}
@@ -277,15 +277,15 @@ export default function RegulationsPage() {
         </div>
 
         {/* Footer note */}
-        <div className="flex items-start gap-3 text-xs text-slate-600 pb-4">
-          <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5 text-slate-700" />
+        <div className="flex items-start gap-3 text-xs text-slate-400 pb-4">
+          <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5 text-slate-400" />
           <p>
             Modification dates are fetched live from{" "}
             <a
               href="https://www.legislation.gov.uk"
               target="_blank"
               rel="noopener noreferrer"
-              className="underline hover:text-slate-400 transition-colors"
+              className="underline hover:text-slate-600 transition-colors"
             >
               legislation.gov.uk
             </a>

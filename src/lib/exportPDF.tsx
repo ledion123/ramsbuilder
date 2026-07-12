@@ -5,178 +5,190 @@ import {
   View,
   Text,
   StyleSheet,
+  Font,
+  Image,
   renderToBuffer,
 } from "@react-pdf/renderer";
 import type { RAMSDocument, RiskAssessmentItem } from "./types";
 
-// ── Colour palette ───────────────────────────────────────────────
-const ACCENT   = "#2563eb";   // blue-600
-const ACCENT2  = "#1d4ed8";   // blue-700
-const DARK     = "#0f172a";   // page bg / deepest navy
-const CARD_BG  = "#0f2040";   // card background
-const TEXT     = "#e2e8f0";   // body text
-const MUTED    = "#94a3b8";   // subdued text
-const MUTED2   = "#64748b";
-const BORDER   = "#1e3a6e";   // border colour
-const ROW_ALT  = "#152a52";   // alt row tint
+// ── Register Roboto (falls back to Helvetica if offline) ─────────
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf", fontWeight: 400 },
+    { src: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf", fontWeight: 700 },
+  ],
+});
 
+// ── Colour palette (light professional theme) ────────────────────
+const NAVY        = "#1a2e4a";   // header bands, footer bands, logo bg
+const BRAND       = "#2563eb";   // blue-600 — section left border, step badges
+const PAGE_BG     = "#ffffff";
+const BODY_TEXT   = "#1e293b";
+const MUTED       = "#64748b";
+const HEADER_BG   = "#f1f5f9";   // running header background
+const ROW_ALT     = "#f8fafc";
+const TABLE_BORDER = "#cbd5e1";
 const GREEN = "#16a34a";
 const AMBER = "#d97706";
 const RED   = "#dc2626";
 
 // ── Styles ───────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  // ── Cover page ──
+
+  // ── Cover page ──────────────────────────────────────────────────
   coverPage: {
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 9,
-    backgroundColor: DARK,
+    backgroundColor: PAGE_BG,
     padding: 0,
+    flexDirection: "column",
   },
-  coverAccentBar: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 7,
-    backgroundColor: ACCENT,
+  coverTopBand: {
+    backgroundColor: NAVY,
+    height: 70,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 28,
+    justifyContent: "space-between",
+    flexShrink: 0,
   },
-  coverContent: {
+  coverLogoArea: {
+    height: 44,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  coverLogoImage: {
+    height: 36,
+    maxWidth: 130,
+    objectFit: "contain",
+  },
+  coverLogoFallback: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "#ffffff",
+    maxWidth: 160,
+  },
+  coverBandTitle: {
+    fontSize: 9,
+    fontWeight: 700,
+    color: "#ffffff",
+    letterSpacing: 0.8,
+    textAlign: "right",
+    maxWidth: 200,
+    lineHeight: 1.35,
+  },
+  coverBody: {
     flex: 1,
-    paddingLeft: 44,
-    paddingRight: 36,
-    paddingTop: 44,
+    paddingHorizontal: 36,
+    paddingTop: 36,
     paddingBottom: 0,
     flexDirection: "column",
   },
-  coverTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 16,
+  coverProjectName: {
+    fontSize: 26,
+    fontWeight: 700,
+    color: NAVY,
+    lineHeight: 1.1,
+    marginBottom: 6,
   },
-  coverCompanyName: {
-    fontSize: 22,
-    fontFamily: "Helvetica-Bold",
-    color: TEXT,
-    marginBottom: 3,
-  },
-  coverCompanyMeta: {
-    fontSize: 8.5,
+  coverProjectSite: {
+    fontSize: 11,
     color: MUTED,
-    lineHeight: 1.5,
-  },
-  coverLogoBox: {
-    width: 90,
-    height: 44,
-    borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  coverLogoLabel: {
-    fontSize: 7,
-    color: MUTED2,
-    fontFamily: "Helvetica-Bold",
+    marginBottom: 20,
   },
   coverDivider: {
     height: 1,
-    backgroundColor: BORDER,
-    marginBottom: 48,
-  },
-  coverTitleArea: {
-    flex: 1,
-    justifyContent: "center",
-    paddingBottom: 40,
-  },
-  coverTitleLine1: {
-    fontSize: 30,
-    fontFamily: "Helvetica-Bold",
-    color: TEXT,
-    lineHeight: 1.1,
-  },
-  coverTitleLine2: {
-    fontSize: 30,
-    fontFamily: "Helvetica-Bold",
-    color: ACCENT,
-    lineHeight: 1.1,
-    marginBottom: 12,
-  },
-  coverAccentUnderline: {
-    height: 3,
-    width: 60,
-    backgroundColor: ACCENT,
+    backgroundColor: TABLE_BORDER,
     marginBottom: 20,
   },
-  coverProjectName: {
-    fontSize: 14,
-    color: MUTED,
-    marginBottom: 5,
-    fontFamily: "Helvetica-Bold",
-  },
-  coverProjectSite: {
-    fontSize: 10,
-    color: MUTED2,
-  },
-  coverInfoStrip: {
+  coverInfoGrid: {
     flexDirection: "row",
-    backgroundColor: CARD_BG,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    marginTop: "auto",
+    flexWrap: "wrap",
+    marginBottom: 24,
   },
   coverInfoCol: {
-    flex: 1,
+    width: "50%",
+    marginBottom: 12,
+    paddingRight: 12,
   },
   coverInfoLabel: {
     fontSize: 6.5,
     color: MUTED,
-    fontFamily: "Helvetica-Bold",
+    fontWeight: 700,
     letterSpacing: 0.5,
     marginBottom: 2,
+    textTransform: "uppercase",
   },
   coverInfoValue: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    color: TEXT,
+    fontSize: 9.5,
+    fontWeight: 700,
+    color: BODY_TEXT,
   },
-  coverConfidential: {
-    position: "absolute",
-    bottom: 14,
-    right: 0,
-    backgroundColor: ACCENT,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+  // Revision history on cover
+  coverRevTable: {
+    borderWidth: 0.5,
+    borderColor: TABLE_BORDER,
+    marginBottom: 0,
   },
-  coverConfidentialText: {
-    fontSize: 7,
-    fontFamily: "Helvetica-Bold",
+  coverRevHeader: {
+    flexDirection: "row",
+    backgroundColor: NAVY,
+    paddingVertical: 5,
+    paddingHorizontal: 6,
+  },
+  coverRevHeaderCell: {
+    fontWeight: 700,
     color: "#ffffff",
-    letterSpacing: 1,
+    fontSize: 7.5,
+  },
+  coverRevRow: {
+    flexDirection: "row",
+    borderTopWidth: 0.5,
+    borderTopColor: TABLE_BORDER,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+  },
+  coverRevCell: {
+    fontSize: 8,
+    color: BODY_TEXT,
+  },
+  coverBottomBand: {
+    backgroundColor: NAVY,
+    height: 40,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 28,
+    gap: 24,
+    marginTop: "auto",
+    flexShrink: 0,
+  },
+  coverBottomText: {
+    fontSize: 7.5,
+    color: "rgba(255,255,255,0.7)",
   },
 
-  // ── Content page ──
+  // ── Content pages ───────────────────────────────────────────────
   contentPage: {
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 9,
-    color: TEXT,
-    backgroundColor: "#ffffff",
+    color: BODY_TEXT,
+    backgroundColor: PAGE_BG,
     paddingTop: 54,
     paddingBottom: 44,
     paddingHorizontal: 36,
   },
   landscapePage: {
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 9,
-    color: TEXT,
-    backgroundColor: "#ffffff",
+    color: BODY_TEXT,
+    backgroundColor: PAGE_BG,
     paddingTop: 54,
     paddingBottom: 44,
     paddingHorizontal: 28,
   },
 
-  // ── Running header (fixed) ──
+  // ── Running header (light) ──────────────────────────────────────
   runningHeader: {
     position: "absolute",
     top: 0,
@@ -185,16 +197,16 @@ const s = StyleSheet.create({
     height: 28,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: CARD_BG,
+    backgroundColor: HEADER_BG,
     paddingHorizontal: 18,
-    borderBottomWidth: 1.5,
-    borderBottomColor: ACCENT,
+    borderBottomWidth: 1,
+    borderBottomColor: NAVY,
   },
   rhLeft:   { flex: 1, fontSize: 7, color: MUTED },
-  rhCentre: { flex: 1, textAlign: "center", fontSize: 7, fontFamily: "Helvetica-Bold", color: TEXT },
+  rhCentre: { flex: 1, textAlign: "center", fontSize: 7, fontWeight: 700, color: BODY_TEXT, letterSpacing: 0.3 },
   rhRight:  { flex: 1, textAlign: "right", fontSize: 7, color: MUTED },
 
-  // ── Footer (fixed) ──
+  // ── Footer ─────────────────────────────────────────────────────
   footer: {
     position: "absolute",
     bottom: 14,
@@ -203,18 +215,18 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 0.5,
-    borderTopColor: BORDER,
+    borderTopColor: TABLE_BORDER,
     paddingTop: 3,
   },
-  footerText: { fontSize: 6.5, color: MUTED2 },
+  footerText: { fontSize: 6.5, color: MUTED },
 
-  // ── Section headers ──
+  // ── Section headers ─────────────────────────────────────────────
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: CARD_BG,
+    backgroundColor: ROW_ALT,
     borderLeftWidth: 3,
-    borderLeftColor: ACCENT,
+    borderLeftColor: BRAND,
     paddingVertical: 5,
     paddingHorizontal: 8,
     marginTop: 14,
@@ -222,95 +234,103 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 10,
-    fontFamily: "Helvetica-Bold",
-    color: TEXT,
-    letterSpacing: 0.4,
+    fontWeight: 700,
+    color: BODY_TEXT,
+    letterSpacing: 0.3,
   },
 
-  // ── Tables ──
-  table: { borderWidth: 0.5, borderColor: BORDER, marginBottom: 8 },
+  // ── Tables ─────────────────────────────────────────────────────
+  table: { borderWidth: 0.5, borderColor: TABLE_BORDER, marginBottom: 8 },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#0f2040",
+    backgroundColor: NAVY,
     paddingVertical: 5,
     paddingHorizontal: 6,
   },
-  tableHeaderCell: { fontFamily: "Helvetica-Bold", color: "#ffffff", fontSize: 7.5 },
+  tableHeaderCell: { fontWeight: 700, color: "#ffffff", fontSize: 7.5 },
   tableRow: {
     flexDirection: "row",
     borderTopWidth: 0.5,
-    borderTopColor: BORDER,
+    borderTopColor: TABLE_BORDER,
     paddingVertical: 4,
     paddingHorizontal: 6,
-    backgroundColor: "#ffffff",
+    backgroundColor: PAGE_BG,
   },
   tableRowAlt: {
     flexDirection: "row",
     borderTopWidth: 0.5,
-    borderTopColor: BORDER,
+    borderTopColor: TABLE_BORDER,
     paddingVertical: 4,
     paddingHorizontal: 6,
-    backgroundColor: "#f0f4ff",
+    backgroundColor: ROW_ALT,
   },
-  tableCell: { fontSize: 8, color: "#1e293b" },
+  tableCell: { fontSize: 8, color: BODY_TEXT },
 
-  // ── Project info box ──
+  // ── Project info box ────────────────────────────────────────────
   projectBox: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: ROW_ALT,
     borderWidth: 0.5,
-    borderColor: "#cbd5e1",
+    borderColor: TABLE_BORDER,
     borderRadius: 2,
     padding: 10,
     marginBottom: 12,
   },
   projectGrid: { flexDirection: "row", flexWrap: "wrap" },
-  projectField: { width: "50%", marginBottom: 6 },
+  projectField:     { width: "50%", marginBottom: 6 },
   projectFieldFull: { width: "100%", marginBottom: 6 },
-  fieldLabel: { fontSize: 7, color: MUTED2, fontFamily: "Helvetica-Bold", marginBottom: 1 },
-  fieldValue: { fontSize: 9, color: "#1e293b" },
+  fieldLabel: { fontSize: 7, color: MUTED, fontWeight: 700, marginBottom: 1, letterSpacing: 0.3 },
+  fieldValue: { fontSize: 9, color: BODY_TEXT },
 
-  // ── Risk chips ──
-  riskChip: {
-    padding: "2 6",
-    borderRadius: 10,
+  // ── Risk score full-cell ────────────────────────────────────────
+  riskCell: {
+    paddingVertical: 3,
+    paddingHorizontal: 4,
     fontSize: 7.5,
-    fontFamily: "Helvetica-Bold",
+    fontWeight: 700,
     color: "#ffffff",
     textAlign: "center",
+    borderRadius: 2,
   },
 
-  // ── Method steps ──
-  stepRow:    { flexDirection: "row", marginBottom: 8, gap: 8 },
-  stepBadge:  { width: 22, height: 22, borderRadius: 11, backgroundColor: ACCENT, justifyContent: "center", alignItems: "center", flexShrink: 0 },
-  stepNum:    { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#ffffff" },
-  stepContent:{ flex: 1 },
-  stepTitle:  { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#1e293b", marginBottom: 2 },
-  stepDesc:   { fontSize: 8, color: "#475569", lineHeight: 1.4 },
+  // ── Method steps ───────────────────────────────────────────────
+  stepRow:     { flexDirection: "row", marginBottom: 8, gap: 8 },
+  stepBadge:   { width: 22, height: 22, borderRadius: 11, backgroundColor: BRAND, justifyContent: "center", alignItems: "center", flexShrink: 0 },
+  stepNum:     { fontSize: 9, fontWeight: 700, color: "#ffffff" },
+  stepContent: { flex: 1 },
+  stepTitle:   { fontSize: 9, fontWeight: 700, color: BODY_TEXT, marginBottom: 2 },
+  stepDesc:    { fontSize: 8, color: MUTED, lineHeight: 1.4 },
 
-  // ── Bullets ──
+  // ── Bullets ────────────────────────────────────────────────────
   bulletRow:  { flexDirection: "row", marginBottom: 3, gap: 4 },
-  bulletDot:  { fontSize: 9, color: ACCENT, width: 8, flexShrink: 0 },
-  bulletText: { fontSize: 8, color: "#1e293b", flex: 1, lineHeight: 1.4 },
+  bulletDot:  { fontSize: 9, color: BRAND, width: 8, flexShrink: 0 },
+  bulletText: { fontSize: 8, color: BODY_TEXT, flex: 1, lineHeight: 1.4 },
 
-  // ── Sign-off ──
-  signOffNotice: {
+  // ── Sign-off ───────────────────────────────────────────────────
+  signOffDeclaration: {
     backgroundColor: "#fffbeb",
     borderWidth: 1,
     borderColor: AMBER,
     padding: 8,
     marginBottom: 10,
   },
-  signOffNoticeText: { fontSize: 8, color: "#92400e", lineHeight: 1.4 },
-  signOffGrid: { flexDirection: "row", gap: 12 },
-  signOffBox:  { flex: 1, borderWidth: 0.5, borderColor: "#cbd5e1", padding: 10 },
-  signOffBoxTitle: { fontSize: 8, fontFamily: "Helvetica-Bold", color: ACCENT, marginBottom: 8 },
-  signOffLabel:{ fontSize: 7, color: MUTED2, fontFamily: "Helvetica-Bold", marginBottom: 2 },
-  signOffValue:{ fontSize: 9, color: "#1e293b", marginBottom: 8 },
-  signOffSigBox: { height: 48, borderWidth: 0.5, borderColor: "#cbd5e1", marginTop: 4, justifyContent: "flex-end", padding: 3 },
-  signOffSigLabel: { fontSize: 6.5, color: MUTED2 },
+  signOffDeclarationText: { fontSize: 8, color: "#92400e", lineHeight: 1.4 },
+  signOffGrid: { flexDirection: "row", gap: 10, marginBottom: 16 },
+  signOffBox:  { flex: 1, borderWidth: 0.5, borderColor: TABLE_BORDER, padding: 10 },
+  signOffBoxTitle: { fontSize: 7.5, fontWeight: 700, color: BRAND, marginBottom: 8, letterSpacing: 0.3 },
+  signOffLabel: { fontSize: 7, color: MUTED, fontWeight: 700, marginBottom: 2 },
+  signOffValue: { fontSize: 9, color: BODY_TEXT, marginBottom: 8 },
+  signOffSigBox: {
+    height: 72,
+    borderWidth: 0.5,
+    borderColor: TABLE_BORDER,
+    marginTop: 4,
+    justifyContent: "flex-end",
+    padding: 3,
+  },
+  signOffSigLabel: { fontSize: 6.5, color: MUTED },
 });
 
-// ── Helper functions ─────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────
 
 function riskColor(score: number): string {
   if (score <= 6) return GREEN;
@@ -318,31 +338,38 @@ function riskColor(score: number): string {
   return RED;
 }
 
+function riskLabel(score: number): string {
+  if (score <= 6) return "LOW";
+  if (score <= 14) return "MED";
+  return "HIGH";
+}
+
 // ── Shared components ────────────────────────────────────────────
 
-function RunningHeader({ company, docRef, revision, date }: { company: string; docRef: string; revision: string; date: string }) {
+function RunningHeader({ company, docRef, revision }: { company: string; docRef: string; revision: string }) {
   return (
     <View fixed style={s.runningHeader}>
       <Text style={s.rhLeft}>{company}</Text>
-      <Text style={s.rhCentre}>{docRef}</Text>
-      <Text style={s.rhRight}>{revision} | {date}</Text>
+      <Text style={s.rhCentre}>RISK ASSESSMENT & METHOD STATEMENT</Text>
+      <Text style={s.rhRight}>{docRef} | {revision}</Text>
     </View>
   );
 }
 
-function PageFooter({ docRef, date }: { docRef: string; date: string }) {
+function PageFooter({ company }: { company: string }) {
   return (
     <View fixed style={s.footer}>
-      <Text style={s.footerText}>CONFIDENTIAL | For authorised recipients only | {docRef}</Text>
+      <Text style={s.footerText}>{company}</Text>
       <Text style={s.footerText} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      <Text style={s.footerText}>Printed copies are uncontrolled — see document control for latest revision.</Text>
     </View>
   );
 }
 
-function SectionHeader({ title }: { title: string }) {
+function SectionHeader({ num, title }: { num: string; title: string }) {
   return (
     <View style={s.sectionHeader}>
-      <Text style={s.sectionTitle}>{title.toUpperCase()}</Text>
+      <Text style={s.sectionTitle}>{num}. {title.toUpperCase()}</Text>
     </View>
   );
 }
@@ -365,68 +392,74 @@ function Bullet({ text }: { text: string }) {
   );
 }
 
-function RiskChip({ score, level }: { score: number; level: string }) {
+function RiskScore({ score }: { score: number }) {
   return (
-    <View style={[s.riskChip, { backgroundColor: riskColor(score) }]}>
-      <Text>{score} {level}</Text>
+    <View style={[s.riskCell, { backgroundColor: riskColor(score) }]}>
+      <Text>{score} ({riskLabel(score)})</Text>
     </View>
   );
 }
 
-// ── 5×5 Risk Matrix ──────────────────────────────────────────────
+// ── Risk Matrix (descriptive labels) ────────────────────────────
+
+const LIKELIHOOD_LABELS = ["Rare (1)", "Unlikely (2)", "Possible (3)", "Likely (4)", "Almost Certain (5)"];
+const SEVERITY_LABELS   = ["Catastrophic (5)", "Major (4)", "Moderate (3)", "Minor (2)", "Negligible (1)"];
+const SEVERITY_VALUES   = [5, 4, 3, 2, 1];
 
 function RiskMatrix() {
-  const likelihoods = [1, 2, 3, 4, 5];
-  const severities  = [5, 4, 3, 2, 1];
-  const cellSize = 24;
-  const labelWidth = 40;
+  const cellW = 54;
+  const labelW = 82;
 
   return (
-    <View style={{ marginBottom: 10 }}>
-      <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: "#1e293b", marginBottom: 4 }}>
-        5×5 RISK MATRIX (Likelihood × Severity)
+    <View style={{ marginBottom: 12 }}>
+      <Text style={{ fontSize: 7.5, fontWeight: 700, color: BODY_TEXT, marginBottom: 6 }}>
+        5×5 RISK MATRIX — Risk Score = Likelihood × Severity
       </Text>
-      {/* Header row */}
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <View style={{ width: labelWidth + 12 }} />
-        {likelihoods.map((l) => (
-          <View key={l} style={{ width: cellSize, alignItems: "center" }}>
-            <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED2 }}>L={l}</Text>
+
+      {/* Likelihood column headers */}
+      <View style={{ flexDirection: "row" }}>
+        <View style={{ width: labelW + 6 }} />
+        {LIKELIHOOD_LABELS.map((lbl) => (
+          <View key={lbl} style={{ width: cellW, alignItems: "center", paddingBottom: 3 }}>
+            <Text style={{ fontSize: 6, fontWeight: 700, color: MUTED, textAlign: "center" }}>{lbl}</Text>
           </View>
         ))}
-        <Text style={{ fontSize: 6.5, color: MUTED2, marginLeft: 6 }}>← Likelihood</Text>
       </View>
-      {/* Matrix rows */}
-      {severities.map((sev) => (
-        <View key={sev} style={{ flexDirection: "row", alignItems: "center", marginBottom: 1 }}>
-          <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: MUTED2, width: labelWidth, textAlign: "right", paddingRight: 4 }}>
-            S={sev}
-          </Text>
-          <View style={{ width: 12 }} />
-          {likelihoods.map((l) => {
-            const score = l * sev;
-            const bg = score <= 6 ? GREEN : score <= 14 ? AMBER : RED;
-            return (
-              <View key={l} style={{ width: cellSize, height: cellSize - 4, backgroundColor: bg, alignItems: "center", justifyContent: "center", marginRight: 1 }}>
-                <Text style={{ fontSize: 6.5, fontFamily: "Helvetica-Bold", color: "#ffffff" }}>{score}</Text>
-              </View>
-            );
-          })}
-        </View>
-      ))}
+
+      {/* Matrix rows with severity labels */}
+      {SEVERITY_LABELS.map((sevLbl, si) => {
+        const sev = SEVERITY_VALUES[si];
+        return (
+          <View key={sevLbl} style={{ flexDirection: "row", alignItems: "center", marginBottom: 1 }}>
+            <Text style={{ fontSize: 6, fontWeight: 700, color: MUTED, width: labelW, textAlign: "right", paddingRight: 6 }}>
+              {sevLbl}
+            </Text>
+            <View style={{ width: 6 }} />
+            {[1, 2, 3, 4, 5].map((l) => {
+              const score = l * sev;
+              const bg = score <= 6 ? GREEN : score <= 14 ? AMBER : RED;
+              return (
+                <View key={l} style={{ width: cellW, height: 18, backgroundColor: bg, alignItems: "center", justifyContent: "center", marginRight: 1 }}>
+                  <Text style={{ fontSize: 7, fontWeight: 700, color: "#ffffff" }}>{score}</Text>
+                </View>
+              );
+            })}
+          </View>
+        );
+      })}
+
       {/* Legend */}
-      <View style={{ flexDirection: "row", gap: 12, marginTop: 5 }}>
+      <View style={{ flexDirection: "row", gap: 14, marginTop: 7, paddingLeft: labelW + 6 }}>
         {[
-          { color: GREEN, label: "Low (1–6)" },
-          { color: AMBER, label: "Medium (7–14)" },
-          { color: RED,   label: "High (15–25)" },
+          { color: GREEN, label: "Low (1–6) — Acceptable" },
+          { color: AMBER, label: "Medium (7–14) — Review controls" },
+          { color: RED,   label: "High (15–25) — STOP WORK" },
         ].map((item) => (
           <View key={item.label} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
             <View style={{ width: 10, height: 10, backgroundColor: item.color }} />
-            <Text style={{ fontSize: 7, color: "#475569" }}>{item.label}</Text>
+            <Text style={{ fontSize: 7, color: MUTED }}>{item.label}</Text>
           </View>
         ))}
-        <Text style={{ fontSize: 7, color: MUTED2, marginLeft: "auto" }}>Risk Score = Likelihood × Severity</Text>
       </View>
     </View>
   );
@@ -439,22 +472,56 @@ function RiskAssessmentRow({ item, idx }: { item: RiskAssessmentItem; idx: numbe
     <View style={idx % 2 === 0 ? s.tableRow : s.tableRowAlt} wrap={false}>
       <Text style={[s.tableCell, { width: "5%" }]}>{item.ref}</Text>
       <View style={{ width: "12%" }}>
-        <Text style={[s.tableCell, { fontFamily: "Helvetica-Bold" }]}>{item.hazard}</Text>
+        <Text style={[s.tableCell, { fontWeight: 700 }]}>{item.hazard}</Text>
       </View>
-      <View style={{ width: "20%" }}>
+      <View style={{ width: "18%" }}>
         <Text style={s.tableCell}>{item.description}</Text>
       </View>
       <Text style={[s.tableCell, { width: "8%" }]}>{item.who_at_risk}</Text>
-      <View style={{ width: "9%", alignItems: "center" }}>
-        <RiskChip score={item.risk_score_pre} level={item.risk_level_pre} />
+      <View style={{ width: "9%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
+        <RiskScore score={item.risk_score_pre} />
       </View>
-      <View style={{ width: "28%" }}>
+      <View style={{ width: "30%" }}>
         {item.control_measures.map((cm, i) => <Bullet key={i} text={cm} />)}
       </View>
-      <View style={{ width: "9%", alignItems: "center" }}>
-        <RiskChip score={item.risk_score_post} level={item.risk_level_post} />
+      <View style={{ width: "9%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
+        <RiskScore score={item.risk_score_post} />
       </View>
-      <Text style={[s.tableCell, { width: "9%" }]}>{item.legislation_ref}</Text>
+      <Text style={[s.tableCell, { width: "9%", fontSize: 7 }]}>{item.legislation_ref}</Text>
+    </View>
+  );
+}
+
+// ── Worker Briefing Record ───────────────────────────────────────
+
+function WorkerBriefingRecord() {
+  const ROWS = 20;
+  return (
+    <View style={{ marginTop: 16 }}>
+      <View style={s.sectionHeader}>
+        <Text style={s.sectionTitle}>WORKER BRIEFING RECORD</Text>
+      </View>
+      <Text style={{ fontSize: 8, color: MUTED, marginBottom: 8 }}>
+        All operatives must sign below to confirm they have been briefed on and understood the contents of this RAMS prior to works commencing.
+      </Text>
+      <View style={s.table}>
+        <View style={s.tableHeader}>
+          <Text style={[s.tableHeaderCell, { width: "6%" }]}>No.</Text>
+          <Text style={[s.tableHeaderCell, { width: "24%" }]}>Name (print)</Text>
+          <Text style={[s.tableHeaderCell, { width: "22%" }]}>Company</Text>
+          <Text style={[s.tableHeaderCell, { width: "14%" }]}>Date</Text>
+          <Text style={[s.tableHeaderCell, { width: "34%" }]}>Signature</Text>
+        </View>
+        {Array.from({ length: ROWS }, (_, i) => (
+          <View key={i} style={[i % 2 === 0 ? s.tableRow : s.tableRowAlt, { height: 18 }]}>
+            <Text style={[s.tableCell, { width: "6%" }]}>{i + 1}</Text>
+            <View style={{ width: "24%", borderRightWidth: 0.5, borderRightColor: TABLE_BORDER }} />
+            <View style={{ width: "22%", borderRightWidth: 0.5, borderRightColor: TABLE_BORDER }} />
+            <View style={{ width: "14%", borderRightWidth: 0.5, borderRightColor: TABLE_BORDER }} />
+            <View style={{ width: "34%" }} />
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
@@ -464,15 +531,17 @@ function RiskAssessmentRow({ item, idx }: { item: RiskAssessmentItem; idx: numbe
 function SignOffSection({ data }: { data: RAMSDocument }) {
   return (
     <View>
-      <View style={s.signOffNotice}>
-        <Text style={s.signOffNoticeText}>
-          ⚠ SUBMISSION NOTICE: This document must be submitted to and approved by {data.project.principal_contractor} before any works commence on site. Works must not start until written approval is received from the Principal Contractor.
+      <View style={s.signOffDeclaration}>
+        <Text style={s.signOffDeclarationText}>
+          SUBMISSION NOTICE: This document must be submitted to and approved by {data.project.principal_contractor} before any works commence on site.
+          Works must not start until written approval is received from the Principal Contractor.{"\n"}
+          I confirm I have reviewed this RAMS and it is fit for purpose for the stated scope of works.
         </Text>
       </View>
       <View style={s.signOffGrid}>
-        {/* Left: Subcontractor */}
+        {/* Prepared By */}
         <View style={s.signOffBox}>
-          <Text style={s.signOffBoxTitle}>PREPARED BY (SUBCONTRACTOR)</Text>
+          <Text style={s.signOffBoxTitle}>PREPARED BY</Text>
           <Text style={s.signOffLabel}>NAME</Text>
           <Text style={s.signOffValue}>{data.sign_off.prepared_by || "—"}</Text>
           <Text style={s.signOffLabel}>POSITION</Text>
@@ -484,22 +553,36 @@ function SignOffSection({ data }: { data: RAMSDocument }) {
             <Text style={s.signOffSigLabel}>Sign here</Text>
           </View>
         </View>
-        {/* Right: Principal Contractor */}
+        {/* Checked By */}
         <View style={s.signOffBox}>
-          <Text style={s.signOffBoxTitle}>REVIEWED &amp; APPROVED (PRINCIPAL CONTRACTOR)</Text>
+          <Text style={s.signOffBoxTitle}>CHECKED BY</Text>
           <Text style={s.signOffLabel}>NAME</Text>
-          <View style={{ height: 14, borderBottomWidth: 0.5, borderBottomColor: "#cbd5e1", marginBottom: 8 }} />
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
           <Text style={s.signOffLabel}>POSITION</Text>
-          <View style={{ height: 14, borderBottomWidth: 0.5, borderBottomColor: "#cbd5e1", marginBottom: 8 }} />
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
           <Text style={s.signOffLabel}>DATE</Text>
-          <View style={{ height: 14, borderBottomWidth: 0.5, borderBottomColor: "#cbd5e1", marginBottom: 8 }} />
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
+          <Text style={s.signOffLabel}>SIGNATURE</Text>
+          <View style={s.signOffSigBox}>
+            <Text style={s.signOffSigLabel}>Sign here</Text>
+          </View>
+        </View>
+        {/* Approved By (PC) */}
+        <View style={s.signOffBox}>
+          <Text style={s.signOffBoxTitle}>APPROVED BY (PC)</Text>
+          <Text style={s.signOffLabel}>NAME</Text>
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
+          <Text style={s.signOffLabel}>POSITION</Text>
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
+          <Text style={s.signOffLabel}>DATE</Text>
+          <View style={{ height: 16, borderBottomWidth: 0.5, borderBottomColor: TABLE_BORDER, marginBottom: 8 }} />
           <Text style={s.signOffLabel}>SIGNATURE</Text>
           <View style={s.signOffSigBox}>
             <Text style={s.signOffSigLabel}>Sign here</Text>
           </View>
         </View>
       </View>
-      <Text style={{ fontSize: 7, color: MUTED2, marginTop: 8, textAlign: "center" }}>
+      <Text style={{ fontSize: 7, color: MUTED, marginTop: 4, textAlign: "center" }}>
         Review Date: {data.sign_off.review_date}
       </Text>
     </View>
@@ -509,95 +592,108 @@ function SignOffSection({ data }: { data: RAMSDocument }) {
 // ── Main PDF document ────────────────────────────────────────────
 
 function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
-  const rh = { company: data.company.name, docRef: data.document_ref, revision: data.revision, date: data.date };
+  const rh = { company: data.company.name, docRef: data.document_ref, revision: data.revision };
+  const footer = { company: data.company.name };
 
   return (
     <Document title={`${data.document_ref} — RAMS`} author={data.company.name}>
 
       {/* ── Cover Page ── */}
       <Page size="A4" style={s.coverPage}>
-        <View style={s.coverAccentBar} />
-        <View style={s.coverContent}>
-          {/* Top: company + logo */}
-          <View style={s.coverTop}>
-            <View style={{ flex: 1, paddingRight: 16 }}>
-              <Text style={s.coverCompanyName}>{data.company.name}</Text>
-              {data.company.reg && (
-                <Text style={s.coverCompanyMeta}>Reg. No. {data.company.reg}</Text>
-              )}
-              <Text style={s.coverCompanyMeta}>{data.company.address}</Text>
-              {data.company.phone && (
-                <Text style={s.coverCompanyMeta}>Tel: {data.company.phone}</Text>
-              )}
-              {data.company.email && (
-                <Text style={s.coverCompanyMeta}>{data.company.email}</Text>
-              )}
-            </View>
-            <View style={s.coverLogoBox}>
-              <Text style={s.coverLogoLabel}>COMPANY</Text>
-              <Text style={s.coverLogoLabel}>LOGO</Text>
-            </View>
-          </View>
 
+        {/* Top navy band: logo LEFT + title RIGHT */}
+        <View style={s.coverTopBand}>
+          <View style={s.coverLogoArea}>
+            {data.company.logo
+              ? <Image src={data.company.logo} style={s.coverLogoImage} />
+              : <Text style={s.coverLogoFallback}>{data.company.name}</Text>
+            }
+          </View>
+          <Text style={s.coverBandTitle}>{"RISK ASSESSMENT &\nMETHOD STATEMENT"}</Text>
+        </View>
+
+        {/* White body */}
+        <View style={s.coverBody}>
+          <Text style={s.coverProjectName}>{data.project.name}</Text>
+          <Text style={s.coverProjectSite}>{data.project.site_address}</Text>
           <View style={s.coverDivider} />
 
-          {/* Centre: document title */}
-          <View style={s.coverTitleArea}>
-            <Text style={s.coverTitleLine1}>RISK ASSESSMENT &amp;</Text>
-            <Text style={s.coverTitleLine2}>METHOD STATEMENT</Text>
-            <View style={s.coverAccentUnderline} />
-            <Text style={s.coverProjectName}>{data.project.name}</Text>
-            <Text style={s.coverProjectSite}>{data.project.site_address}</Text>
-          </View>
-
-          {/* Bottom info strip */}
-          <View style={s.coverInfoStrip}>
+          {/* Project info grid */}
+          <View style={s.coverInfoGrid}>
             {[
-              { label: "DOCUMENT REF", value: data.document_ref },
-              { label: "REVISION",     value: data.revision },
-              { label: "DATE",         value: data.date },
-              { label: "PRINCIPAL CONTRACTOR", value: data.project.principal_contractor },
+              { label: "Principal Contractor", value: data.project.principal_contractor },
+              { label: "Site Supervisor",      value: data.project.supervisor },
+              { label: "Start Date",           value: data.project.start_date },
+              { label: "Planned Duration",     value: data.project.duration },
+              { label: "Document Reference",   value: data.document_ref },
+              { label: "Revision",             value: data.revision },
+              { label: "Date",                 value: data.date },
+              { label: "Status",               value: "Issued for Approval" },
             ].map((item) => (
               <View key={item.label} style={s.coverInfoCol}>
                 <Text style={s.coverInfoLabel}>{item.label}</Text>
-                <Text style={s.coverInfoValue}>{item.value}</Text>
+                <Text style={s.coverInfoValue}>{item.value || "—"}</Text>
               </View>
             ))}
           </View>
+
+          {/* Revision history table */}
+          <View style={s.coverRevTable}>
+            <View style={s.coverRevHeader}>
+              <Text style={[s.coverRevHeaderCell, { width: "10%" }]}>Rev</Text>
+              <Text style={[s.coverRevHeaderCell, { width: "18%" }]}>Date</Text>
+              <Text style={[s.coverRevHeaderCell, { width: "42%" }]}>Description</Text>
+              <Text style={[s.coverRevHeaderCell, { width: "15%" }]}>Prepared By</Text>
+              <Text style={[s.coverRevHeaderCell, { width: "15%" }]}>Approved By</Text>
+            </View>
+            <View style={s.coverRevRow}>
+              <Text style={[s.coverRevCell, { width: "10%" }]}>{data.revision}</Text>
+              <Text style={[s.coverRevCell, { width: "18%" }]}>{data.date}</Text>
+              <Text style={[s.coverRevCell, { width: "42%" }]}>
+                {(data as { revision_description?: string }).revision_description || "Initial issue"}
+              </Text>
+              <Text style={[s.coverRevCell, { width: "15%" }]}>{data.sign_off.prepared_by || "—"}</Text>
+              <Text style={[s.coverRevCell, { width: "15%" }]}>—</Text>
+            </View>
+          </View>
         </View>
-        {/* CONFIDENTIAL badge */}
-        <View style={s.coverConfidential}>
-          <Text style={s.coverConfidentialText}>CONFIDENTIAL</Text>
+
+        {/* Bottom navy band: company contact */}
+        <View style={s.coverBottomBand}>
+          <Text style={s.coverBottomText}>{data.company.address}</Text>
+          {data.company.phone && <Text style={s.coverBottomText}>Tel: {data.company.phone}</Text>}
+          {data.company.email && <Text style={s.coverBottomText}>{data.company.email}</Text>}
+          {data.company.reg   && <Text style={s.coverBottomText}>Reg. No. {data.company.reg}</Text>}
         </View>
       </Page>
 
       {/* ── Page 1: Project Info + Scope + Legislation ── */}
       <Page size="A4" style={s.contentPage}>
         <RunningHeader {...rh} />
-        <PageFooter docRef={data.document_ref} date={data.date} />
+        <PageFooter {...footer} />
 
-        <Text style={{ fontSize: 18, fontFamily: "Helvetica-Bold", color: "#1e293b", textAlign: "center", marginBottom: 4 }}>
-          RISK ASSESSMENT &amp; METHOD STATEMENT
+        <Text style={{ fontSize: 17, fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: 3 }}>
+          RISK ASSESSMENT & METHOD STATEMENT
         </Text>
-        <Text style={{ fontSize: 9.5, color: MUTED2, textAlign: "center", marginBottom: 14 }}>
+        <Text style={{ fontSize: 9, color: MUTED, textAlign: "center", marginBottom: 14 }}>
           CDM 2015 Compliant | Submitted to Principal Contractor for Approval
         </Text>
 
         <View style={s.projectBox}>
           <View style={s.projectGrid}>
-            <Field label="Project Name"          value={data.project.name} />
-            <Field label="Principal Contractor"  value={data.project.principal_contractor} />
-            <Field label="Site Address"          value={data.project.site_address} full />
-            <Field label="Site Supervisor"       value={data.project.supervisor} />
-            <Field label="Start Date"            value={data.project.start_date} />
-            <Field label="Planned Duration"      value={data.project.duration} />
+            <Field label="Project Name"         value={data.project.name} />
+            <Field label="Principal Contractor" value={data.project.principal_contractor} />
+            <Field label="Site Address"         value={data.project.site_address} full />
+            <Field label="Site Supervisor"      value={data.project.supervisor} />
+            <Field label="Start Date"           value={data.project.start_date} />
+            <Field label="Planned Duration"     value={data.project.duration} />
           </View>
         </View>
 
-        <SectionHeader title="Scope of Works" />
-        <Text style={{ fontSize: 9, lineHeight: 1.55, color: "#1e293b" }}>{data.scope_of_works}</Text>
+        <SectionHeader num="1" title="Scope of Works" />
+        <Text style={{ fontSize: 9, lineHeight: 1.55, color: BODY_TEXT }}>{data.scope_of_works}</Text>
 
-        <SectionHeader title="Applicable Legislation" />
+        <SectionHeader num="2" title="Applicable Legislation" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "35%" }]}>Regulation</Text>
@@ -605,7 +701,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.legislation.map((leg, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{leg.regulation}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{leg.regulation}</Text>
               <Text style={[s.tableCell, { width: "65%" }]}>{leg.relevance}</Text>
             </View>
           ))}
@@ -615,19 +711,19 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
       {/* ── Page 2: Risk Assessment ── */}
       <Page size="A4" orientation="landscape" style={s.landscapePage}>
         <RunningHeader {...rh} />
-        <PageFooter docRef={data.document_ref} date={data.date} />
+        <PageFooter {...footer} />
 
-        <SectionHeader title="Risk Assessment — 5×5 Matrix" />
+        <SectionHeader num="3" title="Risk Assessment — 5×5 Matrix" />
         <RiskMatrix />
 
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "5%" }]}>Ref</Text>
             <Text style={[s.tableHeaderCell, { width: "12%" }]}>Hazard</Text>
-            <Text style={[s.tableHeaderCell, { width: "20%" }]}>Description</Text>
+            <Text style={[s.tableHeaderCell, { width: "18%" }]}>Description</Text>
             <Text style={[s.tableHeaderCell, { width: "8%" }]}>Who at Risk</Text>
             <Text style={[s.tableHeaderCell, { width: "9%" }]}>Pre-Control</Text>
-            <Text style={[s.tableHeaderCell, { width: "28%" }]}>Control Measures</Text>
+            <Text style={[s.tableHeaderCell, { width: "30%" }]}>Control Measures</Text>
             <Text style={[s.tableHeaderCell, { width: "9%" }]}>Post-Control</Text>
             <Text style={[s.tableHeaderCell, { width: "9%" }]}>Legislation</Text>
           </View>
@@ -640,9 +736,9 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
       {/* ── Page 3: Method Statement ── */}
       <Page size="A4" style={s.contentPage}>
         <RunningHeader {...rh} />
-        <PageFooter docRef={data.document_ref} date={data.date} />
+        <PageFooter {...footer} />
 
-        <SectionHeader title="Sequence of Works" />
+        <SectionHeader num="4" title="Sequence of Works" />
         {data.method_statement.sequence_of_works.map((step) => (
           <View key={step.step} style={s.stepRow} wrap={false}>
             <View style={s.stepBadge}>
@@ -655,16 +751,16 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
         ))}
 
-        <SectionHeader title="Supervision Arrangements" />
-        <Text style={{ fontSize: 9, lineHeight: 1.5, color: "#1e293b" }}>{data.method_statement.supervision}</Text>
+        <SectionHeader num="5" title="Supervision Arrangements" />
+        <Text style={{ fontSize: 9, lineHeight: 1.5, color: BODY_TEXT }}>{data.method_statement.supervision}</Text>
 
-        <SectionHeader title="Emergency Procedures" />
+        <SectionHeader num="6" title="Emergency Procedures" />
         <View style={s.projectBox}>
           {[
-            { label: "First Aid", value: data.method_statement.emergency_procedures.first_aid },
-            { label: "Emergency Contacts", value: data.method_statement.emergency_procedures.emergency_contacts },
-            { label: "Nearest Hospital", value: data.method_statement.emergency_procedures.nearest_hospital },
-            { label: "Evacuation Procedure", value: data.method_statement.emergency_procedures.evacuation },
+            { label: "First Aid",             value: data.method_statement.emergency_procedures.first_aid },
+            { label: "Emergency Contacts",    value: data.method_statement.emergency_procedures.emergency_contacts },
+            { label: "Nearest Hospital",      value: data.method_statement.emergency_procedures.nearest_hospital },
+            { label: "Evacuation Procedure",  value: data.method_statement.emergency_procedures.evacuation },
             ...(data.method_statement.emergency_procedures.excavation_collapse
               ? [{ label: "Excavation Collapse Procedure", value: data.method_statement.emergency_procedures.excavation_collapse }]
               : []),
@@ -689,9 +785,9 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
       {/* ── Page 4: Supporting Assessments + Sign-Off ── */}
       <Page size="A4" style={s.contentPage}>
         <RunningHeader {...rh} />
-        <PageFooter docRef={data.document_ref} date={data.date} />
+        <PageFooter {...footer} />
 
-        <SectionHeader title="Plant &amp; Equipment" />
+        <SectionHeader num="7" title="Plant & Equipment" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "35%" }]}>Item</Text>
@@ -699,13 +795,13 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.plant_and_equipment.map((p, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{p.item}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{p.item}</Text>
               <Text style={[s.tableCell, { width: "65%" }]}>{p.requirement}</Text>
             </View>
           ))}
         </View>
 
-        <SectionHeader title="PPE Requirements" />
+        <SectionHeader num="8" title="PPE Requirements" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "30%" }]}>PPE Item</Text>
@@ -714,10 +810,10 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.ppe_requirements.map((p, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "30%", fontFamily: "Helvetica-Bold" }]}>{p.item}</Text>
+              <Text style={[s.tableCell, { width: "30%", fontWeight: 700 }]}>{p.item}</Text>
               <Text style={[s.tableCell, { width: "50%" }]}>{p.standard}</Text>
               <View style={{ width: "20%", alignItems: "flex-start" }}>
-                <View style={[s.riskChip, { backgroundColor: p.mandatory ? GREEN : "#94a3b8", width: 50 }]}>
+                <View style={[s.riskCell, { backgroundColor: p.mandatory ? GREEN : "#94a3b8", width: 50 }]}>
                   <Text>{p.mandatory ? "YES" : "Req'd"}</Text>
                 </View>
               </View>
@@ -725,7 +821,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           ))}
         </View>
 
-        <SectionHeader title="COSHH Assessment" />
+        <SectionHeader num="9" title="COSHH Assessment" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "22%" }]}>Substance</Text>
@@ -735,7 +831,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.coshh_substances.map((c, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "22%", fontFamily: "Helvetica-Bold" }]}>{c.substance}</Text>
+              <Text style={[s.tableCell, { width: "22%", fontWeight: 700 }]}>{c.substance}</Text>
               <Text style={[s.tableCell, { width: "28%" }]}>{c.risk}</Text>
               <Text style={[s.tableCell, { width: "42%" }]}>{c.control}</Text>
               <Text style={[s.tableCell, { width: "8%", fontSize: 7 }]}>{c.regulation}</Text>
@@ -745,7 +841,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
 
         {data.havs_assessment.applicable && (
           <>
-            <SectionHeader title="HAVS Assessment" />
+            <SectionHeader num="10" title="HAVS Assessment" />
             <View style={s.table}>
               <View style={s.tableHeader}>
                 <Text style={[s.tableHeaderCell, { width: "30%" }]}>Tool / Equipment</Text>
@@ -755,7 +851,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
               </View>
               {data.havs_assessment.tools.map((h, i) => (
                 <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-                  <Text style={[s.tableCell, { width: "30%", fontFamily: "Helvetica-Bold" }]}>{h.tool}</Text>
+                  <Text style={[s.tableCell, { width: "30%", fontWeight: 700 }]}>{h.tool}</Text>
                   <Text style={[s.tableCell, { width: "30%" }]}>{h.vibration_level}</Text>
                   <Text style={[s.tableCell, { width: "20%" }]}>{h.daily_exposure_limit}</Text>
                   <Text style={[s.tableCell, { width: "20%" }]}>{h.control}</Text>
@@ -765,7 +861,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </>
         )}
 
-        <SectionHeader title="Noise Assessment" />
+        <SectionHeader num={data.havs_assessment.applicable ? "11" : "10"} title="Noise Assessment" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "35%" }]}>Noise Source</Text>
@@ -774,21 +870,29 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.noise_assessment.sources.map((n, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{n.source}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{n.source}</Text>
               <Text style={[s.tableCell, { width: "25%" }]}>{n.approximate_db}</Text>
               <Text style={[s.tableCell, { width: "40%" }]}>{n.control}</Text>
             </View>
           ))}
         </View>
 
-        <SectionHeader title="Environmental Controls" />
+        <SectionHeader num={data.havs_assessment.applicable ? "12" : "11"} title="Environmental Controls" />
         {data.method_statement.environmental_controls.map((ec, i) => (
           <Bullet key={i} text={ec} />
         ))}
 
-        <SectionHeader title="Document Sign-Off" />
+        <SectionHeader num={data.havs_assessment.applicable ? "13" : "12"} title="Document Sign-Off" />
         <SignOffSection data={data} />
       </Page>
+
+      {/* ── Page 5: Worker Briefing Record ── */}
+      <Page size="A4" style={s.contentPage}>
+        <RunningHeader {...rh} />
+        <PageFooter {...footer} />
+        <WorkerBriefingRecord />
+      </Page>
+
     </Document>
   );
 }

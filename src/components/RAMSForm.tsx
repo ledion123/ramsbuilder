@@ -91,15 +91,15 @@ function Label({
   htmlFor?: string;
 }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+    <label htmlFor={htmlFor} className="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
       {children}
-      {required && <span aria-hidden="true" className="text-blue-400 ml-0.5">*</span>}
+      {required && <span aria-hidden="true" className="text-blue-600 ml-0.5">*</span>}
       {required && <span className="sr-only"> (required)</span>}
     </label>
   );
 }
 
-const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`;
+const CHEVRON_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`;
 
 function Input({
   className,
@@ -118,15 +118,15 @@ function Input({
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={cn(
-          "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm placeholder-slate-600",
-          "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
+          "w-full bg-white border rounded-lg px-3 py-2.5 text-slate-900 text-sm placeholder-slate-400",
+          "focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-500",
           "transition-colors",
-          error ? "border-red-500/70" : "border-slate-700",
+          error ? "border-red-400" : "border-slate-300",
           className
         )}
       />
       {error && (
-        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-400">
+        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-600">
           {error}
         </p>
       )}
@@ -151,15 +151,15 @@ function Textarea({
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? `${inputId}-error` : undefined}
         className={cn(
-          "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm placeholder-slate-600",
-          "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
+          "w-full bg-white border rounded-lg px-3 py-2.5 text-slate-900 text-sm placeholder-slate-400",
+          "focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-500",
           "transition-colors resize-none",
-          error ? "border-red-500/70" : "border-slate-700",
+          error ? "border-red-400" : "border-slate-300",
           className
         )}
       />
       {error && (
-        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-400">
+        <p id={`${inputId}-error`} role="alert" className="mt-1 text-xs text-red-600">
           {error}
         </p>
       )}
@@ -186,10 +186,10 @@ function Select({
         aria-describedby={error ? `${inputId}-error` : undefined}
         style={{ backgroundImage: CHEVRON_SVG, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
         className={cn(
-          "w-full bg-slate-950 border rounded-lg px-3 py-2.5 text-slate-100 text-sm appearance-none pr-8",
-          "focus:outline-none focus:ring-2 focus:ring-blue-600/50 focus:border-blue-600/50",
+          "w-full bg-white border rounded-lg px-3 py-2.5 text-slate-900 text-sm appearance-none pr-8",
+          "focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-500",
           "transition-colors",
-          error ? "border-red-500/70" : "border-slate-700",
+          error ? "border-red-400" : "border-slate-300",
           className
         )}
       >
@@ -226,11 +226,11 @@ function SectionCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, type: "spring", stiffness: 320, damping: 30 }}
-      className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
+      className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm"
     >
-      <div className="bg-slate-800/40 px-6 py-3 flex items-center gap-3 border-b border-slate-800">
+      <div className="bg-slate-50 px-6 py-3 flex items-center gap-3 border-b border-slate-200">
         <div className="w-px h-4 bg-blue-600 flex-shrink-0" />
-        <h3 className="text-[11px] font-black text-slate-300 uppercase tracking-[0.15em]">{title}</h3>
+        <h3 className="text-[11px] font-black text-slate-600 uppercase tracking-[0.15em]">{title}</h3>
       </div>
       <div className="p-6">{children}</div>
     </motion.div>
@@ -443,13 +443,13 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
   const progressPct = ((step - 1) / (STEPS.length - 1)) * 100;
 
   return (
-    <div className="min-h-screen bg-[#0a1628] flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* ── Hero Header ── */}
       <motion.header
         initial={shouldReduceMotion ? false : { opacity: 0, y: -16 }}
         animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="border-b border-[#1e3a6e] bg-[#0a1628]"
+        className="border-b border-slate-200 bg-white"
       >
         <div className="max-w-4xl mx-auto px-6 py-8">
           <div className="flex items-start gap-5">
@@ -457,15 +457,15 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               initial={shouldReduceMotion ? false : { scale: 0.6, opacity: 0 }}
               animate={shouldReduceMotion ? undefined : { scale: 1, opacity: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.05 }}
-              className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-900/40"
+              className="w-14 h-14 rounded-2xl bg-[#1a2e4a] flex items-center justify-center flex-shrink-0 shadow-sm"
             >
               <HardHat className="w-8 h-8 text-white" />
             </motion.div>
             <div>
-              <h1 className="text-3xl font-black text-white tracking-tight leading-none">
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
                 RAMS Generator
               </h1>
-              <p className="text-slate-400 text-sm mt-2 max-w-lg">
+              <p className="text-slate-500 text-sm mt-2 max-w-lg">
                 CDM 2015 compliant Risk Assessment &amp; Method Statement generator for UK
                 groundworks and civil engineering.
               </p>
@@ -476,14 +476,14 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                     initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
                     animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
-                    className="text-[10px] font-bold px-2.5 py-1 bg-blue-600/10 text-blue-400 border border-blue-600/20 rounded uppercase tracking-widest"
+                    className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded uppercase tracking-widest"
                   >
                     {badge}
                   </motion.span>
                 ))}
                 <Link
                   href="/regulations"
-                  className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 hover:text-slate-300 transition-colors ml-1 uppercase tracking-widest"
+                  className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-slate-500 hover:text-slate-700 transition-colors ml-1 uppercase tracking-widest"
                 >
                   <ShieldCheck className="w-3 h-3" />
                   Check regulations
@@ -504,10 +504,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="mb-4 flex items-center gap-2.5 px-4 py-2.5 bg-blue-600/10 border border-blue-600/30 rounded-lg"
+              className="mb-4 flex items-center gap-2.5 px-4 py-2.5 bg-blue-50 border border-blue-200 rounded-lg"
             >
               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
-              <p className="text-xs text-blue-300">
+              <p className="text-xs text-blue-800">
                 Fields pre-filled from your document — review each step before generating.
               </p>
             </motion.div>
@@ -518,7 +518,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
             initial={shouldReduceMotion ? false : { opacity: 0, y: -6 }}
             animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 340, damping: 28 }}
-            className="mb-4 p-4 bg-[#0f2040] border border-[#1e3a6e] rounded-xl"
+            className="mb-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm"
           >
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
               Selected Trades ({selectedTrades.length})
@@ -527,7 +527,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {selectedTrades.map((trade) => (
                 <span
                   key={trade}
-                  className="text-[10px] px-2 py-0.5 bg-blue-600/10 text-blue-400 border border-blue-600/20 rounded-full"
+                  className="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full"
                 >
                   {trade.length > 36 ? trade.slice(0, 36) + "…" : trade}
                 </span>
@@ -538,10 +538,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
       </div>
 
       {/* ── Progress Stepper ── */}
-      <div className="border-b border-[#1e3a6e] bg-[#0f2040]">
+      <div className="border-b border-slate-200 bg-white">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="relative flex items-start justify-between">
-            <div className="absolute top-4 left-4 right-4 h-px bg-[#1e3a6e]">
+            <div className="absolute top-4 left-4 right-4 h-px bg-slate-200">
               <motion.div
                 className="absolute inset-y-0 left-0 w-full bg-blue-600 origin-left"
                 animate={{ scaleX: progressPct / 100 }}
@@ -568,9 +568,9 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                     aria-label={`Step ${s.id}: ${s.label}${done ? " (completed)" : active ? " (current)" : ""}`}
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 transition-colors duration-200",
-                      active && "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/40 ring-4 ring-blue-600/20",
-                      done && "bg-green-600 border-green-600 text-white cursor-pointer hover:bg-green-500",
-                      !active && !done && "bg-[#0a1628] border-[#1e3a6e] text-slate-600"
+                      active && "bg-[#1a2e4a] border-[#1a2e4a] text-white shadow-sm ring-4 ring-[#1a2e4a]/10",
+                      done && "bg-blue-600 border-blue-600 text-white cursor-pointer hover:bg-blue-500",
+                      !active && !done && "bg-slate-100 border-slate-300 text-slate-400"
                     )}
                   >
                     <AnimatePresence mode="wait" initial={false}>
@@ -587,7 +587,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                   </motion.button>
                   <span className={cn(
                     "text-[10px] font-semibold text-center leading-tight hidden sm:block max-w-[72px]",
-                    active ? "text-white" : done ? "text-green-500" : "text-slate-600"
+                    active ? "text-slate-900" : done ? "text-blue-600" : "text-slate-400"
                   )}>
                     {s.label}
                   </span>
@@ -615,7 +615,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {step === 1 && (
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-                    <h2 className="text-2xl font-black text-white">Company &amp; Project Details</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Company &amp; Project Details</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Your company information and the project you&apos;re working on.</p>
                   </motion.div>
 
@@ -626,7 +626,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                         <Label htmlFor="company_logo_input">Company Logo (optional)</Label>
                         <div className="flex items-center gap-3">
                           {logoDataUrl ? (
-                            <div className="relative w-20 h-12 border border-slate-700 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center">
+                            <div className="relative w-20 h-12 border border-slate-200 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img src={logoDataUrl} alt="Company logo" className="max-w-full max-h-full object-contain" />
                               <button
@@ -642,13 +642,13 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                             <button
                               type="button"
                               onClick={() => logoInputRef.current?.click()}
-                              className="flex items-center gap-2 px-3 py-2 text-xs text-slate-400 border border-slate-700 border-dashed rounded-lg hover:border-blue-600/50 hover:text-blue-400 transition-colors"
+                              className="flex items-center gap-2 px-3 py-2 text-xs text-slate-500 border border-slate-300 border-dashed rounded-lg hover:border-blue-500 hover:text-blue-600 transition-colors"
                             >
                               <Upload className="w-3.5 h-3.5" />
                               Upload logo
                             </button>
                           )}
-                          <p className="text-xs text-slate-600">PNG, JPG — appears in document header</p>
+                          <p className="text-xs text-slate-400">PNG, JPG — appears in document header</p>
                         </div>
                         <input
                           ref={logoInputRef}
@@ -705,14 +705,14 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
 
                       {/* Insurance — collapsed by default */}
                       <details className="group">
-                        <summary className="text-xs font-semibold text-slate-500 cursor-pointer hover:text-slate-300 transition-colors list-none flex items-center gap-1.5">
+                        <summary className="text-xs font-semibold text-slate-500 cursor-pointer hover:text-slate-700 transition-colors list-none flex items-center gap-1.5">
                           <ChevronRight className="w-3 h-3 group-open:rotate-90 transition-transform" />
                           Insurance &amp; Compliance (optional)
                         </summary>
                         <div className="mt-3">
                           <Label htmlFor="el_insurance">Employers&apos; Liability Insurance Ref</Label>
                           <Input {...register("el_insurance")} id="el_insurance" placeholder="e.g. Insurer name, policy no., limit of indemnity" />
-                          <p className="text-xs text-slate-600 mt-1">PCs may require this on the RAMS cover sheet.</p>
+                          <p className="text-xs text-slate-400 mt-1">PCs may require this on the RAMS cover sheet.</p>
                         </div>
                       </details>
                     </FieldGroup>
@@ -747,7 +747,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {step === 2 && (
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-                    <h2 className="text-2xl font-black text-white">Works Description</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Works Description</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Describe the works in detail — the more specific, the better your RAMS document will be.</p>
                   </motion.div>
 
@@ -769,7 +769,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                           placeholder="e.g. Excavation for foul drainage installation, 2.5m deep in soft ground (clay). Works adjacent to live carriageway. Installation of 225mm diameter PVC-U pipes with precast concrete manholes at 30m intervals. Backfilling with selected granular fill, compaction, and temporary tarmac reinstatement."
                           error={errors.activity?.message}
                         />
-                        <p className={cn("text-[10px] mt-1 text-right", activityLength > 2800 ? "text-amber-400" : "text-slate-600")}>
+                        <p className={cn("text-[10px] mt-1 text-right", activityLength > 2800 ? "text-amber-600" : "text-slate-400")}>
                           {activityLength} / 3000
                         </p>
                       </div>
@@ -810,7 +810,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {step === 3 && (
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-                    <h2 className="text-2xl font-black text-white">Plant &amp; Equipment</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Plant &amp; Equipment</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Select all plant and equipment to be used on site. Add anything not listed below.</p>
                   </motion.div>
 
@@ -819,7 +819,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       <button
                         type="button"
                         onClick={toggleAll}
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        className="text-xs text-blue-600 hover:text-blue-500 transition-colors"
                       >
                         {PLANT_PRESETS.every((n) => selectedItems.has(n)) ? "Clear all" : "Select all equipment"}
                       </button>
@@ -828,11 +828,11 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       {PLANT_GROUPS.map((group) => (
                         <div key={group.label}>
                           <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">{group.label}</p>
+                            <p className="text-xs font-semibold text-slate-600 uppercase tracking-widest">{group.label}</p>
                             <button
                               type="button"
                               onClick={() => toggleGroup(group)}
-                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                              className="text-xs text-blue-600 hover:text-blue-500 transition-colors"
                             >
                               {group.items.every((i) => selectedItems.has(i)) ? "Clear" : "Select all"}
                             </button>
@@ -848,7 +848,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
                                     on
                                       ? "bg-blue-600 border-blue-500 text-white"
-                                      : "bg-slate-800/60 border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"
+                                      : "bg-slate-100 border-slate-200 text-slate-700 hover:border-blue-400 hover:text-blue-700"
                                   }`}
                                 >
                                   {on && <Check className="w-3 h-3" />}
@@ -862,7 +862,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                     </div>
 
                     {/* Custom item input */}
-                    <div className="flex gap-2 mt-6 pt-5 border-t border-slate-800">
+                    <div className="flex gap-2 mt-6 pt-5 border-t border-slate-200">
                       <div className="flex-1">
                         <Input
                           value={customItem}
@@ -875,7 +875,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                         type="button"
                         onClick={addCustomItem}
                         whileTap={{ scale: 0.95 }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-medium transition-colors"
                       >
                         <Plus className="w-4 h-4" />
                         Add
@@ -884,7 +884,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
 
                     {/* Selected summary */}
                     {fields.length > 0 ? (
-                      <div className="mt-4 pt-4 border-t border-slate-800">
+                      <div className="mt-4 pt-4 border-t border-slate-200">
                         <p className="text-xs text-slate-500 mb-2">{fields.length} item{fields.length !== 1 ? "s" : ""} selected</p>
                         <div className="flex flex-wrap gap-1.5">
                           <AnimatePresence initial={false}>
@@ -895,14 +895,14 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                                 initial="hidden"
                                 animate="visible"
                                 exit="exit"
-                                className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 bg-slate-800 border border-slate-700 rounded-full text-xs text-slate-300"
+                                className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 bg-slate-100 border border-slate-200 rounded-full text-xs text-slate-700"
                               >
                                 {f.item}
                                 <button
                                   type="button"
                                   onClick={() => remove(i)}
                                   aria-label={`Remove ${f.item}`}
-                                  className="ml-0.5 text-slate-500 hover:text-red-400 transition-colors"
+                                  className="ml-0.5 text-slate-400 hover:text-red-500 transition-colors"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
@@ -912,7 +912,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-4 text-xs text-amber-400">Select at least one item to continue.</p>
+                      <p className="mt-4 text-xs text-amber-600">Select at least one item to continue.</p>
                     )}
                   </SectionCard>
                 </div>
@@ -922,7 +922,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {step === 4 && (
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-                    <h2 className="text-2xl font-black text-white">Operatives</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Operatives</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Describe the number and roles of operatives and confirm welfare arrangements.</p>
                   </motion.div>
 
@@ -966,7 +966,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               {step === 5 && (
                 <div className="space-y-6">
                   <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }} animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 320, damping: 30 }}>
-                    <h2 className="text-2xl font-black text-white">Sign-Off &amp; Site Hazards</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Sign-Off &amp; Site Hazards</h2>
                     <p className="text-sm text-slate-500 mt-1.5">Emergency contacts, document sign-off details, and any additional site-specific hazards.</p>
                   </motion.div>
 
@@ -1058,9 +1058,9 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                         animate="visible"
                         exit="exit"
                         role="alert"
-                        className="bg-red-500/10 border border-red-500/30 rounded-xl p-4"
+                        className="bg-red-50 border border-red-200 rounded-xl p-4"
                       >
-                        <p className="text-sm text-red-400">{error}</p>
+                        <p className="text-sm text-red-700">{error}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -1069,9 +1069,9 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                     initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                     animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
                     transition={{ delay: 0.12, type: "spring", stiffness: 320, damping: 30 }}
-                    className="bg-blue-600/10 border border-blue-600/30 rounded-xl p-4"
+                    className="bg-blue-50 border border-blue-200 rounded-xl p-4"
                   >
-                    <p className="text-sm text-blue-300">
+                    <p className="text-sm text-blue-800">
                       <span className="font-semibold">Ready to generate your RAMS?</span> Click the button below to produce your CDM 2015 compliant document. This may take up to 30 seconds if using AI generation.
                     </p>
                   </motion.div>
@@ -1079,7 +1079,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
               )}
 
               {/* ── Navigation ── */}
-              <div className="mt-8 pt-6 border-t border-[#1e3a6e]">
+              <div className="mt-8 pt-6 border-t border-slate-200">
                 {step === STEPS.length ? (
                   <div className="space-y-3">
                     <motion.button
@@ -1087,7 +1087,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       disabled={isGenerating}
                       whileHover={!isGenerating ? { scale: 1.01 } : undefined}
                       whileTap={!isGenerating ? { scale: 0.98 } : undefined}
-                      className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-base font-bold transition-colors shadow-lg shadow-blue-900/30"
+                      className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-[#1a2e4a] hover:bg-[#243d5f] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl text-base font-bold transition-colors shadow-lg shadow-slate-900/10"
                     >
                       {isGenerating ? (
                         <><Loader2 className="w-5 h-5 animate-spin" />Generating RAMS Document…</>
@@ -1100,7 +1100,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       onClick={handleBack}
                       whileHover={{ x: -2 }}
                       whileTap={{ scale: 0.97 }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-[#0f2040] border border-[#1e3a6e] transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-300 transition-colors"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       Back
@@ -1115,7 +1115,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                       whileTap={{ scale: 0.97 }}
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                        "text-slate-400 hover:text-white hover:bg-[#0f2040] border border-[#1e3a6e]"
+                        "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-300"
                       )}
                     >
                       <ChevronLeft className="w-4 h-4" />

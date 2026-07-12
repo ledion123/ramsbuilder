@@ -35,7 +35,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const labelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Read dismiss preference from localStorage after mount
   useEffect(() => {
     try {
       setDismissed(localStorage.getItem(STORAGE_KEY) === "1");
@@ -73,7 +72,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
     setState({ status: "uploading" });
     setUploadLabel("Reading document…");
 
-    // Shift label after 2s to indicate Claude is running
     labelTimerRef.current = setTimeout(() => {
       setUploadLabel("Extracting work details…");
     }, 2000);
@@ -119,7 +117,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) processFile(file);
-    // Reset input so same file can be re-selected
     e.target.value = "";
   };
 
@@ -139,7 +136,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
     if (state.status === "dragging") setState({ status: "idle" });
   };
 
-  // Dismissed view — just a small link
   if (dismissed) {
     return (
       <motion.button
@@ -147,7 +143,7 @@ export function ScopeUploadCard({ onExtracted }: Props) {
         onClick={undismiss}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="mb-3 flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-400 transition-colors"
+        className="mb-3 flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition-colors"
       >
         <UploadCloud className="w-3.5 h-3.5" />
         Upload scope of works document
@@ -162,19 +158,17 @@ export function ScopeUploadCard({ onExtracted }: Props) {
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="mb-4 relative"
     >
-      {/* Dismiss button */}
       <button
         type="button"
         onClick={dismiss}
         aria-label="Dismiss upload card"
-        className="absolute top-3 right-3 z-10 text-slate-600 hover:text-slate-400 transition-colors"
+        className="absolute top-3 right-3 z-10 text-slate-400 hover:text-slate-600 transition-colors"
       >
         <X className="w-4 h-4" />
       </button>
 
       <AnimatePresence mode="wait" initial={false}>
 
-        {/* ── Idle / Dragging ── */}
         {(state.status === "idle" || state.status === "dragging") && (
           <motion.div
             key="idle"
@@ -186,22 +180,22 @@ export function ScopeUploadCard({ onExtracted }: Props) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             className={cn(
-              "border border-dashed rounded-xl px-6 py-5 flex items-center gap-5 transition-colors",
+              "border-2 border-dashed rounded-xl px-6 py-5 flex items-center gap-5 transition-colors",
               state.status === "dragging"
-                ? "border-blue-600 bg-blue-600/5"
-                : "border-[#1e3a6e] bg-[#0a1628] hover:border-blue-600/40"
+                ? "border-blue-500 bg-blue-50"
+                : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/50"
             )}
           >
             <motion.div
               animate={state.status === "dragging" ? { scale: 1.1 } : { scale: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 18 }}
-              className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center flex-shrink-0"
+              className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0"
             >
-              <UploadCloud className="w-5 h-5 text-blue-400" />
+              <UploadCloud className="w-5 h-5 text-blue-600" />
             </motion.div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-200">
+              <p className="text-sm font-semibold text-slate-800">
                 Quick Start — Upload Scope Document
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -219,7 +213,7 @@ export function ScopeUploadCard({ onExtracted }: Props) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-semibold bg-[#0f2040] border border-[#1e3a6e] text-slate-300 hover:text-white hover:border-blue-600/50 rounded-lg transition-colors"
+              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:border-blue-500 hover:text-blue-700 rounded-lg transition-colors shadow-sm"
             >
               <FileText className="w-3.5 h-3.5" />
               Browse files
@@ -227,7 +221,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
           </motion.div>
         )}
 
-        {/* ── Uploading ── */}
         {state.status === "uploading" && (
           <motion.div
             key="uploading"
@@ -235,16 +228,16 @@ export function ScopeUploadCard({ onExtracted }: Props) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="border border-[#1e3a6e] rounded-xl px-6 py-5 flex items-center gap-4 bg-[#0a1628]"
+            className="border border-slate-200 rounded-xl px-6 py-5 flex items-center gap-4 bg-white shadow-sm"
           >
-            <Loader2 className="w-5 h-5 text-blue-400 animate-spin flex-shrink-0" />
+            <Loader2 className="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
             <AnimatePresence mode="wait">
               <motion.p
                 key={uploadLabel}
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="text-sm text-slate-300"
+                className="text-sm text-slate-700"
               >
                 {uploadLabel}
               </motion.p>
@@ -252,7 +245,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
           </motion.div>
         )}
 
-        {/* ── Done ── */}
         {state.status === "done" && (
           <motion.div
             key="done"
@@ -260,19 +252,19 @@ export function ScopeUploadCard({ onExtracted }: Props) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="border border-green-600/30 rounded-xl px-6 py-4 bg-green-600/5"
+            className="border border-green-200 rounded-xl px-6 py-4 bg-green-50"
           >
             <div className="flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-green-400">
+                <p className="text-sm font-semibold text-green-800">
                   Form pre-filled — review each step before generating.
                 </p>
                 {state.warnings.length > 0 && (
                   <button
                     type="button"
                     onClick={() => setShowWarnings((v) => !v)}
-                    className="mt-1.5 flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                    className="mt-1.5 flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 transition-colors"
                   >
                     {showWarnings ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                     {state.warnings.length} field{state.warnings.length > 1 ? "s" : ""} could not be extracted
@@ -287,7 +279,7 @@ export function ScopeUploadCard({ onExtracted }: Props) {
                       className="mt-2 space-y-1 overflow-hidden"
                     >
                       {state.warnings.map((w, i) => (
-                        <li key={i} className="text-xs text-amber-300/80">• {w}</li>
+                        <li key={i} className="text-xs text-amber-700">• {w}</li>
                       ))}
                     </motion.ul>
                   )}
@@ -296,7 +288,7 @@ export function ScopeUploadCard({ onExtracted }: Props) {
               <button
                 type="button"
                 onClick={() => setState({ status: "idle" })}
-                className="flex-shrink-0 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                className="flex-shrink-0 text-xs text-slate-500 hover:text-slate-700 transition-colors"
               >
                 Clear
               </button>
@@ -304,7 +296,6 @@ export function ScopeUploadCard({ onExtracted }: Props) {
           </motion.div>
         )}
 
-        {/* ── Error ── */}
         {state.status === "error" && (
           <motion.div
             key="error"
@@ -312,17 +303,17 @@ export function ScopeUploadCard({ onExtracted }: Props) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="border border-red-500/30 rounded-xl px-6 py-4 bg-red-500/5"
+            className="border border-red-200 rounded-xl px-6 py-4 bg-red-50"
           >
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm text-red-400">{state.message}</p>
+                <p className="text-sm text-red-700">{state.message}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setState({ status: "idle" })}
-                className="flex-shrink-0 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+                className="flex-shrink-0 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
               >
                 Try again
               </button>

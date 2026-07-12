@@ -9,16 +9,16 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#0a1628] flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
-        <p className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-3">Legal</p>
-        <h1 className="text-4xl font-black text-white mb-2">Privacy Policy</h1>
+        <p className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-3">Legal</p>
+        <h1 className="text-4xl font-black text-slate-900 mb-2">Privacy Policy</h1>
         <p className="text-slate-500 text-sm mb-10">Last updated: July 2026</p>
 
-        <div className="prose prose-slate prose-invert max-w-none space-y-8 text-slate-300 text-sm leading-relaxed">
+        <div className="space-y-8 text-slate-700 text-sm leading-relaxed">
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">1. Who we are</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">1. Who we are</h2>
             <p>
               RAMS Generator (&quot;we&quot;, &quot;our&quot;) is an online tool that helps UK construction subcontractors
               generate CDM 2015 compliant Risk Assessment and Method Statement documents. This policy explains how we
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">2. What data we collect</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">2. What data we collect</h2>
             <p>When you use RAMS Generator you may provide:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Company name, address, registration number, phone, and email</li>
@@ -40,27 +40,27 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">3. How your data is processed</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">3. How your data is processed</h2>
             <p>
-              <strong className="text-white">No server-side storage.</strong> We do not store your form data, generated
+              <strong className="text-slate-900">No server-side storage.</strong> We do not store your form data, generated
               documents, or uploaded files on our servers after your request is processed. All data is handled
               in-memory and discarded immediately after the response is returned.
             </p>
             <p className="mt-3">
-              <strong className="text-white">Browser storage.</strong> Your generated RAMS document and form input are
-              saved to your browser&apos;s <code className="text-blue-400">localStorage</code> (or{" "}
-              <code className="text-blue-400">sessionStorage</code> as a fallback in private browsing mode) so the
+              <strong className="text-slate-900">Browser storage.</strong> Your generated RAMS document and form input are
+              saved to your browser&apos;s <code className="text-blue-600">localStorage</code> (or{" "}
+              <code className="text-blue-600">sessionStorage</code> as a fallback in private browsing mode) so the
               preview and export functions work. This data stays on your device and is not transmitted to us.
             </p>
             <p className="mt-3">
-              <strong className="text-white">AI generation (when API key is active).</strong> When the AI generation
+              <strong className="text-slate-900">AI generation (when API key is active).</strong> When the AI generation
               path is used, your form data (excluding any logo image) is sent to the Anthropic API to generate the
               RAMS document. Anthropic processes this data in accordance with their{" "}
               <a
                 href="https://www.anthropic.com/legal/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 underline"
+                className="text-blue-600 hover:text-blue-500 underline"
               >
                 Privacy Policy
               </a>
@@ -69,16 +69,16 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">4. Cookies and local storage</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">4. Cookies and local storage</h2>
             <p>
-              We do not use tracking cookies. We use browser <code className="text-blue-400">localStorage</code> and{" "}
-              <code className="text-blue-400">sessionStorage</code> solely to retain your generated document within
+              We do not use tracking cookies. We use browser <code className="text-blue-600">localStorage</code> and{" "}
+              <code className="text-blue-600">sessionStorage</code> solely to retain your generated document within
               your browser session. You can clear this at any time by clearing your browser data.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">5. Your rights (UK GDPR)</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">5. Your rights (UK GDPR)</h2>
             <p>
               Because we do not persistently store personal data on our servers, most UK GDPR rights (access,
               rectification, erasure) can be exercised by you directly by clearing your browser&apos;s local storage.
@@ -87,10 +87,10 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-white mb-3">6. Contact</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">6. Contact</h2>
             <p>
               For any privacy-related queries, contact us at{" "}
-              <a href="mailto:ledjo.lutaj@gmail.com" className="text-blue-400 hover:text-blue-300 underline">
+              <a href="mailto:ledjo.lutaj@gmail.com" className="text-blue-600 hover:text-blue-500 underline">
                 ledjo.lutaj@gmail.com
               </a>
               .
@@ -98,8 +98,8 @@ export default function PrivacyPage() {
           </section>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-slate-800">
-          <Link href="/" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+        <div className="mt-12 pt-6 border-t border-slate-200">
+          <Link href="/" className="text-sm text-slate-500 hover:text-slate-700 transition-colors">
             ← Back to home
           </Link>
         </div>
