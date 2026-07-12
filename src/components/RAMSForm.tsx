@@ -29,15 +29,17 @@ import {
 } from "lucide-react";
 
 const PLANT_GROUPS = [
-  { label: "Excavators", items: ["Mini excavator (1.5t)", "Mini excavator (3t)", "180° excavator (5–13t)", "360° excavator (13–20t)", "Long-reach excavator"] },
-  { label: "Earthmoving", items: ["Tracked dumper (1t)", "Tracked dumper (3t)", "Wheeled dumper (6t)", "Dozer", "Grader", "Skid steer loader"] },
-  { label: "Lifting", items: ["Telehandler", "Rough terrain forklift", "Tower crane", "Mobile crane", "MEWP — boom lift (IPAF 3b)", "MEWP — scissor lift (IPAF 3a)"] },
-  { label: "Compaction", items: ["Vibrating roller", "Plate compactor (wacker plate)", "Trench rammer"] },
+  { label: "Excavators", items: ["Mini excavator 1.5t", "Mini excavator 3t", "180° excavator", "360° excavator", "Long-reach excavator"] },
+  { label: "Earthmoving", items: ["Tracked dumper 1t", "Tracked dumper 3t", "Wheeled dumper 6t", "Dozer", "Grader", "Skid steer loader"] },
+  { label: "Lifting", items: ["Telehandler", "Rough terrain forklift", "Tower crane", "Mobile crane", "Boom lift (MEWP)", "Scissor lift (MEWP)"] },
+  { label: "Compaction", items: ["Vibrating roller", "Plate compactor", "Trench rammer"] },
   { label: "Concrete & Groundwork", items: ["Concrete pump", "Ready-mix truck", "Poker vibrator", "Piling rig"] },
-  { label: "Road & Paving", items: ["Tarmac paver", "Road roller", "Road planer / milling machine", "Temporary traffic lights"] },
-  { label: "Power & Air", items: ["Generator", "Compressor (air)", "Pressure washer", "Welder (MIG/MMA)"] },
-  { label: "Hand Tools & Survey", items: ["Breaker / SDS hammer", "Angle grinder", "Disc cutter (Stihl saw)", "Core drill", "Floor saw", "CAT scanner", "4-gas monitor"] },
+  { label: "Road & Paving", items: ["Tarmac paver", "Road roller", "Road planer", "Temporary traffic lights"] },
+  { label: "Power & Air", items: ["Generator", "Compressor", "Pressure washer", "Welder"] },
+  { label: "Hand Tools & Survey", items: ["Breaker", "Angle grinder", "Disc cutter", "Core drill", "Floor saw", "CAT scanner", "4-gas monitor"] },
 ];
+
+const PLANT_PRESETS = PLANT_GROUPS.flatMap((g) => g.items);
 
 const STEPS = [
   { id: 1, label: "Company & Project", icon: Building2 },
@@ -344,6 +346,34 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
     const v = customItem.trim();
     if (v && !selectedItems.has(v)) append({ item: v });
     setCustomItem("");
+  }
+
+  function toggleGroup(group: { items: string[] }) {
+    const allOn = group.items.every((i) => selectedItems.has(i));
+    if (allOn) {
+      group.items.forEach((name) => {
+        const idx = fields.findIndex((f) => f.item === name);
+        if (idx !== -1) remove(idx);
+      });
+    } else {
+      group.items.forEach((name) => {
+        if (!selectedItems.has(name)) append({ item: name });
+      });
+    }
+  }
+
+  function toggleAll() {
+    const allOn = PLANT_PRESETS.every((name) => selectedItems.has(name));
+    if (allOn) {
+      PLANT_PRESETS.forEach((name) => {
+        const idx = fields.findIndex((f) => f.item === name);
+        if (idx !== -1) remove(idx);
+      });
+    } else {
+      PLANT_PRESETS.forEach((name) => {
+        if (!selectedItems.has(name)) append({ item: name });
+      });
+    }
   }
 
   const handleNext = async () => {
@@ -785,10 +815,28 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
                   </motion.div>
 
                   <SectionCard title="Equipment Picker" index={1}>
+                    <div className="flex justify-end mb-1">
+                      <button
+                        type="button"
+                        onClick={toggleAll}
+                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        {PLANT_PRESETS.every((n) => selectedItems.has(n)) ? "Clear all" : "Select all equipment"}
+                      </button>
+                    </div>
                     <div className="space-y-5">
                       {PLANT_GROUPS.map((group) => (
                         <div key={group.label}>
-                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">{group.label}</p>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">{group.label}</p>
+                            <button
+                              type="button"
+                              onClick={() => toggleGroup(group)}
+                              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                            >
+                              {group.items.every((i) => selectedItems.has(i)) ? "Clear" : "Select all"}
+                            </button>
+                          </div>
                           <div className="flex flex-wrap gap-2">
                             {group.items.map((item) => {
                               const on = selectedItems.has(item);
