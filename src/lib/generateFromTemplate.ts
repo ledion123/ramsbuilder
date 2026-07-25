@@ -58,6 +58,7 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
   const isBuilding    = industry === "building"    || detect(inAll, "brickwork", "block", "masonry", "structural", "beam");
   const isME          = industry === "me"          || detect(inAll, "mechanical", "hvac", "ventilation", "air conditioning", "f-gas", "refrigerant");
   const isFitout      = industry === "fitout"      || detect(inAll, "fit out", "fit-out", "partition", "suspended ceiling", "fire door", "acoustic");
+  const isGas         = isPlumbing && detect(inAll, "gas install", "gas safe", "mdpe", "purging", "gas commission");
 
   const docRef = `RAMS-${slugify(input.project_name)}-001`;
   const dateStr = today();
@@ -286,6 +287,415 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       ],
       likelihood_post: 2, severity_post: 3, risk_score_post: 6, risk_level_post: "Low",
       legislation_ref: "Control of Vibration at Work Regulations 2005",
+    });
+  }
+
+  // ── Electrical ──────────────────────────────────────────────────────────────
+  if (isElectrical) {
+    ra({
+      hazard: "Electric shock / electrocution",
+      description: "Contact with live conductors, damaged cables, or inadequately isolated equipment during electrical installation work can cause cardiac arrest, severe burns, or death.",
+      who_at_risk: "Electricians, operatives working nearby",
+      likelihood_pre: 3, severity_pre: 5, risk_score_pre: 15, risk_level_pre: "High",
+      control_measures: [
+        "Lock-Out Tag-Out (LOTO) procedure mandatory before work on any circuit (EaWR 1989 Reg 13); isolate, lock, test dead using GS38-compliant voltage tester before touching any conductor.",
+        "Permit to Work required for all live working; live work to be avoided unless technically impossible to de-energise.",
+        "All electricians to hold minimum NVQ Level 3 in Electrotechnical Technology; work to be supervised by NICEIC/NAPIT registered Approved Contractor.",
+        "RCD protection (max 30mA) on all portable tools and temporary supplies on site.",
+        "Inspect all cables and leads daily; any damaged insulation to be taken out of service immediately and replaced before further use.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Electricity at Work Regulations 1989 / BS 7671:2018 (18th Edition)",
+    });
+    ra({
+      hazard: "Arc flash from LV / HV switchgear",
+      description: "Inadvertent contact with or working too close to energised switchgear or distribution boards can cause an arc flash releasing intense heat, blast pressure, and molten metal, causing severe burns and blindness.",
+      who_at_risk: "Electricians, commissioning engineers",
+      likelihood_pre: 2, severity_pre: 4, risk_score_pre: 8, risk_level_pre: "Medium",
+      control_measures: [
+        "Confirm dead and prove isolation with approved voltage tester before opening any panel or switchgear.",
+        "Arc-rated PPE (minimum Category 2 FR clothing, arc-rated face shield with minimum 8 cal/cm²) to be worn for any LV panel work that cannot be confirmed dead.",
+        "Segregate work area with insulating barriers; post warning signs on all adjacent live panels.",
+        "Only competent persons authorised in writing by the site Electrical Supervisor to access HV equipment.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Electricity at Work Regulations 1989",
+    });
+    ra({
+      hazard: "Damage to existing buried / concealed cables during installation",
+      description: "Drilling, cutting, or chasing into walls, floors, or ceilings may inadvertently contact existing live cables, causing electric shock, arc fault, or fire.",
+      who_at_risk: "Electricians, operatives",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "CAT & Genny (cable avoidance tool) scan of all surfaces before any chasing or drilling; results recorded before work begins.",
+        "Obtain as-built drawings from client/PC before work; cross-reference with CAT scan findings.",
+        "Follow safe-zones for cable routing (horizontal and vertical from sockets/switches) per GN6 guidance.",
+        "Supervise all cable-pulling operations; do not use excessive force — stop and investigate if resistance is felt.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Electricity at Work Regulations 1989 / HSG47",
+    });
+  }
+
+  // ── Scaffolding ──────────────────────────────────────────────────────────────
+  if (isScaffolding) {
+    ra({
+      hazard: "Fall from height during scaffold erection and dismantling",
+      description: "Operatives working at height without adequate edge protection during erection or dismantling phases are at risk of fatal or life-changing falls. Scaffolding erection is classified as work at height with the highest risk period being the leading edge of the scaffold prior to guard-rails being fixed.",
+      who_at_risk: "Scaffold erectors, dismantlers",
+      likelihood_pre: 4, severity_pre: 5, risk_score_pre: 20, risk_level_pre: "High",
+      control_measures: [
+        "All scaffold erectors and dismantlers to hold current CISRS Scaffold Operative or Advanced Scaffold Operative cards appropriate to the work; cards to be checked on site before work commences.",
+        "Scaffold design to comply with TG20:21 (standard duty) or bespoke design by a Temporary Works Engineer for non-standard configurations.",
+        "WAH 2005 hierarchy applied: no erection above 2m without collective protection (safety net, airbag) or personal fall arrest (harness + short lanyard to structure); no solo working at height.",
+        "Scafftag/handover certificate issued and signed before scaffold is handed over for use; tag to remain displayed and current throughout the project.",
+        "Erection/dismantling sequence to be documented in method statement and briefed to all operatives before work commences.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / NASC TG20:21 / BS EN 12811",
+    });
+    ra({
+      hazard: "Scaffold collapse due to overloading or structural failure",
+      description: "Incorrect tie patterns, overloading of scaffold lifts, inadequate foundations, or unauthorised alterations can cause partial or total scaffold collapse, putting operatives and members of the public at risk.",
+      who_at_risk: "Scaffold operatives, trades using scaffold, public below",
+      likelihood_pre: 2, severity_pre: 5, risk_score_pre: 10, risk_level_pre: "Medium",
+      control_measures: [
+        "Scaffold designed and erected to TG20:21 or bespoke Temporary Works design; tie pattern agreed with PC before erection.",
+        "Weekly documented inspections by CISRS Scaffolding Inspector; additional inspection after adverse weather, alteration, or impact damage.",
+        "Maximum distributed load per board lift clearly signed; operatives briefed at induction — no concentrated point loads.",
+        "No alteration to ties, standards, or ledgers by non-scaffolding trades — any alteration requires written consent from scaffold contractor and reinspection before further use.",
+        "Scaffold foundations checked for suitability; base plates and sole boards used on all standards on soft or uneven ground.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / NASC TG20:21 / BS 5975",
+    });
+    ra({
+      hazard: "Falling materials from scaffold",
+      description: "Tools, materials, and debris falling from scaffold lifts can cause fatal head injuries to operatives or members of the public below.",
+      who_at_risk: "Operatives below, members of the public",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "Brick guards / toe boards fitted to all open edges of working lifts; debris netting fitted below working platform.",
+        "Debris fans (loading fan) at each lift level adjacent to public areas; fans to extend minimum 2.4m from face of scaffold.",
+        "Exclusion zone established directly below all working areas; zone to be physically segregated (barriers, signage) and policed.",
+        "All personnel within exclusion zone to wear hard hats (EN 397) at all times; helmets to be visually inspected before daily use.",
+        "No throwing of materials or equipment between lifts; all materials to be lowered or hoisted in bags/skips.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / CDM 2015",
+    });
+  }
+
+  // ── Roofing ──────────────────────────────────────────────────────────────────
+  if (isRoofing) {
+    ra({
+      hazard: "Fall from roof edge or through fragile surface",
+      description: "Unprotected roof edges and fragile roofing materials (roof lights, older fibre cement, corrugated asbestos) represent the highest risk of fatal injury for roofing operatives. Falls from roofs account for a disproportionate share of construction fatalities.",
+      who_at_risk: "Roofers, labourers, any operative accessing the roof",
+      likelihood_pre: 4, severity_pre: 5, risk_score_pre: 20, risk_level_pre: "High",
+      control_measures: [
+        "WAH 2005 hierarchy applied before any operative accesses the roof: collective protection (edge protection to BS EN 13374 Class A/B/C, or safety netting to BS EN 1263-1/2 installed by FASET-trained riggers) to be in place before work begins.",
+        "Fall arrest anchors (BS EN 795 Class B, tested to 12kN) to be installed by competent person and used where edge protection cannot be provided.",
+        "ACR TR57 fragility survey to be completed for all existing roof surfaces before work begins; fragile areas to be highlighted with warning signs and physical barriers.",
+        "Crawling boards spanning a minimum of 2 purlins to be used on all fragile or unverified roof surfaces; no point loading directly on sheets.",
+        "All roof lights and skylights to be highlighted in a contrasting colour, physically covered (load-rated covers), and signed before any operative accesses the roof.",
+        "Minimum 2-person working on roof at all times; lone working on roofs prohibited.",
+        "WAH Plan to be prepared by a competent person, briefed to all operatives, and signed before commencement.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / BS EN 13374 / ACR TR57",
+    });
+    ra({
+      hazard: "Hot works fire risk (bitumen, torch-on felt, hot melt)",
+      description: "Use of LPG torches and hot bitumen on or near roof structures, insulation, or combustible substrates creates a significant fire risk. Fires started during torch-on roofing may not become evident until hours after the work has finished.",
+      who_at_risk: "Roofers, building occupants, fire service",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "Hot Works Permit issued and signed before any torch-on, bitumen, or hot melt activity; permit to state time, location, operative, and fire watcher details.",
+        "Minimum 9kg dry powder fire extinguisher within 5m of hot work at all times; extinguisher to be inspected annually and within service date.",
+        "Dedicated fire watcher to remain at the work area during hot works and for a minimum of 60 minutes after all heat sources are extinguished.",
+        "Clear 1m exclusion zone around hot work area free of all combustible materials (insulation, felt offcuts, packaging); combustibles to be removed or covered with fire blanket.",
+        "LPG cylinders to be stored upright in cage outside building; flash-back arrestors on all torches; cylinders not in use to have valve closed.",
+        "Notify building insurer and building owner before hot works commence on occupied or sensitive structures.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Regulatory Reform (Fire Safety) Order 2005 / Fire Safety Order",
+    });
+    ra({
+      hazard: "Weather-related risk — wind and wet conditions",
+      description: "High winds create a risk of loss of balance and fall for operatives working at roof level, and can dislodge unsecured materials causing falling object hazards. Wet roof surfaces significantly increase the risk of slipping.",
+      who_at_risk: "Roofers, operatives, public below",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "Check Met Office forecast before each working day; suspend roofing work when wind speed exceeds 15 m/s (Beaufort Scale 7) or as directed by WAH Plan.",
+        "All loose materials and tools to be secured or brought down at the end of each shift and when operatives leave the roof unattended.",
+        "Anti-slip footwear (EN ISO 20345 SRC rated) mandatory for all operatives on roof; wet surfaces to be assessed before access.",
+        "Work on pitched roofs in wet conditions to be suspended unless collective fall protection is in place and the roof surface has been assessed as safe to access.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / CDM 2015",
+    });
+  }
+
+  // ── Plumbing / Gas ───────────────────────────────────────────────────────────
+  if (isPlumbing) {
+    if (isGas) {
+      ra({
+        hazard: "Gas escape and explosion",
+        description: "Damage to or incorrect installation of gas pipework can result in uncontrolled gas escape, creating an explosive atmosphere. Ignition of accumulated gas can cause fatal blast injuries and structural damage over a wide area.",
+        who_at_risk: "Gas operatives, building occupants, emergency services",
+        likelihood_pre: 3, severity_pre: 5, risk_score_pre: 15, risk_level_pre: "High",
+        control_measures: [
+          "CAT & Genny scan plus hand-dug trial holes to locate all buried gas mains before any mechanical excavation near gas infrastructure.",
+          "Permit to Dig required for all excavation within 500mm of known gas main; minimum 2-person working on all gas isolation tasks.",
+          "4-gas monitor (O2, LEL, CO, H2S) bump-tested and calibrated (max 6 months) carried by all operatives; monitor alarm thresholds: O2 <19.5%, LEL >10% = evacuate.",
+          "All ignition sources (including battery tools, mobile phones, and vehicles) prohibited within 6m of open gas work; no smoking within 10m.",
+          "All gas installation work to be carried out exclusively by Gas Safe registered operatives holding the appropriate ACS certification for the work type.",
+          "National Gas Emergency Service number (0800 111 999) posted at site entrance and in welfare; operatives briefed on emergency evacuation procedure.",
+          "Immediate site evacuation and emergency services notification if LEL alarm activates.",
+        ],
+        likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+        legislation_ref: "Gas Safety (Installation and Use) Regulations 1998 / GSIUR 1998",
+      });
+      ra({
+        hazard: "Pressure test failure and gas release during commissioning",
+        description: "Incorrect test medium, inadequate joint preparation, or failure to establish correct test pressure can result in joint or pipe failure during strength or tightness testing, releasing pressurised gas or causing blast injury.",
+        who_at_risk: "Gas Safe operatives, anyone in the building during test",
+        likelihood_pre: 2, severity_pre: 4, risk_score_pre: 8, risk_level_pre: "Medium",
+        control_measures: [
+          "Strength tests to use nitrogen or compressed air ONLY — never natural gas; all personnel to stand clear of joints during pressurisation.",
+          "3m exclusion zone around all joints during strength testing; pressure to be applied gradually and monitored remotely where possible.",
+          "Gas Safe registered engineer to witness and certify all tightness tests; test results recorded on appropriate gas certification form.",
+          "Purging to be carried out strictly per IGEM/UP/1B: purge to atmosphere at appropriate point; 4-gas monitor used throughout purging and commissioning.",
+        ],
+        likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+        legislation_ref: "Gas Safety (Installation and Use) Regulations 1998 / PSSR 2000",
+      });
+    }
+    ra({
+      hazard: "Legionella contamination in hot and cold water systems",
+      description: "Poorly designed or commissioned domestic water systems with dead legs, low-temperature zones, or stagnation can allow Legionella pneumophila to proliferate, creating a risk of Legionnaires' disease — a potentially fatal form of pneumonia — for building occupants and maintenance personnel.",
+      who_at_risk: "Building occupants, maintenance personnel, plumbers during commissioning",
+      likelihood_pre: 2, severity_pre: 4, risk_score_pre: 8, risk_level_pre: "Medium",
+      control_measures: [
+        "Design to minimise dead legs and stagnant zones; all pipework to drain or circulate; L8 ACOP requirements to be followed from design stage.",
+        "Hot water to be stored at minimum 60°C and distributed at 50°C at the draw-off point within 1 minute; cold water to be maintained below 20°C.",
+        "Full system disinfection to BS 8558 before commissioning and handover; disinfection certificate to be retained and passed to building owner.",
+        "Responsible Person appointed by client before building occupation; Legionella risk assessment to be completed and documented.",
+        "Plumbers to be aware of risks during commissioning; avoid inhaling spray from system flushing — wear FFP2 RPE when flushing systems that have been stagnant.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "COSHH Regulations 2002 / L8 ACOP / HSG274",
+    });
+    ra({
+      hazard: "Unvented hot water system failure",
+      description: "Incorrectly installed or commissioned unvented hot water systems (G3) can fail catastrophically if pressure relief devices are absent or incorrectly sized, resulting in steam explosion (BLEVE) and serious scalding injuries.",
+      who_at_risk: "Plumber, building occupants",
+      likelihood_pre: 2, severity_pre: 5, risk_score_pre: 10, risk_level_pre: "Medium",
+      control_measures: [
+        "All unvented hot water systems to be installed and commissioned by a City & Guilds 6035 (or equivalent) qualified operative only.",
+        "Pressure Relief Valve (PRV), expansion vessel, temperature/pressure relief valve, and discharge pipe to be fitted to manufacturer's specification and Building Regs Part G.",
+        "Discharge pipe to route to safe, visible drain location to BS EN 806; pipe material to withstand water at 95°C.",
+        "Building Regulations Part G notification to be submitted to Building Control before installation; completion certificate to be issued on commissioning.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Building Regulations Part G / PSSR 2000 / Approved Document G",
+    });
+  }
+
+  // ── Demolition ───────────────────────────────────────────────────────────────
+  if (isDemolition) {
+    ra({
+      hazard: "Asbestos Containing Material (ACM) exposure",
+      description: "Many pre-2000 buildings contain ACMs in floor tiles, insulation, ceiling tiles, pipe lagging, and roof sheets. Disturbing ACMs without control releases airborne asbestos fibres causing mesothelioma, lung cancer, and asbestosis — fatal diseases with no cure and a latency of 20–50 years.",
+      who_at_risk: "Demolition operatives, all site personnel, future building occupants",
+      likelihood_pre: 4, severity_pre: 5, risk_score_pre: 20, risk_level_pre: "High",
+      control_measures: [
+        "Type 3 (management) asbestos survey (CAR 2012 Regulation 5) to be completed by a UKAS-accredited analyst before any strip-out or demolition work commences; survey report on site at all times.",
+        "ACM register to be compiled from survey findings and made available to all contractors; all ACMs to be clearly labelled and fenced off.",
+        "Licensed asbestos removal required for all licensed ACMs (pipe lagging, sprayed coatings, AIB — except small scale, short duration); 14-day notification to HSE (Form F10) minimum before licensed works.",
+        "PAPR TH3 RPE to be worn for licensed removal; FFP3 (P3 filter) for non-licensed notifiable work; RPE to be face-fit tested and records retained.",
+        "Medical surveillance and personal health records (PHR) maintained for a minimum of 40 years for all operatives involved in licensed asbestos work.",
+        "Waste transfer notes (consignment notes for licensed material) to be retained for 3 years; all ACM waste to be disposed of at a licensed waste carrier facility.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Control of Asbestos Regulations 2012 (CAR 2012) / COSHH 2002",
+    });
+    ra({
+      hazard: "Uncontrolled structural collapse during demolition",
+      description: "Demolition of structural elements without a safe, engineered sequence risks premature or uncontrolled collapse, which can be fatal to operatives and members of the public in the vicinity.",
+      who_at_risk: "Demolition operatives, adjacent trades, members of the public",
+      likelihood_pre: 3, severity_pre: 5, risk_score_pre: 15, risk_level_pre: "High",
+      control_measures: [
+        "Structural engineer to prepare and approve the demolition sequence before works commence; sequence to be followed precisely — no deviation without engineer sign-off.",
+        "Temporary propping and shoring to be designed by Structural/Temporary Works Engineer and installed before structural elements are removed.",
+        "Works to be immediately suspended and engineer consulted if unexpected movement, cracking, or deflection is observed.",
+        "Exclusion zone to be established equal to the full height of the structure on all sides; zone to be physically secured and signed.",
+        "Sequential demolition only — no top-down working without specific engineer approval; debris to be progressively removed to prevent surcharge loading.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "CDM 2015 / BS 6187:2011 (Code of Practice for Full and Partial Demolition)",
+    });
+    ra({
+      hazard: "Lead paint inhalation and ingestion",
+      description: "Paint applied before 1960 commonly contains lead. Cutting, grinding, or blasting lead-painted surfaces generates lead dust and fume, which is absorbed through the respiratory tract and skin, causing lead poisoning with serious neurological, renal, and reproductive effects.",
+      who_at_risk: "Demolition and strip-out operatives",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "Lead paint survey to be completed before any strip-out or demolition of pre-1960 structures; results to be communicated to all operatives.",
+        "P3 filter half-mask or powered air-purifying respirator (PAPR TH3) to be worn for all operations that generate lead dust or fume.",
+        "Disposable coveralls (Type 5/6) and nitrile gloves to be worn; removed before leaving the work area and disposed of as controlled waste.",
+        "No eating, drinking, or smoking in the work area; operatives to wash hands and face thoroughly before breaks.",
+        "Blood-lead monitoring to be arranged for operatives with prolonged or intensive exposure; EH40 WEL 0.15 mg/m³ (8-hour TWA) not to be exceeded.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "COSHH Regulations 2002 / EH40 (Workplace Exposure Limits)",
+    });
+  }
+
+  // ── Building & Structural ────────────────────────────────────────────────────
+  if (isBuilding) {
+    ra({
+      hazard: "Respirable Crystalline Silica (RCS) dust inhalation",
+      description: "Cutting, grinding, or breaking concrete, brick, block, or stone generates RCS. Cumulative exposure above the WEL of 0.1 mg/m³ (8-hour TWA) causes silicosis — an irreversible and potentially fatal lung disease — and increases lung cancer risk.",
+      who_at_risk: "Bricklayers, blocklayers, operatives cutting masonry",
+      likelihood_pre: 4, severity_pre: 4, risk_score_pre: 16, risk_level_pre: "High",
+      control_measures: [
+        "WEL of 0.1 mg/m³ not to be exceeded; RPE selection based on COSHH assessment — FFP3 disposable or half-mask with P3 filter as minimum for cutting operations.",
+        "Wet cutting as primary control for all angle grinder and disc cutter operations; where wet cutting is not practicable, on-tool LEV extraction to be used.",
+        "Score-and-snap technique to be used in preference to cutting where the material specification allows.",
+        "No dry sweeping of dust — vacuum with H-class filter or wet sweeping only; isolate dust-generating operations from other workers where practicable.",
+        "Health surveillance for regular brick/block cutters: baseline lung function test and annual review; operatives to report any breathlessness or persistent cough immediately.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "COSHH Regulations 2002 / EH40 WEL",
+    });
+    ra({
+      hazard: "Manual handling injuries — dense masonry blocks and materials",
+      description: "Dense concrete blocks (standard 7N/mm² block = 20–25kg), reinforcement bars, and stone elements subject operatives to repeated high-force manual handling, causing musculoskeletal injury to back, shoulders, and wrists.",
+      who_at_risk: "Bricklayers, hod carriers, labourers",
+      likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
+      control_measures: [
+        "Individual manual handling limit of 25kg for a single lift; any item above 25kg to be handled mechanically (forklift, blocks grab, pallet truck) or as a team lift.",
+        "All bricklayers and labourers to receive manual handling induction (MHOR 1992); task-specific MH assessment to be completed for high-frequency lifting tasks.",
+        "Packs of blocks to be offloaded by forklift as close to point of use as possible; use of hod restricted to short-duration lifts only.",
+        "Task rotation to be implemented where operatives are performing the same repetitive lifting task for more than 2 hours continuously.",
+        "Block sizes specified to be 440×215×100mm or 440×215×140mm (standard) where possible to minimise individual block weights.",
+      ],
+      likelihood_post: 2, severity_post: 2, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Manual Handling Operations Regulations 1992 (MHOR)",
+    });
+    ra({
+      hazard: "Hand-arm vibration (HAVS) from angle grinder and SDS hammer",
+      description: "Repeated use of angle grinders (typically 8–12 m/s²) and SDS rotary hammer drills (6–12 m/s²) in masonry and concrete work exposes operatives to vibration levels significantly above the EAV of 2.5 m/s². Prolonged exposure without controls causes HAVS — irreversible damage to blood vessels, nerves, and joints in hands and wrists.",
+      who_at_risk: "Bricklayers, concretors, operatives using power tools",
+      likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
+      control_measures: [
+        "HAV exposure calculation to be completed using manufacturer's vibration data (triax) for each tool; daily exposure time limited to stay below EAV (2.5 m/s²) where reasonably practicable, and below ELV (5 m/s²) at all times.",
+        "Low-vibration tools to be selected where available; tool age and maintenance to be considered — worn tools vibrate significantly more.",
+        "Task rotation to be implemented: no single operative to use vibratory tools for more than the calculated trigger time without a break; breaks to include warming hands.",
+        "Anti-vibration gloves rated for the specific tool to be provided and used; operatives to keep hands warm during cold weather.",
+        "Health surveillance (tier 2 HAVs questionnaire) for all operatives regularly using vibratory tools; any tingling, numbness, or whitening of fingers to be reported immediately and further use suspended pending medical review.",
+      ],
+      likelihood_post: 2, severity_post: 3, risk_score_post: 6, risk_level_post: "Low",
+      legislation_ref: "Control of Vibration at Work Regulations 2005",
+    });
+  }
+
+  // ── M&E ──────────────────────────────────────────────────────────────────────
+  if (isME) {
+    ra({
+      hazard: "Refrigerant release (F-Gas) — environmental and health risk",
+      description: "Uncontrolled release of refrigerant gases (R410A, R32, R134a etc.) during installation, commissioning, or decommissioning of refrigeration and air conditioning systems causes environmental harm (high GWP) and can displace oxygen in enclosed spaces, causing asphyxiation.",
+      who_at_risk: "M&E engineers, commissioning operatives, occupants of plant rooms",
+      likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
+      control_measures: [
+        "All refrigerant handling to be carried out exclusively by operatives holding City & Guilds 2079 (or equivalent) F-Gas qualification; records of qualifications to be held on site.",
+        "No deliberate venting of refrigerant to atmosphere under any circumstances; F-Gas Regulations 2015 compliance mandatory.",
+        "Refrigerant leak check to be conducted after installation and documented; for systems with refrigerant charge >3kg, a leak-detection log to be maintained.",
+        "F-Gas equipment register (plant ID, refrigerant type, quantity, check dates) to be established for each system and passed to building owner on handover.",
+        "Plant rooms to be well ventilated; refrigerant gas detector to be installed in plant rooms with charges >300kg CO₂e.",
+      ],
+      likelihood_post: 1, severity_post: 3, risk_score_post: 3, risk_level_post: "Low",
+      legislation_ref: "F-Gas Regulations 2015 (EU 517/2014 retained in UK law)",
+    });
+    ra({
+      hazard: "Pressurised system failure during testing and commissioning",
+      description: "Hydraulic pressure testing of pipework and systems to 1.5× maximum working pressure, or pre-commission charging of compressed systems, can cause joint failure or pipe burst if carried out incorrectly, resulting in high-velocity water/fluid release causing serious injury.",
+      who_at_risk: "M&E engineers, commissioning personnel, adjacent trades",
+      likelihood_pre: 2, severity_pre: 5, risk_score_pre: 10, risk_level_pre: "Medium",
+      control_measures: [
+        "Written Scheme of Examination (WSE) to be in place under PSSR 2000 for all pressurised systems exceeding 0.5 bar; WSE to be produced by a Competent Person before commissioning.",
+        "Hydraulic test to be conducted at 1.5× MWP; test witnessed and certified by a Competent Person; all non-essential personnel to be excluded from the test area during pressurisation.",
+        "Pressure to be raised in stages and held at each increment for visual inspection before continuing; any weeping joint to be depressurised, repaired, and retested before pressurising again.",
+        "Written test certificate to be retained as part of the O&M manual; no system to be left charged and unattended until all joints have been visually confirmed at test pressure.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Pressure Systems Safety Regulations 2000 (PSSR 2000)",
+    });
+    ra({
+      hazard: "Working at height — MEWP and mobile tower during M&E installation",
+      description: "M&E installations (ductwork, cable trays, mechanical plant) frequently require working at height from mobile elevated work platforms (MEWPs) or mobile aluminium towers. MEWP tip-over or tower collapse from incorrect setup or ground conditions can be fatal.",
+      who_at_risk: "M&E engineers, ductwork installers, cable installers",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "MEWP operators to hold current IPAF PAL card (3a for push-around, 3b for self-propelled or boom); PASMA card required for mobile aluminium towers.",
+        "Pre-use ground survey: confirm ground surface is capable of supporting MEWP outrigger loads; do not use MEWP on ground that has been recently excavated or backfilled without engineer approval.",
+        "All MEWP outriggers to be fully deployed on solid pads before any work begins; MEWP not to be moved with operatives in the platform unless the MEWP type specifically permits it.",
+        "Fall arrest harness and short lanyard to be worn and clipped to designated anchor point within the MEWP platform at all times when the platform is elevated.",
+        "Tool lanyards to be used for all tools used at height; unsecured tools and materials not permitted on the platform above other workers.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "Work at Height Regulations 2005 / PUWER 1998 / IPAF guidance",
+    });
+  }
+
+  // ── Internal Fit-Out ─────────────────────────────────────────────────────────
+  if (isFitout) {
+    ra({
+      hazard: "Fire compartmentation breach — life safety risk",
+      description: "Incorrect installation of fire doors, improper fire-stopping around service penetrations, or incomplete intumescent sealing compromises the fire compartmentation strategy of the building, allowing fire and smoke to spread rapidly beyond the intended compartment boundary, endangering life.",
+      who_at_risk: "Building occupants, fire service, future maintenance personnel",
+      likelihood_pre: 3, severity_pre: 5, risk_score_pre: 15, risk_level_pre: "High",
+      control_measures: [
+        "All fire doors to be certified to BS EN 16034 and tested to BS 476 Part 22 (FD30 or FD60 as specified); door, frame, seals, hinges, closer, and hardware to form a certified system from a single approved supplier.",
+        "Fire door installer to hold FIRAS or BM TRADA Q-Mark third-party installer certification; all fire doors to be installed per manufacturer's installation instructions.",
+        "Intumescent seals, smoke seals, and fire-stopping materials at all service penetrations to be tested and certified to EN 1366; only third-party certified products to be used.",
+        "Completed fire door and fire-stopping schedule (BSA golden thread records) to be produced and passed to client on handover; Building Regs Part B notification to Building Control before occupation.",
+        "Completion certificate to be issued for each fire door installation; doors to be inspected for correct fitting, clearances, and self-closing function before final sign-off.",
+      ],
+      likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
+      legislation_ref: "Building Regulations Part B / BS EN 16034 / BS 476 Part 22",
+    });
+    ra({
+      hazard: "Silica dust from plasterboard, screed, and dry lining cutting",
+      description: "Machine cutting of plasterboard, cement board, and floor screed generates RCS at levels that can rapidly exceed the WEL of 0.1 mg/m³. Prolonged exposure causes silicosis and increases lung cancer risk.",
+      who_at_risk: "Dry liners, plasterers, floor layers",
+      likelihood_pre: 3, severity_pre: 4, risk_score_pre: 12, risk_level_pre: "Medium",
+      control_measures: [
+        "Score-and-snap technique to be used in preference to machine cutting for plasterboard wherever the cut allows; avoid power tool cutting unless edge quality requirements demand it.",
+        "Where machine cutting is required, use on-tool LEV extraction; wet cutting as alternative for cement board and screed.",
+        "FFP2 minimum RPE for all cutting of plasterboard or screed; FFP3 for cement board or stone floor tile cutting.",
+        "No dry sweeping of dust; use industrial vacuum with H-class filter or damp mopping only.",
+        "Health surveillance for dry liners and plasterers regularly generating dust; baseline and annual lung function tests.",
+      ],
+      likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
+      legislation_ref: "COSHH Regulations 2002 / EH40 WEL",
+    });
+    ra({
+      hazard: "Manual handling — plasterboard panels and raised access flooring",
+      description: "Full-size plasterboard sheets (2400×1200mm, 12.5mm) weigh approximately 25kg; thicker boards and cement boards weigh more. Raised access flooring panels and pedestals require repetitive bending, lifting, and carrying. Both tasks carry a significant risk of back injury, shoulder strain, and crush injuries from dropped panels.",
+      who_at_risk: "Dry liners, floor layers, labourers",
+      likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
+      control_measures: [
+        "Individual manual handling limit 25kg; full-size 12.5mm plasterboard sheets to be handled as a 2-person lift unless a panel carrier (suction-cup lifter) is used.",
+        "Panel carriers and board lifters to be provided and used for all boards above 1200mm in any dimension; operatives trained in use of equipment before site mobilisation.",
+        "2-person rule for all 2400×1200mm or larger boards: operatives to plan the lift path, communicate throughout, and not twist under load.",
+        "Task rotation to limit each operative's repetitive panel lifting to no more than 2 hours continuously before a break or task change.",
+        "MH assessment to be completed for the fit-out package; operatives briefed at induction.",
+      ],
+      likelihood_post: 2, severity_post: 3, risk_score_post: 6, risk_level_post: "Low",
+      legislation_ref: "Manual Handling Operations Regulations 1992 (MHOR)",
     });
   }
 
