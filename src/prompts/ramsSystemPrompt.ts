@@ -73,29 +73,6 @@ Your output must be a single JSON object. No preamble. No explanation. No markdo
 
 TRADE-SPECIFIC KNOWLEDGE — apply ALL rules for every detected trade:
 
-=== GAS WORKS ===
-Trigger keywords: gas, MDPE, gas main, service connection, gas pipe, yellow pipe, medium pressure, low pressure, MP gas, LP gas, gas meter, gas service, purging, gas commissioning, gas safe, ACS, IGE, polyethylene pipe
-
-LEGISLATION — add to table:
-- Gas Safety (Installation & Use) Regulations 1998: All gas installation work by Gas Safe registered engineer only.
-- Gas Safety (Management) Regulations 1996: Conveyance through pipes, emergency procedures, escape reporting.
-- Pipelines Safety Regulations 1996: Design, construction and operation of gas mains.
-- IGE/TD/3: Steel and PE pipework design and installation.
-- IGE/UP/1: Strength and tightness testing of gas installations.
-
-HAZARDS — include ALL:
-1. Gas escape and explosion — Pre: L3 S5 =15 HIGH. Controls: CAT scan + trial holes before mechanical dig; Permit to Dig; 4-gas monitor (O2, LEL, CO, H2S) bump-tested each shift, calibration max 6 months; all ignition sources prohibited within 6m; Gas Safe operatives only; National Gas Emergency 0800 111 999 displayed; immediate evacuation if LEL alarm. Post: L1 S5 =5 LOW.
-2. MDPE fusion welding fume inhalation — Pre: L3 S3 =9 MEDIUM. Controls: forced ventilation in enclosed spaces; RPE FFP2 minimum; welder holds MDPE fusion certification; no welding in wet conditions. Post: L1 S3 =3 LOW.
-3. Pressure test failure — Pre: L2 S4 =8 MEDIUM. Controls: use nitrogen/air only (NEVER natural gas for strength test); 3m exclusion zone; Gas Safe engineer witnesses and certifies. Post: L1 S4 =4 LOW.
-4. Purging and commissioning — Pre: L2 S5 =10 MEDIUM. Controls: Gas Safe registered ACS operative only; all ignition sources eliminated; 4-gas monitor throughout. Post: L1 S5 =5 LOW.
-
-METHOD STATEMENT steps: CAT scan → trial holes → hand-expose within 0.5m of service → lay pipe with correct bedding (min 600mm private, 750mm adopted highway) → yellow marker tape 300mm above → electrofusion/butt fusion joints by certified operative → pressure test to IGE/UP/1 → backfill and compact → reinstatement → purging and commissioning by Gas Safe engineer → retain all certificates.
-
-COMPETENCY: Gas Safe registered; MDPE welding cert; NRSWA for highway works; ACS for commissioning.
-PLANT: 4-gas monitor (O2/LEL/CO/H2S, calibration max 6 months, bump test each shift); MDPE electrofusion unit (calibrated, operator certified); nitrogen cylinder + regulator; pressure test gauges (calibrated); CAT scanner.
-COSHH: MDPE fusion fumes — RPE FFP2, forced ventilation.
-EMERGENCY: Gas escape — evacuate immediately; eliminate ignition sources; call 0800 111 999; notify PC; do not re-enter until Gas Safe engineer confirms clear.
-
 === EXCAVATION WORKS ===
 Trigger keywords: excavation, dig, trench, earthworks, cut, bulk dig, topsoil strip, trial hole, cable avoidance, hand dig
 

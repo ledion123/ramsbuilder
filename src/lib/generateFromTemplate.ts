@@ -10,6 +10,7 @@ import type {
   NoiseSource,
   LegislationRef,
 } from "./types";
+import { detectPacks } from "./packs/loadPacks";
 
 function today(): string {
   return new Date().toLocaleDateString("en-GB", {
@@ -79,6 +80,7 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
   const isME          = industry === "me"          || detect(inAll, "mechanical", "hvac", "ventilation", "air conditioning", "f-gas", "refrigerant");
   const isFitout      = industry === "fitout"      || detect(inAll, "fit out", "fit-out", "partition", "suspended ceiling", "fire door", "acoustic");
   const isGas         = isPlumbing && detect(inAll, "gas install", "gas safe", "mdpe", "purging", "gas commission");
+  const gasPack = detectPacks(inAll, input.selected_trades ?? []).find((p) => p.id === "groundworks-gas");
 
   const docRef = `RAMS-${slugify(input.project_name)}-001`;
   const dateStr = today();
@@ -112,8 +114,12 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     legislation.push({ regulation: "ACR[M]001:2019 — Test for Fragility of Roofing Assemblies", relevance: "Any fragile roof surface (profiled metal, fibre cement, glass, rooflights) must be treated as fragile; crawl boards and collective fall protection required." });
   }
   if (isPlumbing) {
-    legislation.push({ regulation: "Gas Safety (Installation &amp; Use) Regulations 1998 (GSIUR)", relevance: "All gas works must be carried out by Gas Safe registered engineers. Pipework must be tested and purged in accordance with IGE/UP/1." });
     legislation.push({ regulation: "Water Supply (Water Fittings) Regulations 1999", relevance: "All plumbing installations must comply with Water Regulations and use WRAS-approved materials where applicable." });
+  }
+  if (gasPack) {
+    for (const leg of gasPack.legislation) {
+      legislation.push(leg);
+    }
   }
   if (isDemolition) {
     legislation.push({ regulation: "Control of Asbestos Regulations 2012 (CAR 2012)", relevance: "A Type 3 asbestos refurbishment/demolition survey must be obtained before any demolition or strip-out works commence. All ACMs to be removed by licensed contractor before demolition." });
@@ -477,41 +483,29 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     });
   }
 
-  // ── Plumbing / Gas ───────────────────────────────────────────────────────────
-  if (isPlumbing) {
-    if (isGas) {
+  // ── Gas Works (pack-driven) ──────────────────────────────────────────────────
+  if (gasPack) {
+    for (const h of gasPack.hazards) {
       ra({
-        hazard: "Gas escape and explosion",
-        description: "Damage to or incorrect installation of gas pipework can result in uncontrolled gas escape, creating an explosive atmosphere. Ignition of accumulated gas can cause fatal blast injuries and structural damage over a wide area.",
-        who_at_risk: "Gas operatives, building occupants, emergency services",
-        likelihood_pre: 3, severity_pre: 5, risk_score_pre: 15, risk_level_pre: "High",
-        control_measures: [
-          "CAT & Genny scan plus hand-dug trial holes to locate all buried gas mains before any mechanical excavation near gas infrastructure.",
-          "Permit to Dig required for all excavation within 500mm of known gas main; minimum 2-person working on all gas isolation tasks.",
-          "4-gas monitor (O2, LEL, CO, H2S) bump-tested and calibrated (max 6 months) carried by all operatives; monitor alarm thresholds: O2 <19.5%, LEL >10% = evacuate.",
-          "All ignition sources (including battery tools, mobile phones, and vehicles) prohibited within 6m of open gas work; no smoking within 10m.",
-          "All gas installation work to be carried out exclusively by Gas Safe registered operatives holding the appropriate ACS certification for the work type.",
-          "National Gas Emergency Service number (0800 111 999) posted at site entrance and in welfare; operatives briefed on emergency evacuation procedure.",
-          "Immediate site evacuation and emergency services notification if LEL alarm activates.",
-        ],
-        likelihood_post: 1, severity_post: 5, risk_score_post: 5, risk_level_post: "Low",
-        legislation_ref: "Gas Safety (Installation and Use) Regulations 1998 / GSIUR 1998",
-      });
-      ra({
-        hazard: "Pressure test failure and gas release during commissioning",
-        description: "Incorrect test medium, inadequate joint preparation, or failure to establish correct test pressure can result in joint or pipe failure during strength or tightness testing, releasing pressurised gas or causing blast injury.",
-        who_at_risk: "Gas Safe operatives, anyone in the building during test",
-        likelihood_pre: 2, severity_pre: 4, risk_score_pre: 8, risk_level_pre: "Medium",
-        control_measures: [
-          "Strength tests to use nitrogen or compressed air ONLY — never natural gas; all personnel to stand clear of joints during pressurisation.",
-          "3m exclusion zone around all joints during strength testing; pressure to be applied gradually and monitored remotely where possible.",
-          "Gas Safe registered engineer to witness and certify all tightness tests; test results recorded on appropriate gas certification form.",
-          "Purging to be carried out strictly per IGEM/UP/1B: purge to atmosphere at appropriate point; 4-gas monitor used throughout purging and commissioning.",
-        ],
-        likelihood_post: 1, severity_post: 4, risk_score_post: 4, risk_level_post: "Low",
-        legislation_ref: "Gas Safety (Installation and Use) Regulations 1998 / PSSR 2000",
+        hazard: h.hazard,
+        description: h.description,
+        who_at_risk: h.who_at_risk,
+        likelihood_pre: h.likelihood_pre,
+        severity_pre: h.severity_pre,
+        risk_score_pre: h.risk_score_pre,
+        risk_level_pre: h.risk_level_pre,
+        control_measures: h.control_measures,
+        likelihood_post: h.likelihood_post,
+        severity_post: h.severity_post,
+        risk_score_post: h.risk_score_post,
+        risk_level_post: h.risk_level_post,
+        legislation_ref: h.legislation_ref,
       });
     }
+  }
+
+  // ── Plumbing (non-gas) ───────────────────────────────────────────────────────
+  if (isPlumbing) {
     ra({
       hazard: "Legionella contamination in hot and cold water systems",
       description: "Poorly designed or commissioned domestic water systems with dead legs, low-temperature zones, or stagnation can allow Legionella pneumophila to proliferate, creating a risk of Legionnaires' disease — a potentially fatal form of pneumonia — for building occupants and maintenance personnel.",
@@ -820,6 +814,12 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     );
   }
 
+  if (gasPack) {
+    for (const s of gasPack.method_steps) {
+      addStep(s.title, s.description);
+    }
+  }
+
   addStep(
     "Reinstatement and site clearance",
     `Carry out surface reinstatement in accordance with the specification (tarmac, topsoil, concrete, block paving as applicable). Ensure all temporary works, barriers, signs, and spoil are removed from site. Site to be left clean and tidy on completion of works. Complete all handover documentation including as-built drawings, test certificates, and waste transfer notes. Notify PC of works completion and arrange final inspection.`
@@ -851,6 +851,12 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
   }
   plantAndEquipment.push({ item: "4-gas atmospheric monitor (O2, LEL, CO, H2S)", requirement: "Calibration certificate current (max 6 months). Pre-use bump test carried out each shift. " + (isConfinedSpace ? "Mandatory for all confined space operations." : "Required before entering any excavation.") });
   plantAndEquipment.push({ item: "CAT (Cable Avoidance Tool) & Genny", requirement: "Calibration certificate current. Operative trained in use. Pre-use self-test carried out." });
+
+  if (gasPack) {
+    for (const p of gasPack.plant) {
+      plantAndEquipment.push(p);
+    }
+  }
 
   // ─── PPE ─────────────────────────────────────────────────────────────────────
   const ppe: PPEItem[] = [
@@ -901,6 +907,12 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       control: "Barrier cream applied to hands and wrists before working with wet cement; nitrile gloves mandatory; wash stations with clean water available at all times; change wet/cement-contaminated clothing immediately; no kneeling in wet concrete without knee pads.",
       regulation: "COSHH 2002",
     });
+  }
+
+  if (gasPack) {
+    for (const c of gasPack.coshh) {
+      coshh.push(c);
+    }
   }
 
   // ─── HAVS ────────────────────────────────────────────────────────────────────
@@ -1019,7 +1031,11 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
         ...(isConfinedSpace && {
           confined_space_rescue: `Non-entry rescue policy: retrieval of an incapacitated operative must be attempted using the tripod, harness, and lifeline BEFORE any attempt at entry rescue. If rescue cannot be accomplished without entry: call 999 immediately and await specialist confined space rescue team. Standby person MUST NOT enter the excavation without BA equipment and a second standby outside. Confined space rescue procedure to be briefed to all persons before works commence.`,
         }),
-        gas_escape: isPlumbing ? "If a gas escape is suspected: immediately evacuate the area. Do not operate electrical switches or create any ignition source. Call 999 and the National Gas Emergency Service (0800 111 999). Do not re-enter the building until declared safe by the gas emergency responder. Only Gas Safe registered engineers to investigate and make safe." : undefined,
+        gas_escape: gasPack
+          ? gasPack.emergency_procedures.gas_escape
+          : isPlumbing
+            ? "If a gas escape is suspected: immediately evacuate the area. Do not operate electrical switches or create any ignition source. Call 999 and the National Gas Emergency Service (0800 111 999). Do not re-enter the building until declared safe by the gas emergency responder. Only Gas Safe registered engineers to investigate and make safe."
+            : undefined,
       },
       environmental_controls: [
         "All waste materials to be segregated on site and disposed of with valid Waste Transfer Notes to a licensed facility.",

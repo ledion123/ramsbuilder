@@ -2,10 +2,21 @@ import Anthropic from "@anthropic-ai/sdk";
 import { ramsSystemPrompt } from "@/prompts/ramsSystemPrompt";
 import type { RAMSInput, RAMSDocument } from "./types";
 import { generateFromTemplate } from "./generateFromTemplate";
+import { detectPacks } from "./packs/loadPacks";
 
 const client = new Anthropic();
 
 export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument> {
+  const matchedPacks = detectPacks(input.activity, input.selected_trades ?? []);
+
+  let packOverrides = "";
+  for (const pack of matchedPacks) {
+    packOverrides +=
+      `\n\n=== AUTHORITATIVE PACK: ${pack.trade_name.toUpperCase()} ===\n` +
+      `You MUST include the following hazard records verbatim in risk_assessment. Do not alter scores or control wording.\n` +
+      JSON.stringify({ hazards: pack.hazards, legislation: pack.legislation, method_steps: pack.method_steps }, null, 2);
+  }
+
   const userMessage = JSON.stringify(
     {
       company_name: input.company_name,
@@ -39,6 +50,7 @@ export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument
       additional_hazards: input.additional_hazards ?? "",
       industry_type: input.industry_type ?? "General Construction",
       selected_trades: input.selected_trades ?? [],
+      ...(packOverrides ? { _pack_overrides: packOverrides } : {}),
     },
     null,
     2
