@@ -764,6 +764,30 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     legislation_ref: "Health & Safety at Work Act 1974 / Welfare in Construction Regulations",
   });
 
+  // ── Additional hazards (user-entered site-specific risks) ────────────────────
+  if (input.additional_hazards?.trim()) {
+    const extras = input.additional_hazards
+      .split(/\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const hazardText of extras) {
+      ra({
+        hazard: `[SITE-SPECIFIC] ${hazardText.length > 75 ? hazardText.slice(0, 72) + "..." : hazardText}`,
+        description: hazardText,
+        who_at_risk: "All site operatives and others in the vicinity of the works",
+        likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
+        control_measures: [
+          "REVIEW REQUIRED: This hazard was identified by the person completing this RAMS as a site-specific risk. A competent person must assess it fully and specify appropriate controls before works commence.",
+          "Apply the hierarchy of controls: eliminate the hazard where possible; substitute; apply engineering controls; implement administrative controls; provide appropriate PPE.",
+          "Brief all operatives on this hazard at the pre-start toolbox talk. Ensure controls are in place and verified before work begins in the affected area.",
+          "Notify the Principal Contractor of this hazard; agree controls and incorporate into the Construction Phase Plan.",
+        ],
+        likelihood_post: 2, severity_post: 3, risk_score_post: 6, risk_level_post: "Medium",
+        legislation_ref: "Management of Health and Safety at Work Regulations 1999",
+      });
+    }
+  }
+
   // ─── METHOD STATEMENT ────────────────────────────────────────────────────────
   const steps: MethodStep[] = [];
   let stepIdx = 1;

@@ -456,6 +456,7 @@ INTELLIGENCE RULES:
 20. Use input.first_aider_name verbatim in emergency_procedures.first_aid if provided. Format: "First Aider: [name] — First Aid at Work certificate to be held on site at all times. First aid kit location: to be confirmed on induction. Nearest defibrillator (AED): to be confirmed on induction."
 21. If input.working_hours mentions night work, weekend work, or shifts outside 07:00–18:00 — add a fatigue risk entry to risk_assessment (Pre: L2 S3 =6 Low; controls: maximum 12-hour shifts, no consecutive night shifts without rest break, buddy system for lone night workers, supervisor welfare checks).
 22. Use input.welfare_arrangements verbatim in method_statement.welfare_arrangements if provided.
+23. additional_hazards: if the input JSON contains a non-empty "additional_hazards" field, you MUST include EACH distinct hazard (one per line) as a separate risk_assessment row. Use the user's exact wording as the hazard name and description. Assign realistic pre/post risk scores and write specific, proportionate control measures for the named hazard. Do NOT discard, ignore, or merge this field into existing rows.
 
 ---
 
