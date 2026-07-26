@@ -1,19 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Navbar } from "@/components/Navbar";
 import { IndustrySelector } from "@/components/IndustrySelector";
 import TradeSelector from "@/components/TradeSelector";
 import { RAMSForm } from "@/components/RAMSForm";
+import { RAMSRiskEditor } from "@/components/RAMSRiskEditor";
 import { cn } from "@/lib/cn";
+import type { RAMSDocument } from "@/lib/types";
 
-type Step = "industry" | "selecting" | "filling";
+type Step = "industry" | "selecting" | "filling" | "review";
 
 const STEPS = [
   { key: "industry", label: "Industry" },
   { key: "selecting", label: "Trades" },
   { key: "filling", label: "Details" },
+  { key: "review", label: "Review" },
 ] as const;
 
 function StepBreadcrumb({ current }: { current: Step }) {
@@ -54,9 +58,11 @@ function StepBreadcrumb({ current }: { current: Step }) {
 }
 
 export default function GeneratePage() {
+  const router = useRouter();
   const [step, setStep] = useState<Step>("industry");
   const [industryTypes, setIndustryTypes] = useState<string[]>([]);
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
+  const [generatedDoc, setGeneratedDoc] = useState<RAMSDocument | null>(null);
 
   const handleIndustrySelected = (industries: string[]) => {
     setIndustryTypes(industries);
@@ -68,8 +74,20 @@ export default function GeneratePage() {
     setStep("filling");
   };
 
-  const handleBackToTrades = () => {
-    setStep("selecting");
+  const handleGenerated = (doc: RAMSDocument) => {
+    setGeneratedDoc(doc);
+    setStep("review");
+  };
+
+  const handleConfirmed = (doc: RAMSDocument) => {
+    try {
+      localStorage.setItem("rams_document", JSON.stringify(doc));
+    } catch {
+      try {
+        sessionStorage.setItem("rams_document", JSON.stringify(doc));
+      } catch { /* ignore */ }
+    }
+    router.push("/preview");
   };
 
   return (
@@ -96,7 +114,15 @@ export default function GeneratePage() {
           <RAMSForm
             selectedTrades={selectedTrades}
             industryType={industryTypes.join(", ")}
-            onBack={handleBackToTrades}
+            onBack={() => setStep("selecting")}
+            onGenerated={handleGenerated}
+          />
+        )}
+        {step === "review" && generatedDoc && (
+          <RAMSRiskEditor
+            doc={generatedDoc}
+            onConfirm={handleConfirmed}
+            onBack={() => setStep("filling")}
           />
         )}
       </motion.div>

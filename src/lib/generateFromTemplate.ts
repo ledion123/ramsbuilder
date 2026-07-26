@@ -69,7 +69,7 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     { regulation: "Health & Safety at Work Act 1974", relevance: "Overarching duty to ensure, so far as reasonably practicable, the health and safety of all persons at work and others affected by the works." },
     { regulation: "CDM Regulations 2015", relevance: "As a subcontractor, duties to cooperate with the Principal Contractor, comply with relevant parts of the Construction Phase Plan, and not endanger the health and safety of any person." },
     { regulation: "Management of Health and Safety at Work Regulations 1999", relevance: "Requirement to carry out suitable and sufficient risk assessment and implement appropriate control measures." },
-    { regulation: "Manual Handling Operations Regulations 1992", relevance: "Applies to the manual handling of pipes, manhole components, aggregate bags, and other materials during installation works." },
+    { regulation: "Manual Handling Operations Regulations 1992", relevance: "Applies to all manual handling activities on site. Where loads exceed 25 kg or are awkward in shape, mechanical handling aids or team lifts must be used." },
     { regulation: "Personal Protective Equipment at Work Regulations 1992", relevance: "Requires provision, maintenance, and use of appropriate PPE where risks cannot be adequately controlled by other means." },
     { regulation: "Noise at Work Regulations 2005", relevance: "Plant and breaking equipment used during these works will generate noise levels above the Lower Exposure Action Value of 80 dB(A)." },
     { regulation: "Control of Vibration at Work Regulations 2005", relevance: "Compaction plant and breaking equipment expose operatives to hand-arm vibration above the Exposure Action Value of 2.5 m/s²." },
@@ -119,7 +119,7 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     legislation.push({ regulation: "Traffic Management Act 2004 / Chapter 8 of the Traffic Signs Manual", relevance: "Works adjacent to the live carriageway require a Traffic Management Plan and compliance with Chapter 8 signing, lighting, and guarding requirements." });
   }
   if (hasPlant) {
-    legislation.push({ regulation: "LOLER 1998", relevance: "Any lifting operations using plant (e.g. excavator lifting manhole rings or pipes) require a documented Lifting Plan and pre-use LOLER inspection records." });
+    legislation.push({ regulation: "LOLER 1998", relevance: "Any lifting operations using plant or lifting accessories require a documented Lifting Plan and pre-use LOLER inspection records." });
   }
   legislation.push({ regulation: "RIDDOR 2013", relevance: "Any accident resulting in a specified injury, over-7-day incapacitation, dangerous occurrence, or occupational disease must be reported to the HSE." });
   legislation.push({ regulation: "Environmental Protection Act 1990 / Controlled Waste Regulations", relevance: "Excavated arisings, surplus materials, and site waste must be managed and disposed of appropriately with a valid waste carrier licence." });
@@ -198,16 +198,36 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     });
   }
 
+  const mhItems = isRoofing     ? "membrane rolls, insulation boards, roof lights, scaffold components"
+    : isScaffolding ? "scaffold tubes, boards, couplers, base plates"
+    : isElectrical  ? "cable drums, conduit, distribution boards, trunking"
+    : isDemolition  ? "rubble, stripped materials, debris, heavy plant attachments"
+    : isBuilding    ? "masonry blocks, bricks, mortar bags, lintels"
+    : isME          ? "ductwork sections, fan coil units, pipe spools, refrigerant cylinders"
+    : isFitout      ? "plasterboard sheets, access flooring panels, fire door sets"
+    : isPlumbing    ? "copper pipe, boiler units, cylinder tanks, radiators"
+    : "pipes, manhole components, aggregate bags";
+
+  const mhAids = isRoofing     ? "panel carriers, suction cups, pallet truck"
+    : isScaffolding ? "tube/board carriers, gin wheel, pallet truck"
+    : isElectrical  ? "cable drum dispensers, hand truck, pallet truck"
+    : isDemolition  ? "excavator, dumper, wheelbarrow"
+    : isBuilding    ? "block grab, telehandler, pallet truck"
+    : isME          ? "ductwork trolleys, pipe cradles, pallet truck"
+    : isFitout      ? "panel carriers, suction lifters, door trolley"
+    : isPlumbing    ? "cylinder trolley, boiler hoist, pipe rollers"
+    : "excavator, pipe handler, pallet truck";
+
   ra({
-    hazard: "Manual handling of materials (pipes, manhole rings, aggregate bags)",
-    description: "Manual handling of drainage pipes, manhole components, aggregate bags, and tools presents risk of musculoskeletal injury (back, shoulder, wrist) to operatives. Heavy or awkward loads may require team lifts or mechanical assistance.",
+    hazard: `Manual handling of materials (${mhItems.split(", ").slice(0, 3).join(", ")}…)`,
+    description: `Manual handling of ${mhItems} and tools presents risk of musculoskeletal injury (back, shoulder, wrist) to operatives. Heavy or awkward loads may require team lifts or mechanical assistance.`,
     who_at_risk: "Operatives",
     likelihood_pre: 3, severity_pre: 3, risk_score_pre: 9, risk_level_pre: "Medium",
     control_measures: [
-      "Plan all manual handling tasks in advance; use mechanical aids (excavator, pipe handler, pallet truck) wherever practicable to eliminate or reduce manual handling.",
+      `Plan all manual handling tasks in advance; use mechanical aids (${mhAids}) wherever practicable to eliminate or reduce manual handling.`,
       "Restrict individual manual lifts to maximum 25kg; team lifts for loads between 25–50kg; mechanical lift only for loads exceeding 50kg or awkward shapes.",
       "All operatives to have received manual handling awareness training; trained in correct posture, grip, and team lift techniques.",
-      "Pipe rollers, slings, and lifting shackles to be available on site; all lifting accessories to be LOLER inspected and colour-coded.",
+      `Appropriate handling aids (${mhAids}) to be available on site; all certified lifting accessories to be LOLER-inspected and colour-coded where applicable.`,
       "Rest breaks to be incorporated into heavy manual handling tasks.",
     ],
     likelihood_post: 2, severity_post: 2, risk_score_post: 4, risk_level_post: "Low",

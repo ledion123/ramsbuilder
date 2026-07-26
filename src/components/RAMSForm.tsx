@@ -5,7 +5,7 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion, type Transition, type Variants } from "framer-motion";
 import { cn } from "@/lib/cn";
-import type { RAMSInput } from "@/lib/types";
+import type { RAMSInput, RAMSDocument } from "@/lib/types";
 import Link from "next/link";
 import { ScopeUploadCard } from "@/components/ScopeUploadCard";
 import {
@@ -242,9 +242,10 @@ interface RAMSFormProps {
   selectedTrades?: string[];
   industryType?: string;
   onBack?: () => void;
+  onGenerated?: (doc: RAMSDocument) => void;
 }
 
-export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAMSFormProps) {
+export function RAMSForm({ selectedTrades = [], industryType = "", onBack, onGenerated }: RAMSFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -417,6 +418,10 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack }: RAM
         throw new Error(body.error || "Generation failed");
       }
       const rams = await res.json();
+      if (onGenerated) {
+        onGenerated(rams);
+        return;
+      }
       try {
         localStorage.setItem("rams_document", JSON.stringify(rams));
         localStorage.setItem("rams_input", JSON.stringify(data));
