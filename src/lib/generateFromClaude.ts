@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { ramsSystemPrompt } from "@/prompts/ramsSystemPrompt";
 import type { RAMSInput, RAMSDocument } from "./types";
+import { generateFromTemplate } from "./generateFromTemplate";
 
 const client = new Anthropic();
 
@@ -45,17 +46,26 @@ export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 8000,
+    max_tokens: 16000,
     system: ramsSystemPrompt,
     messages: [{ role: "user", content: userMessage }],
   });
 
-  const raw = message.content[0].type === "text" ? message.content[0].text : "{}";
-  const cleaned = raw
+  const textBlock = message.content.find((b) => b.type === "text");
+  if (!textBlock || textBlock.type !== "text") {
+    throw new Error("Claude returned no text content block");
+  }
+  const cleaned = textBlock.text
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  return JSON.parse(cleaned) as RAMSDocument;
+  try {
+    return JSON.parse(cleaned) as RAMSDocument;
+  } catch (err) {
+    console.error("[generateFromClaude] JSON parse failed, falling back to template:", err);
+    console.error("[generateFromClaude] raw response:", textBlock.text.slice(0, 500));
+    return generateFromTemplate(input);
+  }
 }

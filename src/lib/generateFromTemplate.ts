@@ -24,8 +24,28 @@ function slugify(s: string): string {
 }
 
 function extractDepth(activity: string): number {
-  const m = activity.match(/(\d+(?:\.\d+)?)\s*m(?:etre)?s?\s*(?:deep|depth|below)/i);
-  return m ? parseFloat(m[1]) : 0;
+  const s = activity.toLowerCase();
+  const found: number[] = [];
+
+  // Pattern A: "1.8m deep" / "1.8 metres depth" / "2m below"
+  for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*m(?:etre)?s?\s*(?:deep|depth|below)/gi)) {
+    found.push(parseFloat(m[1]));
+  }
+
+  // Pattern B: "to 1.8m" / "to 2 m" — e.g. "excavation to 1.8m", "dig to 2m"
+  for (const m of s.matchAll(/\bto\s+(\d+(?:\.\d+)?)\s*m(?:etre)?s?\b/gi)) {
+    found.push(parseFloat(m[1]));
+  }
+
+  // Pattern C: standalone "Xm" when a depth-context word appears anywhere in the string
+  // e.g. "2m trench", "excavate 1.5m"
+  if (/excav|trench|dig\b|below|depth|deep/.test(s)) {
+    for (const m of s.matchAll(/\b(\d+(?:\.\d+)?)\s*m(?:etre)?s?\b/gi)) {
+      found.push(parseFloat(m[1]));
+    }
+  }
+
+  return found.length ? Math.max(...found) : 0;
 }
 
 function detect(activity: string, ...terms: string[]): boolean {

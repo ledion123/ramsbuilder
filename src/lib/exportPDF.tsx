@@ -5,20 +5,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Font,
   Image,
   renderToBuffer,
 } from "@react-pdf/renderer";
 import type { RAMSDocument, RiskAssessmentItem } from "./types";
-
-// ── Register Roboto (falls back to Helvetica if offline) ─────────
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5Q.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc-.ttf", fontWeight: 700 },
-  ],
-});
 
 // ── Colour palette (light professional theme) ────────────────────
 const NAVY        = "#1a2e4a";   // header bands, footer bands, logo bg
@@ -38,7 +28,7 @@ const s = StyleSheet.create({
 
   // ── Cover page ──────────────────────────────────────────────────
   coverPage: {
-    fontFamily: "Roboto",
+    fontFamily: "Helvetica",
     fontSize: 9,
     backgroundColor: PAGE_BG,
     padding: 0,
@@ -65,13 +55,13 @@ const s = StyleSheet.create({
   },
   coverLogoFallback: {
     fontSize: 14,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     maxWidth: 160,
   },
   coverBandTitle: {
     fontSize: 9,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     letterSpacing: 0.8,
     textAlign: "right",
@@ -87,7 +77,7 @@ const s = StyleSheet.create({
   },
   coverProjectName: {
     fontSize: 26,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: NAVY,
     lineHeight: 1.1,
     marginBottom: 6,
@@ -115,14 +105,14 @@ const s = StyleSheet.create({
   coverInfoLabel: {
     fontSize: 6.5,
     color: MUTED,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     letterSpacing: 0.5,
     marginBottom: 2,
     textTransform: "uppercase",
   },
   coverInfoValue: {
     fontSize: 9.5,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: BODY_TEXT,
   },
   // Revision history on cover
@@ -138,7 +128,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 6,
   },
   coverRevHeaderCell: {
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     fontSize: 7.5,
   },
@@ -170,7 +160,7 @@ const s = StyleSheet.create({
 
   // ── Content pages ───────────────────────────────────────────────
   contentPage: {
-    fontFamily: "Roboto",
+    fontFamily: "Helvetica",
     fontSize: 9,
     color: BODY_TEXT,
     backgroundColor: PAGE_BG,
@@ -179,7 +169,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 36,
   },
   landscapePage: {
-    fontFamily: "Roboto",
+    fontFamily: "Helvetica",
     fontSize: 9,
     color: BODY_TEXT,
     backgroundColor: PAGE_BG,
@@ -203,7 +193,7 @@ const s = StyleSheet.create({
     borderBottomColor: NAVY,
   },
   rhLeft:   { flex: 1, fontSize: 7, color: MUTED },
-  rhCentre: { flex: 1, textAlign: "center", fontSize: 7, fontWeight: 700, color: BODY_TEXT, letterSpacing: 0.3 },
+  rhCentre: { flex: 1, textAlign: "center", fontSize: 7, fontFamily: "Helvetica-Bold", color: BODY_TEXT, letterSpacing: 0.3 },
   rhRight:  { flex: 1, textAlign: "right", fontSize: 7, color: MUTED },
 
   // ── Footer ─────────────────────────────────────────────────────
@@ -234,7 +224,7 @@ const s = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 10,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: BODY_TEXT,
     letterSpacing: 0.3,
   },
@@ -247,7 +237,7 @@ const s = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 6,
   },
-  tableHeaderCell: { fontWeight: 700, color: "#ffffff", fontSize: 7.5 },
+  tableHeaderCell: { fontFamily: "Helvetica-Bold", color: "#ffffff", fontSize: 7.5 },
   tableRow: {
     flexDirection: "row",
     borderTopWidth: 0.5,
@@ -278,7 +268,7 @@ const s = StyleSheet.create({
   projectGrid: { flexDirection: "row", flexWrap: "wrap" },
   projectField:     { width: "50%", marginBottom: 6 },
   projectFieldFull: { width: "100%", marginBottom: 6 },
-  fieldLabel: { fontSize: 7, color: MUTED, fontWeight: 700, marginBottom: 1, letterSpacing: 0.3 },
+  fieldLabel: { fontSize: 7, color: MUTED, fontFamily: "Helvetica-Bold", marginBottom: 1, letterSpacing: 0.3 },
   fieldValue: { fontSize: 9, color: BODY_TEXT },
 
   // ── Risk score full-cell ────────────────────────────────────────
@@ -286,7 +276,7 @@ const s = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 4,
     fontSize: 7.5,
-    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
     color: "#ffffff",
     textAlign: "center",
     borderRadius: 2,
@@ -295,9 +285,9 @@ const s = StyleSheet.create({
   // ── Method steps ───────────────────────────────────────────────
   stepRow:     { flexDirection: "row", marginBottom: 8, gap: 8 },
   stepBadge:   { width: 22, height: 22, borderRadius: 11, backgroundColor: BRAND, justifyContent: "center", alignItems: "center", flexShrink: 0 },
-  stepNum:     { fontSize: 9, fontWeight: 700, color: "#ffffff" },
+  stepNum:     { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#ffffff" },
   stepContent: { flex: 1 },
-  stepTitle:   { fontSize: 9, fontWeight: 700, color: BODY_TEXT, marginBottom: 2 },
+  stepTitle:   { fontSize: 9, fontFamily: "Helvetica-Bold", color: BODY_TEXT, marginBottom: 2 },
   stepDesc:    { fontSize: 8, color: MUTED, lineHeight: 1.4 },
 
   // ── Bullets ────────────────────────────────────────────────────
@@ -316,8 +306,8 @@ const s = StyleSheet.create({
   signOffDeclarationText: { fontSize: 8, color: "#92400e", lineHeight: 1.4 },
   signOffGrid: { flexDirection: "row", gap: 10, marginBottom: 16 },
   signOffBox:  { flex: 1, borderWidth: 0.5, borderColor: TABLE_BORDER, padding: 10 },
-  signOffBoxTitle: { fontSize: 7.5, fontWeight: 700, color: BRAND, marginBottom: 8, letterSpacing: 0.3 },
-  signOffLabel: { fontSize: 7, color: MUTED, fontWeight: 700, marginBottom: 2 },
+  signOffBoxTitle: { fontSize: 7.5, fontFamily: "Helvetica-Bold", color: BRAND, marginBottom: 8, letterSpacing: 0.3 },
+  signOffLabel: { fontSize: 7, color: MUTED, fontFamily: "Helvetica-Bold", marginBottom: 2 },
   signOffValue: { fontSize: 9, color: BODY_TEXT, marginBottom: 8 },
   signOffSigBox: {
     height: 72,
@@ -412,7 +402,7 @@ function RiskMatrix() {
 
   return (
     <View style={{ marginBottom: 12 }}>
-      <Text style={{ fontSize: 7.5, fontWeight: 700, color: BODY_TEXT, marginBottom: 6 }}>
+      <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: BODY_TEXT, marginBottom: 6 }}>
         5×5 RISK MATRIX — Risk Score = Likelihood × Severity
       </Text>
 
@@ -421,7 +411,7 @@ function RiskMatrix() {
         <View style={{ width: labelW + 6 }} />
         {LIKELIHOOD_LABELS.map((lbl) => (
           <View key={lbl} style={{ width: cellW, alignItems: "center", paddingBottom: 3 }}>
-            <Text style={{ fontSize: 6, fontWeight: 700, color: MUTED, textAlign: "center" }}>{lbl}</Text>
+            <Text style={{ fontSize: 6, fontFamily: "Helvetica-Bold", color: MUTED, textAlign: "center" }}>{lbl}</Text>
           </View>
         ))}
       </View>
@@ -431,7 +421,7 @@ function RiskMatrix() {
         const sev = SEVERITY_VALUES[si];
         return (
           <View key={sevLbl} style={{ flexDirection: "row", alignItems: "center", marginBottom: 1 }}>
-            <Text style={{ fontSize: 6, fontWeight: 700, color: MUTED, width: labelW, textAlign: "right", paddingRight: 6 }}>
+            <Text style={{ fontSize: 6, fontFamily: "Helvetica-Bold", color: MUTED, width: labelW, textAlign: "right", paddingRight: 6 }}>
               {sevLbl}
             </Text>
             <View style={{ width: 6 }} />
@@ -440,7 +430,7 @@ function RiskMatrix() {
               const bg = score <= 6 ? GREEN : score <= 14 ? AMBER : RED;
               return (
                 <View key={l} style={{ width: cellW, height: 18, backgroundColor: bg, alignItems: "center", justifyContent: "center", marginRight: 1 }}>
-                  <Text style={{ fontSize: 7, fontWeight: 700, color: "#ffffff" }}>{score}</Text>
+                  <Text style={{ fontSize: 7, fontFamily: "Helvetica-Bold", color: "#ffffff" }}>{score}</Text>
                 </View>
               );
             })}
@@ -472,7 +462,7 @@ function RiskAssessmentRow({ item, idx }: { item: RiskAssessmentItem; idx: numbe
     <View style={idx % 2 === 0 ? s.tableRow : s.tableRowAlt} wrap={false}>
       <Text style={[s.tableCell, { width: "5%" }]}>{item.ref}</Text>
       <View style={{ width: "12%" }}>
-        <Text style={[s.tableCell, { fontWeight: 700 }]}>{item.hazard}</Text>
+        <Text style={[s.tableCell, { fontFamily: "Helvetica-Bold" }]}>{item.hazard}</Text>
       </View>
       <View style={{ width: "18%" }}>
         <Text style={s.tableCell}>{item.description}</Text>
@@ -672,7 +662,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
         <RunningHeader {...rh} />
         <PageFooter {...footer} />
 
-        <Text style={{ fontSize: 17, fontWeight: 700, color: NAVY, textAlign: "center", marginBottom: 3 }}>
+        <Text style={{ fontSize: 17, fontFamily: "Helvetica-Bold", color: NAVY, textAlign: "center", marginBottom: 3 }}>
           RISK ASSESSMENT & METHOD STATEMENT
         </Text>
         <Text style={{ fontSize: 9, color: MUTED, textAlign: "center", marginBottom: 14 }}>
@@ -701,7 +691,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.legislation.map((leg, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{leg.regulation}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{leg.regulation}</Text>
               <Text style={[s.tableCell, { width: "65%" }]}>{leg.relevance}</Text>
             </View>
           ))}
@@ -795,7 +785,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.plant_and_equipment.map((p, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{p.item}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{p.item}</Text>
               <Text style={[s.tableCell, { width: "65%" }]}>{p.requirement}</Text>
             </View>
           ))}
@@ -810,7 +800,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.ppe_requirements.map((p, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "30%", fontWeight: 700 }]}>{p.item}</Text>
+              <Text style={[s.tableCell, { width: "30%", fontFamily: "Helvetica-Bold" }]}>{p.item}</Text>
               <Text style={[s.tableCell, { width: "50%" }]}>{p.standard}</Text>
               <View style={{ width: "20%", alignItems: "flex-start" }}>
                 <View style={[s.riskCell, { backgroundColor: p.mandatory ? GREEN : "#94a3b8", width: 50 }]}>
@@ -831,7 +821,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.method_statement.coshh_substances.map((c, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "22%", fontWeight: 700 }]}>{c.substance}</Text>
+              <Text style={[s.tableCell, { width: "22%", fontFamily: "Helvetica-Bold" }]}>{c.substance}</Text>
               <Text style={[s.tableCell, { width: "28%" }]}>{c.risk}</Text>
               <Text style={[s.tableCell, { width: "42%" }]}>{c.control}</Text>
               <Text style={[s.tableCell, { width: "8%", fontSize: 7 }]}>{c.regulation}</Text>
@@ -851,7 +841,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
               </View>
               {data.havs_assessment.tools.map((h, i) => (
                 <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-                  <Text style={[s.tableCell, { width: "30%", fontWeight: 700 }]}>{h.tool}</Text>
+                  <Text style={[s.tableCell, { width: "30%", fontFamily: "Helvetica-Bold" }]}>{h.tool}</Text>
                   <Text style={[s.tableCell, { width: "30%" }]}>{h.vibration_level}</Text>
                   <Text style={[s.tableCell, { width: "20%" }]}>{h.daily_exposure_limit}</Text>
                   <Text style={[s.tableCell, { width: "20%" }]}>{h.control}</Text>
@@ -870,7 +860,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
           {data.noise_assessment.sources.map((n, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontWeight: 700 }]}>{n.source}</Text>
+              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{n.source}</Text>
               <Text style={[s.tableCell, { width: "25%" }]}>{n.approximate_db}</Text>
               <Text style={[s.tableCell, { width: "40%" }]}>{n.control}</Text>
             </View>
