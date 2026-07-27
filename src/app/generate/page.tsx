@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Zap, ClipboardList } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { IndustrySelector } from "@/components/IndustrySelector";
 import TradeSelector from "@/components/TradeSelector";
 import { RAMSForm } from "@/components/RAMSForm";
 import { RAMSRiskEditor } from "@/components/RAMSRiskEditor";
+import { QuickGeneratePanel } from "@/components/QuickGeneratePanel";
 import { cn } from "@/lib/cn";
 import type { RAMSDocument } from "@/lib/types";
 
+type Mode = "express" | "manual";
 type Step = "industry" | "selecting" | "filling" | "review";
 
 const STEPS = [
@@ -59,6 +62,7 @@ function StepBreadcrumb({ current }: { current: Step }) {
 
 export default function GeneratePage() {
   const router = useRouter();
+  const [mode, setMode] = useState<Mode>("express");
   const [step, setStep] = useState<Step>("industry");
   const [industryTypes, setIndustryTypes] = useState<string[]>([]);
   const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
@@ -93,39 +97,82 @@ export default function GeneratePage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar variant="app" />
-      <StepBreadcrumb current={step} />
 
-      <motion.div
-        key={step}
-        initial={{ opacity: 0, x: 24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: "spring", stiffness: 340, damping: 30 }}
-      >
-        {step === "industry" && (
-          <IndustrySelector onIndustrySelected={handleIndustrySelected} />
-        )}
-        {step === "selecting" && (
-          <TradeSelector
-            industryFilter={industryTypes}
-            onTradesSelected={handleTradesSelected}
-          />
-        )}
-        {step === "filling" && (
-          <RAMSForm
-            selectedTrades={selectedTrades}
-            industryType={industryTypes.join(", ")}
-            onBack={() => setStep("selecting")}
-            onGenerated={handleGenerated}
-          />
-        )}
-        {step === "review" && generatedDoc && (
-          <RAMSRiskEditor
-            doc={generatedDoc}
-            onConfirm={handleConfirmed}
-            onBack={() => setStep("filling")}
-          />
-        )}
-      </motion.div>
+      {/* Mode toggle */}
+      <div className="border-b border-slate-200 bg-white">
+        <div className="max-w-5xl mx-auto px-6 flex items-center gap-1 py-2">
+          <button
+            onClick={() => setMode("express")}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold transition-colors",
+              mode === "express"
+                ? "bg-[#1a2e4a] text-white"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            AI Express
+          </button>
+          <button
+            onClick={() => setMode("manual")}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold transition-colors",
+              mode === "manual"
+                ? "bg-[#1a2e4a] text-white"
+                : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+            )}
+          >
+            <ClipboardList className="w-3.5 h-3.5" />
+            Step-by-step
+          </button>
+        </div>
+      </div>
+
+      {mode === "express" ? (
+        <motion.div
+          key="express"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 340, damping: 30 }}
+        >
+          <QuickGeneratePanel />
+        </motion.div>
+      ) : (
+        <>
+          <StepBreadcrumb current={step} />
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: "spring", stiffness: 340, damping: 30 }}
+          >
+            {step === "industry" && (
+              <IndustrySelector onIndustrySelected={handleIndustrySelected} />
+            )}
+            {step === "selecting" && (
+              <TradeSelector
+                industryFilter={industryTypes}
+                onTradesSelected={handleTradesSelected}
+              />
+            )}
+            {step === "filling" && (
+              <RAMSForm
+                selectedTrades={selectedTrades}
+                industryType={industryTypes.join(", ")}
+                onBack={() => setStep("selecting")}
+                onGenerated={handleGenerated}
+              />
+            )}
+            {step === "review" && generatedDoc && (
+              <RAMSRiskEditor
+                doc={generatedDoc}
+                onConfirm={handleConfirmed}
+                onBack={() => setStep("filling")}
+              />
+            )}
+          </motion.div>
+        </>
+      )}
     </div>
   );
 }
