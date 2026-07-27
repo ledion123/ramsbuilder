@@ -1,10 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { orClient } from "@/lib/openrouterClient";
 import { ramsSystemPrompt } from "@/prompts/ramsSystemPrompt";
 import type { RAMSInput, RAMSDocument } from "./types";
 import { generateFromTemplate } from "./generateFromTemplate";
 import { detectPacks } from "./packs/loadPacks";
-
-const client = new Anthropic();
 
 export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument> {
   const matchedPacks = detectPacks(input.activity, input.selected_trades ?? []);
@@ -58,18 +56,20 @@ export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument
     2
   );
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+  const response = await orClient.chat.completions.create({
+    model: "minimax/minimax-01",
     max_tokens: 16000,
-    system: ramsSystemPrompt,
-    messages: [{ role: "user", content: userMessage }],
+    messages: [
+      { role: "system", content: ramsSystemPrompt },
+      { role: "user", content: userMessage },
+    ],
   });
 
-  const textBlock = message.content.find((b) => b.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("Claude returned no text content block");
+  const raw = response.choices[0]?.message?.content ?? "";
+  if (!raw) {
+    throw new Error("MiniMax returned an empty response");
   }
-  const cleaned = textBlock.text
+  const cleaned = raw
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")
     .replace(/\s*```$/i, "")
@@ -79,7 +79,7 @@ export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument
     return JSON.parse(cleaned) as RAMSDocument;
   } catch (err) {
     console.error("[generateFromClaude] JSON parse failed, falling back to template:", err);
-    console.error("[generateFromClaude] raw response:", textBlock.text.slice(0, 500));
+    console.error("[generateFromClaude] raw response:", raw.slice(0, 500));
     return generateFromTemplate(input);
   }
 }

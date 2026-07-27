@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const input: RAMSInput = await req.json();
 
-    const useAI = !!process.env.ANTHROPIC_API_KEY;
+    const useAI = !!process.env.OPENROUTER_API_KEY;
 
     let ramsDoc;
     if (useAI) {

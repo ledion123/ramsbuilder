@@ -1,22 +1,22 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { orClient } from "@/lib/openrouterClient";
 import { scopeExtractionPrompt } from "@/prompts/scopeExtractionPrompt";
 import type { RAMSInput } from "./types";
-
-const client = new Anthropic();
 
 export async function extractRAMSInputFromText(
   text: string
 ): Promise<{ data: Partial<RAMSInput>; warnings: string[] }> {
   const warnings: string[] = [];
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
+  const response = await orClient.chat.completions.create({
+    model: "minimax/minimax-01",
     max_tokens: 2000,
-    system: scopeExtractionPrompt,
-    messages: [{ role: "user", content: text }],
+    messages: [
+      { role: "system", content: scopeExtractionPrompt },
+      { role: "user", content: text },
+    ],
   });
 
-  const raw = message.content[0].type === "text" ? message.content[0].text : "{}";
+  const raw = response.choices[0]?.message?.content ?? "{}";
   const cleaned = raw
     .replace(/^```json\s*/i, "")
     .replace(/^```\s*/i, "")

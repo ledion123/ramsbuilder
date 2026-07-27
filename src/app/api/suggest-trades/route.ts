@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     availableTrades: string[];
   };
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.OPENROUTER_API_KEY) {
     return NextResponse.json({ trades: [], error: "no_api_key" });
   }
 
@@ -17,14 +17,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const client = new Anthropic();
+    const { orClient } = await import("@/lib/openrouterClient");
 
-    const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+    const response = await orClient.chat.completions.create({
+      model: "minimax/minimax-01",
       max_tokens: 1024,
-      system: "You are a UK construction safety assistant. Return only valid JSON — no preamble, no markdown.",
       messages: [
+        {
+          role: "system",
+          content: "You are a UK construction safety assistant. Return only valid JSON — no preamble, no markdown.",
+        },
         {
           role: "user",
           content: `From the available trade activities list below, select only those that are relevant to this scope of works. Return a JSON array of exact trade names copied verbatim from the list. No other text.
@@ -38,7 +40,7 @@ ${availableTrades.join("\n")}`,
       ],
     });
 
-    const raw = (message.content[0] as { type: string; text: string }).text.trim();
+    const raw = (response.choices[0]?.message?.content ?? "").trim();
     const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
     const parsed: unknown = JSON.parse(cleaned);
 

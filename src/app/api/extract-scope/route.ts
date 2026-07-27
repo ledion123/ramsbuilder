@@ -12,7 +12,7 @@ const ALLOWED_EXTENSIONS = [".pdf", ".docx", ".txt"];
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.OPENROUTER_API_KEY) {
     return NextResponse.json(
       { error: "AI extraction requires an API key. Add ANTHROPIC_API_KEY to .env.local." },
       { status: 400 }
