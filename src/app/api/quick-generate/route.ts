@@ -13,7 +13,7 @@ const ALLOWED_TYPES = new Set([
 export async function POST(req: NextRequest) {
   if (!process.env.OPENROUTER_API_KEY) {
     return NextResponse.json(
-      { error: "AI generation requires an API key. Add ANTHROPIC_API_KEY to .env.local." },
+      { error: "AI generation requires an API key. Add OPENROUTER_API_KEY to .env.local." },
       { status: 400 }
     );
   }

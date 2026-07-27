@@ -14,7 +14,7 @@ const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 export async function POST(req: NextRequest) {
   if (!process.env.OPENROUTER_API_KEY) {
     return NextResponse.json(
-      { error: "AI extraction requires an API key. Add ANTHROPIC_API_KEY to .env.local." },
+      { error: "AI extraction requires an API key. Add OPENROUTER_API_KEY to .env.local." },
       { status: 400 }
     );
   }
