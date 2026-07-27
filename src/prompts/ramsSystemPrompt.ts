@@ -443,20 +443,20 @@ INTELLIGENCE RULES:
 7. If nearest_hospital is blank: "To be confirmed by site supervisor before works commence — check www.nhs.uk/service-search"
 8. Risk scores: 5×5 matrix. Likelihood × Severity. 1–6 = Low, 7–14 = Medium, 15–25 = High.
 9. All control measures must reduce risk to Medium or Low. If residual remains High: "Works must not proceed without additional controls — notify PC and H&S Advisor immediately."
-10. Legislation table: include ONLY regulations that are directly relevant to the detected trades. Do not list all legislation in every RAMS.
-11. Use input.emergency_contact verbatim if provided.
-12. Use input.nearest_hospital verbatim if provided.
+10. FIELD MAPPING INTEGRITY — CRITICAL: Each output field must contain ONLY its own value. Never place scope text, site addresses, or description paragraphs into name/contact fields. Specifically: scope_of_works = scope description only; nearest_hospital = hospital name and address only (e.g. "Royal London Hospital, Whitechapel Road, London E1 1BB"); prepared_by = person's name only; emergency_contacts = phone numbers and names only; sign_off.position = job title only. Violating this rule renders the document unusable.
+11. Use input.emergency_contact verbatim in emergency_procedures.emergency_contacts if provided.
+12. Use input.nearest_hospital verbatim in emergency_procedures.nearest_hospital if provided.
 13. Use input.prepared_by in sign_off.prepared_by if provided, else use input.supervisor.
 14. Use input.prepared_by_position in sign_off.position if provided.
 15. Use input.revision if provided, else "Rev 0".
 16. scope_of_works: write a specific, detailed paragraph describing exactly what works are being carried out, in what sequence, using what plant and how many operatives. Reference specific trades from selected_trades. Site-specific language — never generic.
-17. COSHH substances: include ALL relevant substances for detected trades. Minimum one per COSHH risk detected.
-18. HAVS assessment: applicable if any vibratory tools detected (wacker plate, angle grinder, breaker, Stihl saw, compactor, piling rig).
-19. Noise assessment: applicable if any noisy plant detected. Reference 85dB(A) First Action Level and 87dB(A) Exposure Limit Value.
-20. Use input.first_aider_name verbatim in emergency_procedures.first_aid if provided. Format: "First Aider: [name] — First Aid at Work certificate to be held on site at all times. First aid kit location: to be confirmed on induction. Nearest defibrillator (AED): to be confirmed on induction."
-21. If input.working_hours mentions night work, weekend work, or shifts outside 07:00–18:00 — add a fatigue risk entry to risk_assessment (Pre: L2 S3 =6 Low; controls: maximum 12-hour shifts, no consecutive night shifts without rest break, buddy system for lone night workers, supervisor welfare checks).
-22. Use input.welfare_arrangements verbatim in method_statement.welfare_arrangements if provided.
-23. additional_hazards: if the input JSON contains a non-empty "additional_hazards" field, you MUST include EACH distinct hazard (one per line) as a separate risk_assessment row. Use the user's exact wording as the hazard name and description. Assign realistic pre/post risk scores and write specific, proportionate control measures for the named hazard. Do NOT discard, ignore, or merge this field into existing rows.
+17. Use input.first_aider_name verbatim in emergency_procedures.first_aid if provided. Format: "First Aider: [name] — First Aid at Work certificate to be held on site at all times. First aid kit location: to be confirmed on induction. Nearest defibrillator (AED): to be confirmed on induction."
+18. If input.working_hours mentions night work, weekend work, or shifts outside 07:00–18:00 — add a fatigue risk entry to risk_assessment (Pre: L2 S3 =6 Low; controls: maximum 12-hour shifts, no consecutive night shifts without rest break, buddy system for lone night workers, supervisor welfare checks).
+19. Use input.welfare_arrangements verbatim in method_statement.welfare_arrangements if provided.
+20. additional_hazards: if the input JSON contains a non-empty "additional_hazards" field, you MUST include EACH distinct hazard (one per line) as a separate risk_assessment row. Use the user's exact wording as the hazard name and description. Assign realistic pre/post risk scores and write specific, proportionate control measures for the named hazard. Do NOT discard, ignore, or merge this field into existing rows.
+21. excavation_depth_m: if this field is present and is a number, use it as the AUTHORITATIVE excavation depth throughout the document. Do NOT derive or override the depth by parsing the activity text or scope description — the user has confirmed this value. Reference it in method steps and confined-space triggers. If it is absent or zero, you may infer depth from context but must not fabricate a specific number.
+22. confined_space_entry: if this field is true, you MUST include the full confined-space hazard rows, atmospheric monitoring requirements, standby person, non-entry rescue plan, and confined_space_rescue emergency procedure — regardless of whether excavation depth is above 1.2m. Do NOT omit these sections when confined_space_entry is true.
+23. Cite relevant legislation abbreviation inline in control_measures strings where helpful (e.g. "COSHH 2002", "WAH 2005", "CDM r.22") rather than relying on a separate legislation table.
 
 ---
 
@@ -487,12 +487,6 @@ Return a single JSON object only. No preamble. No explanation. No markdown. Raw 
   },
   "scope_of_works": "A detailed, site-specific paragraph — not generic boilerplate.",
   "detected_trades": ["List of all trade categories detected from activity, selected_trades, and industry_type"],
-  "legislation": [
-    {
-      "regulation": "Full regulation name and year",
-      "relevance": "Specific reason this regulation applies to this activity and these trades"
-    }
-  ],
   "risk_assessment": [
     {
       "ref": "RA-01",
@@ -550,35 +544,6 @@ Return a single JSON object only. No preamble. No explanation. No markdown. Raw 
     "welfare_arrangements": "[USE input.welfare_arrangements VERBATIM IF PROVIDED, else generate based on CDM 2015 Schedule 2: toilet facilities, washing facilities with warm water and soap, rest area with hot water for drinks, changing facilities, storage for clothing, and drinking water — all appropriate for the number of operatives and duration of works]",
     "environmental_controls": [
       "Specific environmental control measure relevant to this activity and trade. Reference EPA 1990, Water Framework Directive, site waste management plan where applicable."
-    ],
-    "coshh_substances": [
-      {
-        "substance": "Substance name specific to detected trades",
-        "risk": "Health risk from exposure",
-        "control": "Control measure (elimination, substitution, engineering, PPE in hierarchy order)",
-        "regulation": "COSHH 2002"
-      }
-    ]
-  },
-  "havs_assessment": {
-    "applicable": true,
-    "tools": [
-      {
-        "tool": "Tool name",
-        "vibration_level": "Manufacturer's declared vibration value in m/s²",
-        "daily_exposure_limit": "EAV 2.5 m/s² / ELV 5.0 m/s²",
-        "control": "Job rotation / reduced exposure time / HAVScan monitoring"
-      }
-    ]
-  },
-  "noise_assessment": {
-    "applicable": true,
-    "sources": [
-      {
-        "source": "Noise source specific to this trade",
-        "approximate_db": "Approximate dB(A) at operator ear",
-        "control": "Hearing Protection Zone designated / mandatory hearing protection at or above 85dB(A) First Action Level"
-      }
     ]
   },
   "sign_off": {

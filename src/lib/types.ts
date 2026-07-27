@@ -27,6 +27,8 @@ export interface RAMSInput {
   approved_by_position?: string;
   el_insurance?: string;        // Employers' liability policy ref
   revision_description?: string;
+  excavation_depth_m?: number;
+  confined_space_entry?: boolean;
   additional_hazards?: string;
   selected_trades?: string[];
   industry_type?: string;
@@ -130,7 +132,7 @@ export interface RAMSDocument {
   };
   scope_of_works: string;
   detected_trades?: string[];
-  legislation: LegislationRef[];
+  legislation?: LegislationRef[];
   risk_assessment: RiskAssessmentItem[];
   method_statement: {
     sequence_of_works: MethodStep[];
@@ -139,14 +141,14 @@ export interface RAMSDocument {
     supervision: string;
     emergency_procedures: EmergencyProcedures;
     environmental_controls: string[];
-    coshh_substances: COSHHItem[];
+    coshh_substances?: COSHHItem[];
     welfare_arrangements?: string;
   };
-  havs_assessment: {
+  havs_assessment?: {
     applicable: boolean;
     tools: HAVSTool[];
   };
-  noise_assessment: {
+  noise_assessment?: {
     applicable: boolean;
     sources: NoiseSource[];
   };

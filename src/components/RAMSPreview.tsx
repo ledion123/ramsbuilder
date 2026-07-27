@@ -288,27 +288,8 @@ export function RAMSPreview({ data }: { data: RAMSDocument }) {
               </div>
             )}
 
-            {/* Legislation */}
-            <SectionTitle>2. Applicable Legislation</SectionTitle>
-            <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-slate-700 text-white">
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-2/5">Regulation</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Relevance to These Works</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.legislation.map((leg, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                    <td className="px-3 py-2 text-xs font-semibold text-slate-700 align-top border-b border-slate-100">{leg.regulation}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 align-top border-b border-slate-100">{leg.relevance}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
             {/* Risk Assessment */}
-            <SectionTitle>3. Risk Assessment — 5×5 Matrix</SectionTitle>
+            <SectionTitle>2. Risk Assessment — 5×5 Matrix</SectionTitle>
             <p className="text-xs text-slate-400 sm:hidden mb-2 italic">← Scroll right to see full risk assessment →</p>
 
             <div className="flex gap-4 mb-3">
@@ -344,7 +325,7 @@ export function RAMSPreview({ data }: { data: RAMSDocument }) {
             </div>
 
             {/* Method Statement */}
-            <SectionTitle>4. Method Statement — Sequence of Works</SectionTitle>
+            <SectionTitle>3. Method Statement — Sequence of Works</SectionTitle>
             <div className="space-y-4">
               {data.method_statement.sequence_of_works.map((step) => (
                 <div key={step.step} className="flex gap-4">
@@ -427,80 +408,6 @@ export function RAMSPreview({ data }: { data: RAMSDocument }) {
               </tbody>
             </table>
 
-            {/* COSHH */}
-            <SectionTitle>9. COSHH Assessment</SectionTitle>
-            <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-slate-700 text-white">
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/5">Substance</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/4">Health Risk</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Control Measures</th>
-                  <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-20">Reg.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.method_statement.coshh_substances.map((c, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                    <td className="px-3 py-2 text-xs font-semibold text-slate-700 border-b border-slate-100 align-top">{c.substance}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{c.risk}</td>
-                    <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{c.control}</td>
-                    <td className="px-3 py-2 text-xs text-slate-500 border-b border-slate-100 align-top">{c.regulation}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* HAVS */}
-            {data.havs_assessment.applicable && (
-              <>
-                <SectionTitle>10. HAVS Assessment</SectionTitle>
-                <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-slate-700 text-white">
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/4">Tool</th>
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/3">Vibration Level</th>
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/5">Exposure Limits</th>
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Control</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.havs_assessment.tools.map((h, i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                        <td className="px-3 py-2 text-xs font-semibold text-slate-700 border-b border-slate-100 align-top">{h.tool}</td>
-                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{h.vibration_level}</td>
-                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{h.daily_exposure_limit}</td>
-                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{h.control}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
-
-            {/* Noise — only render when applicable */}
-            {data.noise_assessment.applicable && (
-              <>
-                <SectionTitle>11. Noise Assessment</SectionTitle>
-                <table className="w-full text-left border border-slate-200 rounded-lg overflow-hidden">
-                  <thead>
-                    <tr className="bg-slate-700 text-white">
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/3">Noise Source</th>
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide w-1/5">Approx. Level dB(A)</th>
-                      <th className="px-3 py-2 text-xs font-semibold uppercase tracking-wide">Control Measures</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.noise_assessment.sources.map((n, i) => (
-                      <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                        <td className="px-3 py-2 text-xs font-semibold text-slate-700 border-b border-slate-100 align-top">{n.source}</td>
-                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.approximate_db}</td>
-                        <td className="px-3 py-2 text-xs text-slate-600 border-b border-slate-100 align-top">{n.control}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
-            )}
 
             {/* Environmental */}
             <SectionTitle>12. Environmental Controls</SectionTitle>

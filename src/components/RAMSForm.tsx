@@ -297,6 +297,8 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack, onGen
     handleSubmit,
     reset,
     watch,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<RAMSInput>({
     defaultValues,
@@ -306,6 +308,21 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack, onGen
   const revisionValue = useWatch({ control, name: "revision" });
   const activityValue = watch("activity", "");
   const activityLength = activityValue?.length ?? 0;
+
+  // Prefill depth from activity text — safe patterns (A+B) only, never Pattern C.
+  const prefillDepth = (text: string): number | null => {
+    const m = text.match(/(\d+(?:\.\d+)?)\s*m(?:etre)?s?\s*(?:deep|depth|below)/i)
+           ?? text.match(/\bto\s+(\d+(?:\.\d+)?)\s*m(?:etre)?s?\b/i);
+    if (!m) return null;
+    const v = parseFloat(m[1]);
+    return v > 0 && v <= 20 ? v : null; // ignore implausible values
+  };
+
+  const handleActivityBlur = (text: string) => {
+    if (getValues("excavation_depth_m")) return; // user already set it — don't overwrite
+    const suggested = prefillDepth(text);
+    if (suggested !== null) setValue("excavation_depth_m", suggested);
+  };
 
   const handleScopeExtracted = (partial: Partial<RAMSInput>) => {
     reset({
@@ -758,6 +775,7 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack, onGen
                             required: "Activity description is required",
                             minLength: { value: 30, message: "Please describe the works in more detail (minimum 30 characters)" },
                             maxLength: { value: 3000, message: "Activity description too long (max 3000 characters)" },
+                            onBlur: (e) => handleActivityBlur(e.target.value),
                           })}
                           id="activity"
                           required
@@ -770,6 +788,38 @@ export function RAMSForm({ selectedTrades = [], industryType = "", onBack, onGen
                           {activityLength} / 3000
                         </p>
                       </div>
+                      <Grid2>
+                        <div>
+                          <Label htmlFor="excavation_depth_m">Maximum excavation depth (m)</Label>
+                          <p className="text-xs text-slate-500 mb-2">Leave blank if no excavation. Pre-filled from your description — confirm or correct.</p>
+                          <Input
+                            {...register("excavation_depth_m", {
+                              valueAsNumber: true,
+                              min: { value: 0, message: "Depth must be 0 or greater" },
+                              max: { value: 50, message: "Please double-check — depth over 50m is unusual" },
+                            })}
+                            id="excavation_depth_m"
+                            type="number"
+                            step="0.1"
+                            min={0}
+                            placeholder="e.g. 2.5"
+                            error={errors.excavation_depth_m?.message}
+                          />
+                        </div>
+                        <div className="flex flex-col justify-end pb-1">
+                          <label className="flex items-start gap-3 cursor-pointer select-none">
+                            <input
+                              {...register("confined_space_entry")}
+                              type="checkbox"
+                              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                            />
+                            <span className="text-sm text-slate-700">
+                              <span className="font-semibold">Involves confined space entry</span>
+                              <span className="block text-xs text-slate-500 mt-0.5">Manholes, chambers, tanks, shafts, culverts, or vessels</span>
+                            </span>
+                          </label>
+                        </div>
+                      </Grid2>
                       <Grid2>
                         <div>
                           <Label required htmlFor="supervisor">Site Supervisor</Label>

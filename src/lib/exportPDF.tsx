@@ -455,29 +455,40 @@ function RiskMatrix() {
   );
 }
 
-// ── Risk assessment table row ────────────────────────────────────
+// ── Risk assessment table row — separate L, S, Score, Residual ──
+
+function NumCell({ value, width }: { value: number; width: string }) {
+  // Colour individual L or S values like the score, but lighter
+  const bg = value <= 2 ? "#dcfce7" : value <= 3 ? "#fef9c3" : "#fee2e2";
+  const fg = value <= 2 ? "#166534" : value <= 3 ? "#713f12" : "#991b1b";
+  return (
+    <View style={{ width, alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
+      <View style={{ paddingVertical: 3, paddingHorizontal: 4, borderRadius: 2, backgroundColor: bg, minWidth: 18, alignItems: "center" }}>
+        <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: fg }}>{value}</Text>
+      </View>
+    </View>
+  );
+}
 
 function RiskAssessmentRow({ item, idx }: { item: RiskAssessmentItem; idx: number }) {
   return (
     <View style={idx % 2 === 0 ? s.tableRow : s.tableRowAlt} wrap={false}>
-      <Text style={[s.tableCell, { width: "5%" }]}>{item.ref}</Text>
+      <Text style={[s.tableCell, { width: "4%" }]}>{item.ref}</Text>
       <View style={{ width: "12%" }}>
         <Text style={[s.tableCell, { fontFamily: "Helvetica-Bold" }]}>{item.hazard}</Text>
       </View>
-      <View style={{ width: "18%" }}>
-        <Text style={s.tableCell}>{item.description}</Text>
-      </View>
-      <Text style={[s.tableCell, { width: "8%" }]}>{item.who_at_risk}</Text>
-      <View style={{ width: "9%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
+      <Text style={[s.tableCell, { width: "9%" }]}>{item.who_at_risk}</Text>
+      <NumCell value={item.likelihood_pre} width="5%" />
+      <NumCell value={item.severity_pre} width="5%" />
+      <View style={{ width: "7%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
         <RiskScore score={item.risk_score_pre} />
       </View>
-      <View style={{ width: "30%" }}>
+      <View style={{ width: "51%" }}>
         {item.control_measures.map((cm, i) => <Bullet key={i} text={cm} />)}
       </View>
-      <View style={{ width: "9%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
+      <View style={{ width: "7%", alignItems: "center", justifyContent: "flex-start", paddingTop: 1 }}>
         <RiskScore score={item.risk_score_post} />
       </View>
-      <Text style={[s.tableCell, { width: "9%", fontSize: 7 }]}>{item.legislation_ref}</Text>
     </View>
   );
 }
@@ -657,65 +668,56 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
         </View>
       </Page>
 
-      {/* ── Page 1: Project Info + Scope + Legislation ── */}
-      <Page size="A4" style={s.contentPage}>
-        <RunningHeader {...rh} />
-        <PageFooter {...footer} />
-
-        <Text style={{ fontSize: 17, fontFamily: "Helvetica-Bold", color: NAVY, textAlign: "center", marginBottom: 3 }}>
-          RISK ASSESSMENT & METHOD STATEMENT
-        </Text>
-        <Text style={{ fontSize: 9, color: MUTED, textAlign: "center", marginBottom: 14 }}>
-          CDM 2015 Compliant | Submitted to Principal Contractor for Approval
-        </Text>
-
-        <View style={s.projectBox}>
-          <View style={s.projectGrid}>
-            <Field label="Project Name"         value={data.project.name} />
-            <Field label="Principal Contractor" value={data.project.principal_contractor} />
-            <Field label="Site Address"         value={data.project.site_address} full />
-            <Field label="Site Supervisor"      value={data.project.supervisor} />
-            <Field label="Start Date"           value={data.project.start_date} />
-            <Field label="Planned Duration"     value={data.project.duration} />
-          </View>
-        </View>
-
-        <SectionHeader num="1" title="Scope of Works" />
-        <Text style={{ fontSize: 9, lineHeight: 1.55, color: BODY_TEXT }}>{data.scope_of_works}</Text>
-
-        <SectionHeader num="2" title="Applicable Legislation" />
-        <View style={s.table}>
-          <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderCell, { width: "35%" }]}>Regulation</Text>
-            <Text style={[s.tableHeaderCell, { width: "65%" }]}>Relevance to These Works</Text>
-          </View>
-          {data.legislation.map((leg, i) => (
-            <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{leg.regulation}</Text>
-              <Text style={[s.tableCell, { width: "65%" }]}>{leg.relevance}</Text>
-            </View>
-          ))}
-        </View>
-      </Page>
-
-      {/* ── Page 2: Risk Assessment ── */}
+      {/* ── PART 1: Risk Assessment (landscape) ── */}
       <Page size="A4" orientation="landscape" style={s.landscapePage}>
         <RunningHeader {...rh} />
         <PageFooter {...footer} />
 
-        <SectionHeader num="3" title="Risk Assessment — 5×5 Matrix" />
+        {/* Project summary strip */}
+        <View style={[s.projectBox, { marginBottom: 8 }]}>
+          <View style={s.projectGrid}>
+            <Field label="Project"              value={data.project.name} />
+            <Field label="Principal Contractor" value={data.project.principal_contractor} />
+            <Field label="Site Address"         value={data.project.site_address} full />
+            <Field label="Site Supervisor"      value={data.project.supervisor} />
+            <Field label="Start Date"           value={data.project.start_date} />
+            <Field label="Duration"             value={data.project.duration} />
+          </View>
+        </View>
+
+        <SectionHeader num="PART 1" title="Risk Assessment" />
+
+        {/* Scope */}
+        <View style={{ marginBottom: 8 }}>
+          <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: MUTED, marginBottom: 3, letterSpacing: 0.3 }}>SCOPE OF WORKS</Text>
+          <Text style={{ fontSize: 8.5, lineHeight: 1.5, color: BODY_TEXT }}>{data.scope_of_works}</Text>
+        </View>
+
+        {/* Persons at Risk */}
+        <View style={{ marginBottom: 8 }}>
+          <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: MUTED, marginBottom: 3, letterSpacing: 0.3 }}>PERSONS AT RISK</Text>
+          <Text style={{ fontSize: 8.5, color: BODY_TEXT }}>
+            {Array.from(new Set(data.risk_assessment.map(r => r.who_at_risk))).join(" · ")}
+          </Text>
+        </View>
+
+        {/* Risk Matrix */}
         <RiskMatrix />
 
+        {/* Hazard Register */}
+        <View style={{ marginBottom: 4 }}>
+          <Text style={{ fontSize: 7.5, fontFamily: "Helvetica-Bold", color: MUTED, marginBottom: 4, letterSpacing: 0.3 }}>HAZARD REGISTER</Text>
+        </View>
         <View style={s.table}>
           <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderCell, { width: "5%" }]}>Ref</Text>
+            <Text style={[s.tableHeaderCell, { width: "4%" }]}>#</Text>
             <Text style={[s.tableHeaderCell, { width: "12%" }]}>Hazard</Text>
-            <Text style={[s.tableHeaderCell, { width: "18%" }]}>Description</Text>
-            <Text style={[s.tableHeaderCell, { width: "8%" }]}>Who at Risk</Text>
-            <Text style={[s.tableHeaderCell, { width: "9%" }]}>Pre-Control</Text>
-            <Text style={[s.tableHeaderCell, { width: "30%" }]}>Control Measures</Text>
-            <Text style={[s.tableHeaderCell, { width: "9%" }]}>Post-Control</Text>
-            <Text style={[s.tableHeaderCell, { width: "9%" }]}>Legislation</Text>
+            <Text style={[s.tableHeaderCell, { width: "9%" }]}>Who at Risk</Text>
+            <Text style={[s.tableHeaderCell, { width: "5%", textAlign: "center" }]}>L</Text>
+            <Text style={[s.tableHeaderCell, { width: "5%", textAlign: "center" }]}>S</Text>
+            <Text style={[s.tableHeaderCell, { width: "7%", textAlign: "center" }]}>Score</Text>
+            <Text style={[s.tableHeaderCell, { width: "51%" }]}>Control Measures</Text>
+            <Text style={[s.tableHeaderCell, { width: "7%", textAlign: "center" }]}>Residual</Text>
           </View>
           {data.risk_assessment.map((item, i) => (
             <RiskAssessmentRow key={item.ref} item={item} idx={i} />
@@ -723,12 +725,14 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
         </View>
       </Page>
 
-      {/* ── Page 3: Method Statement ── */}
+      {/* ── PART 2: Method Statement (portrait) ── */}
       <Page size="A4" style={s.contentPage}>
         <RunningHeader {...rh} />
         <PageFooter {...footer} />
 
-        <SectionHeader num="4" title="Sequence of Works" />
+        <SectionHeader num="PART 2" title="Method Statement" />
+
+        <SectionHeader num="1" title="Sequence of Works" />
         {data.method_statement.sequence_of_works.map((step) => (
           <View key={step.step} style={s.stepRow} wrap={false}>
             <View style={s.stepBadge}>
@@ -741,47 +745,11 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           </View>
         ))}
 
-        <SectionHeader num="5" title="Supervision Arrangements" />
-        <Text style={{ fontSize: 9, lineHeight: 1.5, color: BODY_TEXT }}>{data.method_statement.supervision}</Text>
-
-        <SectionHeader num="6" title="Emergency Procedures" />
-        <View style={s.projectBox}>
-          {[
-            { label: "First Aid",             value: data.method_statement.emergency_procedures.first_aid },
-            { label: "Emergency Contacts",    value: data.method_statement.emergency_procedures.emergency_contacts },
-            { label: "Nearest Hospital",      value: data.method_statement.emergency_procedures.nearest_hospital },
-            { label: "Evacuation Procedure",  value: data.method_statement.emergency_procedures.evacuation },
-            ...(data.method_statement.emergency_procedures.excavation_collapse
-              ? [{ label: "Excavation Collapse Procedure", value: data.method_statement.emergency_procedures.excavation_collapse }]
-              : []),
-            ...(data.method_statement.emergency_procedures.confined_space_rescue
-              ? [{ label: "Confined Space Rescue", value: data.method_statement.emergency_procedures.confined_space_rescue }]
-              : []),
-            ...(data.method_statement.emergency_procedures.gas_escape
-              ? [{ label: "Gas Escape Procedure", value: data.method_statement.emergency_procedures.gas_escape }]
-              : []),
-            ...(data.method_statement.emergency_procedures.ohl_contact
-              ? [{ label: "Overhead Powerline Contact", value: data.method_statement.emergency_procedures.ohl_contact }]
-              : []),
-          ].map((item) => (
-            <View key={item.label} style={{ marginBottom: 7 }}>
-              <Text style={s.fieldLabel}>{item.label.toUpperCase()}</Text>
-              <Text style={[s.fieldValue, { lineHeight: 1.45 }]}>{item.value}</Text>
-            </View>
-          ))}
-        </View>
-      </Page>
-
-      {/* ── Page 4: Supporting Assessments + Sign-Off ── */}
-      <Page size="A4" style={s.contentPage}>
-        <RunningHeader {...rh} />
-        <PageFooter {...footer} />
-
-        <SectionHeader num="7" title="Plant & Equipment" />
+        <SectionHeader num="2" title="Plant & Equipment Required" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "35%" }]}>Item</Text>
-            <Text style={[s.tableHeaderCell, { width: "65%" }]}>Competency / Inspection Requirement</Text>
+            <Text style={[s.tableHeaderCell, { width: "65%" }]}>PUWER / LOLER Compliance Requirement</Text>
           </View>
           {data.method_statement.plant_and_equipment.map((p, i) => (
             <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
@@ -791,7 +759,7 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           ))}
         </View>
 
-        <SectionHeader num="8" title="PPE Requirements" />
+        <SectionHeader num="3" title="PPE Requirements" />
         <View style={s.table}>
           <View style={s.tableHeader}>
             <Text style={[s.tableHeaderCell, { width: "30%" }]}>PPE Item</Text>
@@ -811,75 +779,48 @@ function RAMSPdfDoc({ data }: { data: RAMSDocument }) {
           ))}
         </View>
 
-        <SectionHeader num="9" title="COSHH Assessment" />
-        <View style={s.table}>
-          <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderCell, { width: "22%" }]}>Substance</Text>
-            <Text style={[s.tableHeaderCell, { width: "28%" }]}>Health Risk</Text>
-            <Text style={[s.tableHeaderCell, { width: "42%" }]}>Control Measures</Text>
-            <Text style={[s.tableHeaderCell, { width: "8%" }]}>Reg.</Text>
-          </View>
-          {data.method_statement.coshh_substances.map((c, i) => (
-            <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "22%", fontFamily: "Helvetica-Bold" }]}>{c.substance}</Text>
-              <Text style={[s.tableCell, { width: "28%" }]}>{c.risk}</Text>
-              <Text style={[s.tableCell, { width: "42%" }]}>{c.control}</Text>
-              <Text style={[s.tableCell, { width: "8%", fontSize: 7 }]}>{c.regulation}</Text>
+        <SectionHeader num="4" title="Supervision Arrangements" />
+        <Text style={{ fontSize: 9, lineHeight: 1.5, color: BODY_TEXT, marginBottom: 8 }}>{data.method_statement.supervision}</Text>
+
+        <SectionHeader num="5" title="Emergency Arrangements" />
+        <View style={s.projectBox}>
+          {[
+            { label: "First Aid",            value: data.method_statement.emergency_procedures.first_aid },
+            { label: "Emergency Contacts",   value: data.method_statement.emergency_procedures.emergency_contacts },
+            { label: "Nearest A&E",          value: data.method_statement.emergency_procedures.nearest_hospital },
+            { label: "Muster / Evacuation",  value: data.method_statement.emergency_procedures.evacuation },
+            ...(data.method_statement.emergency_procedures.excavation_collapse
+              ? [{ label: "Excavation Collapse", value: data.method_statement.emergency_procedures.excavation_collapse }]
+              : []),
+            ...(data.method_statement.emergency_procedures.confined_space_rescue
+              ? [{ label: "Confined Space Rescue", value: data.method_statement.emergency_procedures.confined_space_rescue }]
+              : []),
+            ...(data.method_statement.emergency_procedures.gas_escape
+              ? [{ label: "Gas Escape", value: data.method_statement.emergency_procedures.gas_escape }]
+              : []),
+            ...(data.method_statement.emergency_procedures.ohl_contact
+              ? [{ label: "OHL Contact", value: data.method_statement.emergency_procedures.ohl_contact }]
+              : []),
+          ].map((item) => (
+            <View key={item.label} style={{ marginBottom: 7 }}>
+              <Text style={s.fieldLabel}>{item.label.toUpperCase()}</Text>
+              <Text style={[s.fieldValue, { lineHeight: 1.45 }]}>{item.value}</Text>
             </View>
           ))}
         </View>
 
-        {data.havs_assessment.applicable && (
-          <>
-            <SectionHeader num="10" title="HAVS Assessment" />
-            <View style={s.table}>
-              <View style={s.tableHeader}>
-                <Text style={[s.tableHeaderCell, { width: "30%" }]}>Tool / Equipment</Text>
-                <Text style={[s.tableHeaderCell, { width: "30%" }]}>Vibration Level</Text>
-                <Text style={[s.tableHeaderCell, { width: "20%" }]}>Exposure Limits</Text>
-                <Text style={[s.tableHeaderCell, { width: "20%" }]}>Control</Text>
-              </View>
-              {data.havs_assessment.tools.map((h, i) => (
-                <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-                  <Text style={[s.tableCell, { width: "30%", fontFamily: "Helvetica-Bold" }]}>{h.tool}</Text>
-                  <Text style={[s.tableCell, { width: "30%" }]}>{h.vibration_level}</Text>
-                  <Text style={[s.tableCell, { width: "20%" }]}>{h.daily_exposure_limit}</Text>
-                  <Text style={[s.tableCell, { width: "20%" }]}>{h.control}</Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        <SectionHeader num={data.havs_assessment.applicable ? "11" : "10"} title="Noise Assessment" />
-        <View style={s.table}>
-          <View style={s.tableHeader}>
-            <Text style={[s.tableHeaderCell, { width: "35%" }]}>Noise Source</Text>
-            <Text style={[s.tableHeaderCell, { width: "25%" }]}>Approx. Level dB(A)</Text>
-            <Text style={[s.tableHeaderCell, { width: "40%" }]}>Control Measures</Text>
-          </View>
-          {data.noise_assessment.sources.map((n, i) => (
-            <View key={i} style={i % 2 === 0 ? s.tableRow : s.tableRowAlt}>
-              <Text style={[s.tableCell, { width: "35%", fontFamily: "Helvetica-Bold" }]}>{n.source}</Text>
-              <Text style={[s.tableCell, { width: "25%" }]}>{n.approximate_db}</Text>
-              <Text style={[s.tableCell, { width: "40%" }]}>{n.control}</Text>
-            </View>
-          ))}
-        </View>
-
-        <SectionHeader num={data.havs_assessment.applicable ? "12" : "11"} title="Environmental Controls" />
+        <SectionHeader num="6" title="Environmental Considerations" />
         {data.method_statement.environmental_controls.map((ec, i) => (
           <Bullet key={i} text={ec} />
         ))}
-
-        <SectionHeader num={data.havs_assessment.applicable ? "13" : "12"} title="Document Sign-Off" />
-        <SignOffSection data={data} />
       </Page>
 
-      {/* ── Page 5: Worker Briefing Record ── */}
+      {/* ── Sign-Off + Briefing Record (portrait) ── */}
       <Page size="A4" style={s.contentPage}>
         <RunningHeader {...rh} />
         <PageFooter {...footer} />
+        <SectionHeader num="" title="Sign-Off & Briefing Record" />
+        <SignOffSection data={data} />
         <WorkerBriefingRecord />
       </Page>
 

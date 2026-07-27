@@ -5,10 +5,6 @@ import type {
   MethodStep,
   PlantEquipmentItem,
   PPEItem,
-  COSHHItem,
-  HAVSTool,
-  NoiseSource,
-  LegislationRef,
 } from "./types";
 import { detectPacks } from "./packs/loadPacks";
 
@@ -24,29 +20,69 @@ function slugify(s: string): string {
   return s.toUpperCase().replace(/[^A-Z0-9]/g, "-").replace(/-+/g, "-").slice(0, 20);
 }
 
+// Inline test cases (verified at build time via tsc — run manually with node):
+//   extractDepth("excavation up to 2.5m deep, manhole chambers at approx. 30m intervals") === 2.5  (NOT 30)
+//   extractDepth("excavation to 1.8m for storm drain connection")  === 1.8
+//   extractDepth("trench 2.4m deep")                               === 2.4
+//   extractDepth("dig to 2m")                                      === 2.0
+//   extractDepth("2m trench excavation")                           === 2.0
+//   extractDepth("pipe 110mm diameter")                            === 0   (no depth-context word)
+//   extractDepth("lay 600mm concrete pipe")                        === 0   (no depth-context word)
+//   extractDepth("manholes at 10m centres, excavation to 2.5m")   === 2.5 (10m centres excluded)
 function extractDepth(activity: string): number {
   const s = activity.toLowerCase();
+
+  // Words that signal a horizontal distance — a metric value followed by one of these is NOT a depth.
+  // "30m intervals", "10m centres", "5m spacing", "6m apart", "manholes 20m between"
+  const HORIZONTAL = /\b(interval|intervals|centre|centres|center|centers|spacing|apart|between)\b/;
+
+  // Returns true if the text within 25 chars after matchEnd contains a horizontal-spacing word.
+  const isHorizontal = (matchEnd: number) =>
+    HORIZONTAL.test(s.slice(matchEnd, matchEnd + 25));
+
+  // Words that confirm a value is a vertical depth.
+  const DEPTH_CTX = /excav|trench|dig\b|below|depth|deep|formation/;
+
   const found: number[] = [];
 
-  // Pattern A: "1.8m deep" / "1.8 metres depth" / "2m below"
+  // Pattern A: value THEN depth word — "2.5m deep", "1.8 metres depth", "2m below"
+  // Horizontal check is a belt-and-braces guard; "Xm deep" virtually never means horizontal.
   for (const m of s.matchAll(/(\d+(?:\.\d+)?)\s*m(?:etre)?s?\s*(?:deep|depth|below)/gi)) {
-    found.push(parseFloat(m[1]));
+    if (!isHorizontal(m.index! + m[0].length)) found.push(parseFloat(m[1]));
   }
 
-  // Pattern B: "to 1.8m" / "to 2 m" — e.g. "excavation to 1.8m", "dig to 2m"
+  // Pattern B: "to Xm" — "excavation to 1.8m", "dig to 2m"
   for (const m of s.matchAll(/\bto\s+(\d+(?:\.\d+)?)\s*m(?:etre)?s?\b/gi)) {
-    found.push(parseFloat(m[1]));
+    if (!isHorizontal(m.index! + m[0].length)) found.push(parseFloat(m[1]));
   }
 
-  // Pattern C: standalone "Xm" when a depth-context word appears anywhere in the string
-  // e.g. "2m trench", "excavate 1.5m"
-  if (/excav|trench|dig\b|below|depth|deep/.test(s)) {
+  // Pattern C: bare "Xm" — only fires when a depth-context word exists anywhere in the string,
+  // AND the matched value has a depth-context word within ±40 chars of it.
+  // "30m intervals" is excluded by isHorizontal; "2.5m" in "2.5m deep" passes both guards.
+  if (DEPTH_CTX.test(s)) {
     for (const m of s.matchAll(/\b(\d+(?:\.\d+)?)\s*m(?:etre)?s?\b/gi)) {
-      found.push(parseFloat(m[1]));
+      if (isHorizontal(m.index! + m[0].length)) continue;
+      const ctx = s.slice(Math.max(0, m.index! - 40), m.index! + m[0].length + 40);
+      if (DEPTH_CTX.test(ctx)) found.push(parseFloat(m[1]));
     }
   }
 
-  return found.length ? Math.max(...found) : 0;
+  if (found.length === 0) return 0;
+
+  const depth = Math.max(...found);
+
+  // Sanity bound: a groundworks trench deeper than 6m is exceptional.
+  // If we got here it almost certainly means a horizontal distance slipped through
+  // (e.g. a new spacing pattern not yet in the HORIZONTAL exclusion list).
+  if (depth > 6) {
+    console.warn(
+      `[extractDepth] Depth ${depth}m exceeds 6m sanity bound — treating as 0. ` +
+      `Check activity text for mis-parsed horizontal distances. Activity: "${activity.slice(0, 120)}"`
+    );
+    return 0;
+  }
+
+  return depth;
 }
 
 function detect(activity: string, ...terms: string[]): boolean {
@@ -58,97 +94,53 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
   const industry = (input.industry_type ?? "").toLowerCase();
   const trades = (input.selected_trades ?? []).join(" ").toLowerCase();
   const act = input.activity;
-  const depth = extractDepth(act);
+  // Authoritative depth: user-entered field wins; extractDepth() is the fallback prefill only.
+  const depth = typeof input.excavation_depth_m === "number"
+    ? input.excavation_depth_m
+    : extractDepth(act);
 
   // Detect from activity text + selected trades + industry
   const inAll = `${act} ${trades} ${industry}`;
   const isExcavation = detect(inAll, "excav", "trench", "dig", "drain", "sewer", "duct", "cable", "pipe", "culvert");
-  const isConfinedSpace = isExcavation && depth >= 1.2;
+
+  // Confined space: err toward inclusion — any of depth, explicit checkbox, or keyword match.
+  // Removed `isExcavation &&` gate: manholes/chambers are confined spaces regardless of trade.
+  const isConfinedSpace =
+    depth >= 1.2 ||
+    input.confined_space_entry === true ||
+    detect(inAll, "manhole", "chamber", "tank", "vessel", "shaft",
+           "culvert", "below ground", "pump station", "inspection chamber");
+
+  // Depth sanity flags — propagated into scope_of_works notices below.
+  const depthSuspect = depth > 6;
+  const depthUnconfirmed = isExcavation && depth === 0 && typeof input.excavation_depth_m !== "number";
+
   const isNearCarriageway = detect(inAll, "carriageway", "road", "highway", "live traffic", "traffic management", "footway");
   const hasConcrete = detect(inAll, "concret", "cement", "grout", "shutter", "pour", "foundation", "blinding");
   const hasBreaking = detect(inAll, "break", "jackhammer", "pneumatic", "hoe ram", "demolit");
   const hasCompaction = detect(inAll, "compact", "wacker", "plate", "vibrat", "roller");
   const hasPlant = input.plant_and_equipment.length > 0;
 
-  // Industry-type flags
-  const isElectrical  = industry === "electrical"  || detect(inAll, "electrical", "electric", "wiring", "cable install", "loto", "isolat");
-  const isScaffolding = industry === "scaffolding" || detect(inAll, "scaffold", "tube and fitting", "system scaffold");
-  const isRoofing     = industry === "roofing"     || detect(inAll, "roof", "flat roof", "pitched roof", "felt", "slate", "tile");
-  const isPlumbing    = industry === "plumbing"    || detect(inAll, "plumb", "heating", "gas install", "boiler", "pipework", "unvented");
-  const isDemolition  = industry === "demolition"  || detect(inAll, "demolit", "strip out", "soft strip", "asbestos");
-  const isBuilding    = industry === "building"    || detect(inAll, "brickwork", "block", "masonry", "structural", "beam");
-  const isME          = industry === "me"          || detect(inAll, "mechanical", "hvac", "ventilation", "air conditioning", "f-gas", "refrigerant");
-  const isFitout      = industry === "fitout"      || detect(inAll, "fit out", "fit-out", "partition", "suspended ceiling", "fire door", "acoustic");
-  const isGas         = isPlumbing && detect(inAll, "gas install", "gas safe", "mdpe", "purging", "gas commission");
+  // Trade-specific flags: selected_trades and industry_type are authoritative.
+  // Keyword detection from activity text is intentionally NOT used here — it caused hazard
+  // rows to leak into jobs that never selected those trades (e.g. "pipework" → plumbing hazards
+  // on a drainage job). Physical-work flags (isExcavation, hasConcrete, etc.) above still
+  // use text detection because they describe the physical nature of the work, not trade selection.
+  const isElectrical  = industry === "electrical"  || trades.includes("electrical");
+  const isScaffolding = industry === "scaffolding" || trades.includes("scaffold");
+  const isRoofing     = industry === "roofing"     || trades.includes("roof");
+  const isPlumbing    = industry === "plumbing"    || trades.includes("plumb") || trades.includes("heating");
+  const isDemolition  = industry === "demolition"  || trades.includes("demolit") || trades.includes("strip");
+  const isBuilding    = industry === "building"    || trades.includes("masonry") || trades.includes("brickwork") || trades.includes("block");
+  const isME          = industry === "me"          || trades.includes("mechanical") || trades.includes("hvac") || trades.includes("ventilation") || trades.includes("f-gas");
+  const isFitout      = industry === "fitout"      || trades.includes("fit out") || trades.includes("fit-out") || trades.includes("partition");
+  const isGas         = isPlumbing && (trades.includes("gas") || trades.includes("mdpe") || trades.includes("purging"));
   const gasPack = detectPacks(inAll, input.selected_trades ?? []).find((p) => p.id === "groundworks-gas");
 
   const docRef = `RAMS-${slugify(input.project_name)}-001`;
   const dateStr = today();
   const plantList = input.plant_and_equipment.map((p) => p.item);
 
-  // ─── LEGISLATION ────────────────────────────────────────────────────────────
-  const legislation: LegislationRef[] = [
-    { regulation: "Health & Safety at Work Act 1974", relevance: "Overarching duty to ensure, so far as reasonably practicable, the health and safety of all persons at work and others affected by the works." },
-    { regulation: "CDM Regulations 2015", relevance: "As a subcontractor, duties to cooperate with the Principal Contractor, comply with relevant parts of the Construction Phase Plan, and not endanger the health and safety of any person." },
-    { regulation: "Management of Health and Safety at Work Regulations 1999", relevance: "Requirement to carry out suitable and sufficient risk assessment and implement appropriate control measures." },
-    { regulation: "Manual Handling Operations Regulations 1992", relevance: "Applies to all manual handling activities on site. Where loads exceed 25 kg or are awkward in shape, mechanical handling aids or team lifts must be used." },
-    { regulation: "Personal Protective Equipment at Work Regulations 1992", relevance: "Requires provision, maintenance, and use of appropriate PPE where risks cannot be adequately controlled by other means." },
-    { regulation: "Noise at Work Regulations 2005", relevance: "Plant and breaking equipment used during these works will generate noise levels above the Lower Exposure Action Value of 80 dB(A)." },
-    { regulation: "Control of Vibration at Work Regulations 2005", relevance: "Compaction plant and breaking equipment expose operatives to hand-arm vibration above the Exposure Action Value of 2.5 m/s²." },
-    { regulation: "PUWER 1998", relevance: "All plant and equipment must be suitable for purpose, maintained in good condition, and operated only by competent, ticketed operatives." },
-  ];
-
-  if (isExcavation) {
-    legislation.push({ regulation: "Electricity at Work Regulations 1989", relevance: "Risk of striking underground electrical services during excavation works." });
-  }
-  if (isElectrical) {
-    legislation.push({ regulation: "Electricity at Work Regulations 1989", relevance: "All electrical work must be carried out by competent, qualified electricians. Systems must be made dead before work commences unless live working is unavoidable and controlled." });
-    legislation.push({ regulation: "BS 7671:2018+A2:2022 (IET Wiring Regulations 18th Edition)", relevance: "All fixed electrical installations must be designed, installed, and tested in accordance with the current edition of the Wiring Regulations." });
-  }
-  if (isScaffolding) {
-    legislation.push({ regulation: "Work at Height Regulations 2005", relevance: "Scaffold must be erected, altered, and dismantled by competent persons (CISRS card). All work at height must be properly planned and supervised." });
-    legislation.push({ regulation: "NASC TG20:21 Technical Guidance", relevance: "Tube and fitting scaffold design and erection must comply with NASC TG20 or a bespoke design by a Temporary Works Engineer." });
-  }
-  if (isRoofing) {
-    legislation.push({ regulation: "Work at Height Regulations 2005", relevance: "All roofing works require suitable edge protection (barriers or safety netting). Fragile surfaces must be identified and boards/crawling boards provided." });
-    legislation.push({ regulation: "ACR[M]001:2019 — Test for Fragility of Roofing Assemblies", relevance: "Any fragile roof surface (profiled metal, fibre cement, glass, rooflights) must be treated as fragile; crawl boards and collective fall protection required." });
-  }
-  if (isPlumbing) {
-    legislation.push({ regulation: "Water Supply (Water Fittings) Regulations 1999", relevance: "All plumbing installations must comply with Water Regulations and use WRAS-approved materials where applicable." });
-  }
-  if (gasPack) {
-    for (const leg of gasPack.legislation) {
-      legislation.push(leg);
-    }
-  }
-  if (isDemolition) {
-    legislation.push({ regulation: "Control of Asbestos Regulations 2012 (CAR 2012)", relevance: "A Type 3 asbestos refurbishment/demolition survey must be obtained before any demolition or strip-out works commence. All ACMs to be removed by licensed contractor before demolition." });
-  }
-  if (isBuilding || hasConcrete || hasBreaking) {
-    legislation.push({ regulation: "Control of Substances Hazardous to Health Regulations 2002 (COSHH)", relevance: "Silica dust generated by cutting and breaking activities. Wet cutting methods and RPE (FFP3) mandatory. WEL: 0.1 mg/m³ (8-hr TWA)." });
-  }
-  if (isME) {
-    legislation.push({ regulation: "F-Gas Regulations (SI 2022/1013)", relevance: "Work on refrigeration and air conditioning systems containing F-Gas refrigerants must be carried out by F-Gas certified engineers. Leakage checks required." });
-    legislation.push({ regulation: "Pressure Systems Safety Regulations 2000 (PSSR)", relevance: "Pressurised systems must be operated within safe operating limits; Written Scheme of Examination required for statutory systems." });
-  }
-  if (isFitout) {
-    legislation.push({ regulation: "Building Regulations 2010 — Part B (Fire Safety)", relevance: "Fire-stopping and compartmentation must be reinstated following any penetrations through fire-rated elements. Fire door installation to BS EN 16034 and BS 8214." });
-    legislation.push({ regulation: "Regulatory Reform (Fire Safety) Order 2005", relevance: "Fire escape routes must be maintained throughout the fit-out works. All operatives to be briefed on fire escape routes before works commence." });
-  }
-  if (hasConcrete || hasBreaking) {
-    legislation.push({ regulation: "COSHH 2002", relevance: "Cement and concrete works generate respirable crystalline silica dust and present risk of cement dermatitis. Diesel exhaust fumes from plant are also controlled substances." });
-  }
-  if (isConfinedSpace) {
-    legislation.push({ regulation: "Confined Spaces Regulations 1997", relevance: `Excavation to ${depth}m depth constitutes a confined space requiring a permit-to-enter system, atmospheric monitoring, and a documented rescue plan.` });
-  }
-  if (isNearCarriageway) {
-    legislation.push({ regulation: "Traffic Management Act 2004 / Chapter 8 of the Traffic Signs Manual", relevance: "Works adjacent to the live carriageway require a Traffic Management Plan and compliance with Chapter 8 signing, lighting, and guarding requirements." });
-  }
-  if (hasPlant) {
-    legislation.push({ regulation: "LOLER 1998", relevance: "Any lifting operations using plant or lifting accessories require a documented Lifting Plan and pre-use LOLER inspection records." });
-  }
-  legislation.push({ regulation: "RIDDOR 2013", relevance: "Any accident resulting in a specified injury, over-7-day incapacitation, dangerous occurrence, or occupational disease must be reported to the HSE." });
-  legislation.push({ regulation: "Environmental Protection Act 1990 / Controlled Waste Regulations", relevance: "Excavated arisings, surplus materials, and site waste must be managed and disposed of appropriately with a valid waste carrier licence." });
 
   // ─── RISK ASSESSMENT ────────────────────────────────────────────────────────
   const risks: RiskAssessmentItem[] = [];
@@ -902,92 +894,6 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
     ppe.push({ item: "Class 3 hi-visibility trousers", standard: "EN ISO 20471:2013 — mandatory for all works within and adjacent to the carriageway", mandatory: true });
   }
 
-  // ─── COSHH ───────────────────────────────────────────────────────────────────
-  const coshh: COSHHItem[] = [
-    {
-      substance: "Diesel exhaust fumes (from plant)",
-      risk: "Carcinogenic particulates and NOx; respiratory irritation; increased long-term cancer risk.",
-      control: "Position plant exhausts away from operatives and welfare areas; use low-emission plant where available; avoid prolonged idling; provide RPE if ventilation is inadequate in confined areas.",
-      regulation: "COSHH 2002",
-    },
-    {
-      substance: "Fuel and oil (plant refuelling)",
-      risk: "Skin absorption; irritation; fire risk during refuelling.",
-      control: "Refuel in designated area away from ignition sources and water courses; use bunded refuelling bowser; spill kit on site; no smoking in refuelling area.",
-      regulation: "COSHH 2002",
-    },
-  ];
-
-  if (hasConcrete || hasBreaking) {
-    coshh.push({
-      substance: "Respirable crystalline silica (RCS) dust",
-      risk: "Silicosis (progressive, incurable scarring of lung tissue); lung cancer. WEL: 0.1 mg/m³ (8-hour TWA).",
-      control: "Water suppression on breaking/cutting operations; on-tool extraction where applicable; FFP3 disposable RPE mandatory; health surveillance for regular exposures; avoid dry sweeping — vacuum or wet methods only.",
-      regulation: "COSHH 2002",
-    });
-    coshh.push({
-      substance: "Wet cement / concrete (chromate VI)",
-      risk: "Cement dermatitis (allergic contact dermatitis); chemical burns from prolonged skin contact with wet cement. Risk of occupational asthma.",
-      control: "Barrier cream applied to hands and wrists before working with wet cement; nitrile gloves mandatory; wash stations with clean water available at all times; change wet/cement-contaminated clothing immediately; no kneeling in wet concrete without knee pads.",
-      regulation: "COSHH 2002",
-    });
-  }
-
-  if (gasPack) {
-    for (const c of gasPack.coshh) {
-      coshh.push(c);
-    }
-  }
-
-  // ─── HAVS ────────────────────────────────────────────────────────────────────
-  const havsTools: HAVSTool[] = [];
-  if (hasCompaction) {
-    havsTools.push({
-      tool: "Vibratory plate compactor (single plate)",
-      vibration_level: "Approx. 5.0 m/s² (manufacturer data) — EAV reached at approx. 30 min; ELV at approx. 2 hours",
-      daily_exposure_limit: "EAV 2.5 m/s² / ELV 5 m/s² (8-hr TWA)",
-      control: "Limit continuous use to 30 min per operative; implement job rotation minimum every 30 min; provide anti-vibration gloves rated for this tool; daily HAV exposure log maintained by supervisor.",
-    });
-  }
-  if (hasBreaking) {
-    havsTools.push({
-      tool: "Hydraulic / electric breaker",
-      vibration_level: "Approx. 12.0 m/s² (manufacturer data) — EAV reached at approx. 8 min; ELV at approx. 30 min",
-      daily_exposure_limit: "EAV 2.5 m/s² / ELV 5 m/s² (8-hr TWA)",
-      control: "Strict rotation — maximum 8 min per operative before handover; halt if any tingling reported; anti-vibration gloves required; daily HAV exposure log maintained.",
-    });
-  }
-  if (!hasCompaction && !hasBreaking) {
-    havsTools.push({
-      tool: "360° excavator joystick controls",
-      vibration_level: "Approx. 0.5 m/s² (whole-body vibration) — HAVS risk low from cab controls",
-      daily_exposure_limit: "EAV 2.5 m/s² / ELV 5 m/s² (8-hr TWA)",
-      control: "Low risk from excavator joystick; ensure seat suspension is functional; anti-vibration cab mounts serviceable. Monitor if breaker attachment is fitted.",
-    });
-  }
-
-  // ─── NOISE ───────────────────────────────────────────────────────────────────
-  const noiseSources: NoiseSource[] = [
-    {
-      source: "360° excavator (working)",
-      approximate_db: "Approx. 75–80 dB(A) at operator position; approx. 70 dB(A) at 5m",
-      control: "Below UEAV at operator position; hearing protection recommended for prolonged proximity. Erect acoustic hoardings adjacent to noise-sensitive receptors where required.",
-    },
-  ];
-  if (hasCompaction) {
-    noiseSources.push({
-      source: "Vibratory plate compactor",
-      approximate_db: "Approx. 92–98 dB(A) at 1m",
-      control: "Above UEAV (85 dB) — mandatory hearing protection zone declared; ear defenders (SNR 28+) mandatory for all operatives within 5m during operation. Restrict operation to agreed working hours.",
-    });
-  }
-  if (hasBreaking) {
-    noiseSources.push({
-      source: "Hydraulic/pneumatic breaker",
-      approximate_db: "Approx. 100–110 dB(A) at 1m",
-      control: "Well above UEAV — mandatory hearing protection zone with 10m exclusion for non-essential personnel; ear defenders mandatory; restrict to agreed hours; notify neighbours in advance.",
-    });
-  }
 
   // ─── INDUSTRY METHOD STEPS ───────────────────────────────────────────────────
   if (isElectrical && !isExcavation) {
@@ -1007,8 +913,19 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
   }
 
   // ─── SCOPE ───────────────────────────────────────────────────────────────────
+  if (depthSuspect) {
+    console.warn(`[generateFromTemplate] Excavation depth ${depth}m exceeds 6m sanity bound. Verify before issuing document.`);
+  }
+  const scopeNotices: string[] = [];
+  if (depthSuspect) {
+    scopeNotices.push(`[REVIEW REQUIRED: Excavation depth of ${depth}m is unusually deep for groundworks — please confirm this is correct before issuing. Confined-space and collapse hazard rows should be reviewed by a competent person.]`);
+  }
+  if (depthUnconfirmed) {
+    scopeNotices.push(`[REVIEW REQUIRED: Excavation depth was not confirmed — competent person must assess confined-space risk on site before works commence.]`);
+  }
   const industryLabel = input.industry_type ? ` (${input.industry_type})` : "";
-  const scopeOfWorks = `${input.company_name} will carry out the following ${industryLabel} works at ${input.project_name} (${input.site_address}) as a subcontractor to the Principal Contractor, ${input.principal_contractor}. Works comprise: ${input.activity}. Works will be undertaken by ${input.operatives} under the direct supervision of ${input.supervisor}. Plant and equipment to be deployed: ${plantList.join(", ")}. Planned commencement date: ${input.start_date}. Estimated duration: ${input.duration}. All works will be executed in strict accordance with this Risk Assessment and Method Statement, the Principal Contractor's Construction Phase Plan, and the requirements of CDM Regulations 2015. This RAMS document must be submitted to and approved by the Principal Contractor before any works commence on site.`;
+  const scopeOfWorks = (scopeNotices.length ? scopeNotices.join(" ") + "\n\n" : "") +
+    `${input.company_name} will carry out the following ${industryLabel} works at ${input.project_name} (${input.site_address}) as a subcontractor to the Principal Contractor, ${input.principal_contractor}. Works comprise: ${input.activity}. Works will be undertaken by ${input.operatives} under the direct supervision of ${input.supervisor}. Plant and equipment to be deployed: ${plantList.join(", ")}. Planned commencement date: ${input.start_date}. Estimated duration: ${input.duration}. All works will be executed in strict accordance with this Risk Assessment and Method Statement, the Principal Contractor's Construction Phase Plan, and the requirements of CDM Regulations 2015. This RAMS document must be submitted to and approved by the Principal Contractor before any works commence on site.`;
 
   return {
     document_ref: docRef,
@@ -1035,7 +952,6 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
       working_hours: input.working_hours,
     },
     scope_of_works: scopeOfWorks,
-    legislation,
     risk_assessment: risks,
     method_statement: {
       sequence_of_works: steps,
@@ -1069,16 +985,7 @@ export function generateFromTemplate(input: RAMSInput): RAMSDocument {
         "Site compound and working areas to be cleaned up at end of each shift; no litter or waste to be left on site.",
         "Any unexpected contaminated material encountered during works to be reported to the PC and specialist consultant immediately; works to halt pending investigation.",
       ],
-      coshh_substances: coshh,
       welfare_arrangements: input.welfare_arrangements || `Welfare facilities to be provided in accordance with CDM 2015 Schedule 2. Provision to include: toilet facilities (flushing WC or chemical toilet), washing facilities with hot and cold running water and soap, drinking water, rest area, and facilities for warming food. Location of all welfare facilities to be communicated during site induction. Welfare provision to be agreed with the Principal Contractor, ${input.principal_contractor}, before works commence.`,
-    },
-    havs_assessment: {
-      applicable: hasCompaction || hasBreaking,
-      tools: havsTools,
-    },
-    noise_assessment: {
-      applicable: hasCompaction || hasBreaking || hasPlant,
-      sources: noiseSources,
     },
     sign_off: {
       prepared_by: input.prepared_by || input.supervisor,

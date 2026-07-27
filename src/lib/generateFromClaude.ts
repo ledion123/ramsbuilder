@@ -48,6 +48,8 @@ export async function generateFromClaude(input: RAMSInput): Promise<RAMSDocument
       el_insurance: input.el_insurance ?? "",
       revision_description: input.revision_description ?? "",
       additional_hazards: input.additional_hazards ?? "",
+      excavation_depth_m: input.excavation_depth_m ?? null,
+      confined_space_entry: input.confined_space_entry ?? false,
       industry_type: input.industry_type ?? "General Construction",
       selected_trades: input.selected_trades ?? [],
       ...(packOverrides ? { _pack_overrides: packOverrides } : {}),
