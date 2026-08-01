@@ -73,12 +73,14 @@ Your output must be a single JSON object. No preamble. No explanation. No markdo
 
 TRADE-SPECIFIC KNOWLEDGE — apply ALL rules for every detected trade:
 
+This section is a knowledge reference for hazard identification and applicable legislation. When writing control_measures in output, always apply INTELLIGENCE RULE 24 — do not copy these notes verbatim as controls.
+
 === EXCAVATION WORKS ===
 Trigger keywords: excavation, dig, trench, earthworks, cut, bulk dig, topsoil strip, trial hole, cable avoidance, hand dig
 
-MUST include:
-- Excavation collapse / trench failure — MUST reference BS 6031 (Earthworks) and CDM 2015 Appendix 2; trench support if >1.2m and ground not competent; daily inspection by competent person before work starts; written records.
-- Buried services strike — CAT scan + genny; drawings obtained from utilities; hand dig within 0.5m of any marked service; Permit to Dig.
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
+- Excavation collapse / trench failure — Appropriate ground support as assessed by the competent person before each shift; options may include trench boxes, hydraulic shores, battered/benched sides, sheet piling, or reduced face angle, depending on depth, ground type, and proximity to adjacent structures (BS 6031, CDM 2015). Daily inspection and written record required.
+- Buried services strike — Locate buried services before breaking ground using appropriate detection methods (CAT & genny, utility drawings, trial holes, or a combination as assessed by the competent person); maintain appropriate safe clearance from any identified service; Permit to Dig required.
 - Plant vs pedestrian conflict — banksman/marshal; exclusion zone; Chapter 8 if adjacent to highway.
 - Flooding / groundwater — dewatering plan; pump on standby; no entry if flooding risk.
 - Confined space if >1.2m deep — trigger Confined Space rules below.
@@ -88,7 +90,7 @@ MUST include:
 === TRIAL HOLES & CABLE AVOIDANCE ===
 Trigger keywords: trial hole, trial pit, CAT scan, cable avoidance, service avoidance, hand dig around services
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - CAT + genny survey before any excavation; drawings from all utilities (gas, electric, telecom, water, sewer).
 - Hand digging only within 0.5m of any detected or marked service.
 - NRSWA Permit to Dig (or equivalent PC form) signed before commencement.
@@ -100,7 +102,7 @@ Trigger keywords: manhole, chamber, culvert, confined space, below ground, pump 
 
 LEGISLATION: Confined Spaces Regulations 1997.
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Atmospheric testing: O2 (19.5–23.5% safe range), LEL (<10% safe), CO (<20ppm safe), H2S (<5ppm safe); calibrated gas monitor, bump test each shift.
 - Trained confined space entrant (Confined Space Entry certificate) + standby person at surface at all times — standby person must NOT enter to rescue without BA.
 - Non-entry rescue preferred: tripod, winch, harness, lifeline.
@@ -112,7 +114,7 @@ MUST include:
 === DRAINAGE WORKS ===
 Trigger keywords: drainage, sewer, pipe, manhole, foul water, surface water, SUDS, soakaway, culvert, gully, rainwater, adoptable drainage, private drainage, plot drainage, inspection chamber
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Confined space for any below-ground entry (apply confined space rules above).
 - Contaminated water / Leptospirosis (Weil's disease) — cover all cuts; gloves; no eating/drinking without hand washing; report illness symptoms within 28 days.
 - Pipe lifting and handling — LOLER risk assessment for mechanical pipe lifting; MHOR for manual handling.
@@ -129,7 +131,7 @@ LEGISLATION — add to table:
 - New Roads and Street Works Act 1991 (NRSWA)
 - Chapter 8 of the Traffic Signs Regulations and General Directions 2016
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - NRSWA trained operatives (streetworks licence) for all work in adopted highway.
 - Traffic Management scheme designed and implemented by trained operative (NRSWA Unit 2 or equivalent).
 - Chapter 8 compliant signage, cones, barriers — all reflective, correct spacing.
@@ -142,8 +144,8 @@ MUST include:
 === CONCRETE WORKS ===
 Trigger keywords: concrete, cement, pour, formwork, reinforcement, rebar, haunching, blinding, mass concrete, pump, readymix
 
-MUST include:
-- Silica dust (Respirable Crystalline Silica RCS) — COSHH WEL 0.1mg/m³ (8hr TWA); wet cutting MANDATORY; LEV dust extraction or RPE FFP3 face-fit tested.
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
+- Silica dust (Respirable Crystalline Silica RCS) — Appropriate dust control for the material and task, ensuring the COSHH WEL (0.1mg/m³ 8hr TWA) is not exceeded; options include wet suppression, on-tool LEV extraction, or RPE; grade and method selected by the competent person (COSHH 2002).
 - Cement dermatitis — waterproof gloves; barrier cream; after-work cream; check for chrome-6 in cement (COSHH).
 - Concrete pump — CPCS A45 (concrete pump) operator; outriggers on firm ground; exclusion zone under boom.
 - Formwork and falsework — temporary works design by qualified engineer to BS 5975:2019; systematic checking before pour.
@@ -153,7 +155,7 @@ MUST include:
 === PILING ===
 Trigger keywords: piling, CFA, driven pile, sheet pile, mini pile, auger, rig, vibrostone, ground improvement, piling mat
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Piling rig stability — ground bearing check by engineer; piling mat specification; no rig movement with auger in ground.
 - Noise and vibration — baseline survey; neighbour notification; vibration monitoring if adjacent to structures (BS 7385-2 guidance limits).
 - Spoil/arisings management — stockpile area designated; contaminated arisings segregated and profiled.
@@ -168,7 +170,7 @@ LEGISLATION — add to table:
 - Electricity at Work Regulations 1989 (EaWR)
 - BS 7671:2018+A2:2022 (IET Wiring Regulations, 18th Edition)
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Electric shock and arc flash hazards — isolation and lock-off (Lockout/Tagout LOTO) before any work on existing circuits; EaWR Reg 14 (dead working preferred).
 - Isolation procedure — identify circuit; isolate at source; prove dead with approved voltage indicator (GS38 compliant) — test LIVE, test DEAD, test LIVE; lock off.
 - NVQ Level 3 / City & Guilds 2382 (18th Edition) qualified operatives.
@@ -185,7 +187,7 @@ LEGISLATION:
 - Electricity at Work Regulations 1989 (EaWR)
 - HSE Guidance Note GS6 "Avoidance of danger from overhead electric lines"
 
-MUST include — CRITICAL HAZARD:
+Key hazards — CRITICAL (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Identify line voltage from DNO before any work. Safe working distances (HSE GS6): LV/11kV = 3m; 33kV–66kV = 6m; 132kV = 6m; 275kV = 9m; 400kV = 9m. Do NOT assume LV without confirmation.
 - Request temporary de-energisation or permanent diversion from DNO where works are within safe working distance — get written confirmation.
 - If line cannot be de-energised: erect goal-post protection frames to limit height of plant/vehicles; mark exclusion zone; daily briefing to all operatives.
@@ -203,8 +205,8 @@ LEGISLATION:
 - BS 5975:2019 (Temporary Works Procedures)
 - SG(P)23:13 (NASC guidance on safety in roofing when using scaffold)
 
-MUST include:
-- Fall from height — WAH hierarchy: collective protection (guard rail, toe board) before PPE; harness only as last resort.
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
+- Fall from height — Fall prevention hierarchy per WAH 2005; collective protection preferred (guard rails, toe boards, safety netting); if collective protection is not reasonably practicable, personal fall protection as assessed by the competent person; harness/inertia reel as last resort.
 - Scaffold collapse — design by competent person to TG20:21 or individual design by engineer; loading bay design calculations; tie pattern per design.
 - CISRS card (minimum Scaffold Operative Part 1) for all erectors; Supervisor (Advanced) required for complex/bespoke.
 - Handover inspection by competent person; Scafftag / handover certificate issued; no use before handover.
@@ -219,7 +221,7 @@ LEGISLATION:
 - Control of Asbestos Regulations 2012 (CAR 2012)
 - Control of Lead at Work Regulations 2002
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Asbestos survey (CAR 2012 Reg 5) BEFORE any demolition or intrusive work — Type 3 (destructive) survey required.
 - Licensed vs non-licensed determination — licensed (notifiable): AIB, sprayed coatings, lagging; 14-day HSE notification for licensed works; Air Monitoring by UKAS laboratory.
 - Non-licensed notifiable (NNLW): floor tiles, rope seals, certain textured coatings — Notification to employer/site manager; HSS medical surveillance; PHR records kept 40 years.
@@ -237,8 +239,8 @@ LEGISLATION:
 - NASC SG(P)23:13 (roofing and scaffolding)
 - ACR[M]001 (fragile roofs — Avoidance of a Construction Risk)
 
-MUST include:
-- Fall from roof edge — edge protection to BS EN 13374 Class A (slope <10°) or Class B/C for steeper pitches; minimum 0.95m guard rail, intermediate guard rail, toe board.
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
+- Fall from roof edge — Appropriate edge protection for the pitch and working conditions as assessed by the competent person; options may include scaffolding with guard rails/toe boards, safety netting, or personal fall arrest (harness + anchor); in compliance with BS EN 13374 and WAH 2005 hierarchy.
 - Fragile surfaces — ACR TR57 category assessment; only access via crawl boards or roof ladders; assume ALL rooflights fragile; covers or barriers at all rooflights.
 - Safety netting — BS EN 1263-1/2; installed by FASET certified rigger; maximum fall distance calculation confirmed; netting inspection record.
 - Fall arrest anchors — BS EN 795 Class B (structural anchors) for pitched roofs; engineer or manufacturer load certification; inertia reel to BS EN 360.
@@ -251,8 +253,8 @@ HAVS: grinder/disc cutter vibration — monitor daily exposure; job rotation; HA
 === BUILDING & BRICKWORK ===
 Trigger keywords: brickwork, blockwork, masonry, brick, block, mortar, pointing, DPC, damp proof, lintel, structural, concrete block, aerated block, dense block
 
-MUST include:
-- Silica dust (RCS from cutting blocks/bricks) — COSHH WEL 0.1mg/m³ (8hr TWA); wet cutting preferred; LEV extraction or RPE FFP3 face-fit tested; no dry sweeping; dilution ventilation.
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
+- Silica dust (RCS from cutting blocks/bricks) — Appropriate dust control ensuring COSHH WEL (0.1mg/m³ 8hr TWA) is not exceeded; options include wet suppression, on-tool LEV, RPE, or dilution ventilation as selected by the competent person; no dry sweeping.
 - Cement dermatitis (chromate-6 sensitivity) — COSHH; waterproof gloves; barrier cream before work; after-work cream; replace wet gloves promptly.
 - Manual handling of blocks (dense concrete 20kg+) — MHOR 1992 assessment; team lifts; mechanical assist (forklift/pallet); limit individual lift to 25kg where practical.
 - HAVS from angle grinder/SDS hammer — vibration levels per manufacturer; daily exposure below EAV (2.5m/s²); records maintained.
@@ -263,7 +265,7 @@ MUST include:
 === BEAM & BLOCK / SUSPENDED FLOORS ===
 Trigger keywords: beam and block, beam & block, jetfloor, suspended floor, precast floor, prestressed beam, infill block, floor insulation, DPM, screed, floor system
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Lifting precast beams — LOLER 1998; lift plan before commencement; SWL of lifting accessory (chains/slings) confirmed; Slinger/Signaller (CPCS A40B) required; excavator/crane SWL not exceeded; exclusion zone during all lifts.
 - Manual handling of infill blocks — MHOR 1992; 25kg maximum individual lift; mechanical delivery to workface.
 - Working at open floor edges — WAH 2005; perimeter guard rail before placing blocks; temporary edge protection maintained at all open sides during installation.
@@ -280,7 +282,7 @@ LEGISLATION:
 - Hazardous Waste Regulations 2005 (if contaminated)
 - Environmental Permitting (England and Wales) Regulations 2016
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Duty of Care — all waste producers have a statutory duty to ensure waste is managed lawfully. Keep Waste Transfer Notes (WTN) for minimum 2 years; Consignment Notes for hazardous waste minimum 3 years.
 - Waste Carrier licence — verify all hauliers hold a current Environment Agency waste carrier registration (Tier 2 for regular commercial waste); check online register.
 - Contaminated material — if ground investigation indicates contamination, commission waste profiling/characterisation before removal; hazardous waste consignment notes required; disposal at licensed hazardous waste facility.
@@ -297,7 +299,7 @@ LEGISLATION:
 - HSE guidance note PM45 (Portable abrasive wheels)
 - BS EN ISO 6344 (abrasive products)
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Appointed Person — only operatives appointed and trained under PUWER Reg 9 may mount, dress, and change abrasive wheels/discs. Record of appointment held on site.
 - Pre-use inspection — ring test (metallic ring = pass; dull thud = discard); check for chips, cracks, clogging; max permissible speed (MPS) on wheel must equal or exceed machine RPM.
 - Guards — must be fitted before use; never remove; tool rest max 3mm gap from wheel face; only exposed surface necessary for the task.
@@ -306,6 +308,7 @@ MUST include:
 - Petrol saws — refuel in designated bunded area with drip tray; no refuelling near ignition sources; place in drip tray when in use; COSHH for exhaust fumes — operate in ventilated area.
 - Kickback hazard — firm two-handed grip; stable surface; body not in line with disc plane.
 - Vibration — monitor daily exposure; job rotation; HAVScan or equivalent records.
+- Slurry and debris containment — wet cutting produces contaminated slurry; use appropriate containment (spill trays, bunded work area, or absorbent materials) to prevent slurry or swarf entering surface water drains or contaminating ground (EPA 1990 s34).
 
 === BANKSMAN / SLINGER & SIGNALLER ===
 Trigger keywords: banksman, slinger, signaller, lifting operations, slinging, rigging, crane, excavator lifting, telehandler, forklift, load, sling, chain, shackle, lifting accessories
@@ -315,7 +318,7 @@ LEGISLATION:
 - BS 7121 series (Code of practice for safe use of cranes)
 - PUWER 1998
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - CPCS A40B (Slinger/Signaller) card required for all slingers and signallers; no unqualified person to direct lifting operations.
 - Lift plan — all non-routine lifts require a written lift plan (LOLER Reg 8): load weight confirmed; radius; SWL at that radius; ground bearing; exclusion zone radius.
 - Pre-lift checks: lifting accessories (slings, chains, shackles) inspected and within thorough examination date (LOLER Reg 10 — 6-monthly for accessories used for persons, 12-monthly otherwise); colour-coded inspection tags current; SWL marked.
@@ -328,7 +331,7 @@ MUST include:
 === LANDSCAPING & SOFT WORKS ===
 Trigger keywords: landscaping, topsoil, seeding, turfing, planting, trees, shrubs, play area, LEAP, LAP, boundary wall, screen wall, pedestrian walkway, topsoil spread, grading, soft works
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Manual handling — topsoil bags (typically 25–850kg); MHOR assessment; mechanical handling preferred; maintain neutral spine posture; team lifts for sacks >25kg.
 - Pesticides/herbicides — COSHH assessment; PA1 + PA6 sprayer certificate for all pesticide users (BASIS registered pesticide adviser recommended); spray in calm conditions only (wind speed <5.5m/s = Beaufort 3); avoid spraying near watercourses.
 - UXO awareness — if site in known UXO risk area (ex-military, WWII bombing record), suspend work and notify supervisor if any unusual object found; do not disturb.
@@ -364,7 +367,7 @@ LEGISLATION:
 - Pressure Systems Safety Regulations 2000 (PSSR — unvented hot water systems)
 - ACOP L8 (Control of Legionella bacteria)
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Unvented hot water systems (G3) — must be installed and commissioned by an operative holding a current G3 Unvented Hot Water qualification (e.g. City & Guilds 6035); discharge pipe routed to safe visible location; expansion vessel sized by calculation; pressure relief valve (PRV) tested and clearly visible; temperature controlled to 60°C minimum.
 - Legionella — any water system with stored hot water below 60°C or cold water above 20°C is at risk; L8 ACOP assessment required; system design to minimise dead legs and stored water volumes; disinfection before commission to BS 8558.
 - WRAS compliance — all fittings, pipework, and valves in contact with drinking water must be WRAS approved or be of an equivalent standard; no lead solder (prohibited since Water Act 1987); check copper fittings carry Water Mark.
@@ -382,7 +385,7 @@ LEGISLATION:
 - ACOP L8 (Legionella — cooling towers, evaporative condensers)
 - BESA TR17 (Cleanliness of ventilation systems)
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Refrigerant handling — F-Gas Regulations: all handling of fluorinated greenhouse gases by F-Gas qualified operatives (City & Guilds 2079 or equivalent); no deliberate release to atmosphere (criminal offence); leak check records maintained; F-Gas log book for systems >3kg refrigerant charge.
 - Pressurised pipework — PSSR 2000; pressure test to 1.5× MWP; Written Scheme of Examination for installed pressure systems >250mbar gauge; Competent Person (CP) examination.
 - Legionella risk — cooling towers must be registered with LA (Control of Legionella etc. in Premises regulations); Responsible Person appointed; risk assessment; treatment regime records.
@@ -399,11 +402,11 @@ LEGISLATION:
 - Building Regulations 2010 Part E (Resistance to Sound)
 - Building Safety Act 2022 (Higher-Risk Buildings ≥18m or 7+ storeys)
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Fire door installation — doors must be certified to BS EN 16034 and BS 476 Part 22 (FD30/FD60); certified frame, seals, hinges, closer, and hardware — all must be from the tested system; installer must be third-party certified (FIRAS, BM TRADA Q-Mark, or DHF TS004 trained); completion certificate retained.
 - Fire stopping / passive fire protection — all service penetrations through compartment walls/floors must be fire-stopped with an EN 1366-tested, third-party certified system; complete record (drawings, product certs) retained for Building Safety Act (BSA) golden thread.
 - Acoustic partitioning — Building Regs Part E compliance; pre-completion sound tests by UKAS laboratory; mineral wool acoustic fill continuous from floor to soffit; no gaps around service penetrations; resilient bars/staggered studs where required.
-- Silica dust — dry cutting of plasterboard and screed contains RCS; wet cutting or scored-and-snapped preferred; RPE FFP2 minimum.
+- Silica dust — Appropriate dust control for cutting operations; scored-and-snapped where feasible to avoid cutting entirely; if cutting is required, appropriate suppression method (wet, LEV, or RPE) selected by competent person (COSHH 2002).
 - Manual handling — plasterboard sheets (1.8m × 2.4m = ~25kg); team lifts; panel carriers; lift vertically from ground.
 - Screed — cement COSHH (dermatitis); waterproof gloves; minimum drying time before floor coverings per manufacturer (typically 1 day per mm depth).
 - Raised access flooring — trip hazard at cut edges; panels correctly locked; no overloading panels beyond rated SWL; fall into underfloor void if panel removed — guard opening.
@@ -412,9 +415,9 @@ MUST include:
 === PRIVATE EXTERNAL WORKS ===
 Trigger keywords: block paving, driveways, parking, private footpath, patio, paving slab, resin, shingle, tarmac drive, temporary tarmac
 
-MUST include:
+Key hazards to identify and address (write all controls per Rule 24 — principle + options, method decided by competent person on site):
 - Wacker plate / plate compactor HAVS — vibration emission values from manufacturer; daily exposure limit (EAV 2.5m/s²) calculated; job rotation; HAVScan records.
-- Silica dust from block/slab cutting — wet cutting; RPE FFP3; ear protection from disc cutter.
+- Silica dust from cutting — Appropriate dust control (wet suppression, on-tool LEV, or RPE) and hearing protection; method and RPE grade selected by competent person based on material and exposure duration (COSHH 2002).
 - Manual handling of slabs/blocks — MHOR; use slab carriers / suction lifters; team lifts for large slabs >20kg.
 - Trip hazard during installation — pedestrian barriers; signage; cover open areas at end of shift.
 - Contamination of adjacent watercourses from cement/concrete wash-out — designated washout area away from drains; contain run-off.
@@ -457,6 +460,9 @@ INTELLIGENCE RULES:
 21. excavation_depth_m: if this field is present and is a number, use it as the AUTHORITATIVE excavation depth throughout the document. Do NOT derive or override the depth by parsing the activity text or scope description — the user has confirmed this value. Reference it in method steps and confined-space triggers. If it is absent or zero, you may infer depth from context but must not fabricate a specific number.
 22. confined_space_entry: if this field is true, you MUST include the full confined-space hazard rows, atmospheric monitoring requirements, standby person, non-entry rescue plan, and confined_space_rescue emergency procedure — regardless of whether excavation depth is above 1.2m. Do NOT omit these sections when confined_space_entry is true.
 23. Cite relevant legislation abbreviation inline in control_measures strings where helpful (e.g. "COSHH 2002", "WAH 2005", "CDM r.22") rather than relying on a separate legislation table.
+24. CONTROL MEASURE WRITING STYLE — Write every control measure as a risk-management principle, not a prescribed method. State WHAT must be controlled; offer options where alternatives legitimately exist; defer the specific method to the competent person on site. Use language such as: "Appropriate [protection type] as assessed by the competent person before works commence, which may include [option A], [option B], or [option C] depending on ground/site conditions." Do NOT mandate a single method where alternatives exist (e.g. do not say "install a trench box" — say "appropriate excavation support as assessed by the competent person, which may include a trench box, hydraulic shoring, battered/benched sides, or reduced face, depending on ground conditions"). Legislation and standards set the required standard of protection; the operative method remains at the competent person's discretion.
+25. ACTIVITY RELEVANCE — Every control measure must be directly relevant to the specific task described. Do not include hazards unrelated to the activity. If the activity involves cutting or grinding: always address (a) appropriate dust control for the material — wet suppression, LEV extraction, or RPE as selected by the competent person; (b) RPE grade appropriate to exposure level and material; (c) spill and contamination containment — slurry, swarf, and debris must not enter surface water drains or contaminate the ground; appropriate containment (spill trays, bunded area, absorbent granules) to be determined by the competent person. If the activity involves excavation: always address ground stability, buried services, plant/pedestrian separation, and groundwater — state the hazard and protection principle with options, not a single prescribed method.
+26. PROACTIVE HAZARD IDENTIFICATION — Based on the activity and site context, proactively include risk assessment rows for adjacent or consequential hazards that are not in selected_trades but are logically implied. Examples: (a) Excavation near a road or footway → include traffic management / plant-pedestrian conflict even if not selected; (b) Drainage works involving manholes or chambers → trigger confined space assessment proactively; (c) Any cutting, grinding, or power-tool work → include noise impact on neighbours/public and dust migration beyond the immediate work area; (d) Demolition, strip-out, or intrusive work on existing structures → confirm asbestos survey has been completed (CAR 2012 Reg 5) — raise as a prerequisite control even if asbestos is not in selected_trades; (e) Lifting operations near public areas or shared site roads → public exclusion zone and marshal; (f) Working at height → falling objects risk to people below, not just the operative falling; (g) Any below-ground or excavation work → groundwater ingress, flooding risk, and potential gas migration; (h) Working in occupied premises or live environments → public/occupant protection, dust and noise impact on occupants, out-of-hours communication. These proactive rows must have realistic pre/post risk scores and controls written in Rule 24 style.
 
 ---
 
@@ -498,8 +504,8 @@ Return a single JSON object only. No preamble. No explanation. No markdown. Raw 
       "risk_score_pre": 12,
       "risk_level_pre": "Medium",
       "control_measures": [
-        "Specific control measure with named standard or regulation where applicable",
-        "Second control measure",
+        "Principle-based control: what risk is managed + options the competent person may choose from + applicable standard/regulation",
+        "Second control measure (same style — principle and options, not a single mandated method)",
         "Third control measure"
       ],
       "likelihood_post": 2,
